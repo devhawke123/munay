@@ -4,22 +4,20 @@ const products = [
   { name: "Oversized Coat", sold: "392 sold" },
 ];
 
-function BestSellers() {
+export function BestSellers() {
   return (
-    <div className="bg-white border border-[#E8E6E1] rounded-xl p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
+    <div className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-xl border border-[#E8E6E1] bg-white p-3">
+      <div className="mb-1.5 flex items-center justify-between">
         <h3 className="text-sm font-bold text-gray-900">Best Sellers</h3>
         <a href="#" className="text-xs font-medium text-[#8B5A2B]">
           All →
         </a>
       </div>
 
-      {/* List */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1">
         {products.map((product, index) => (
           <div key={index} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center flex-shrink-0">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF]">
               <span className="text-xs">🧥</span>
             </div>
             <div>
@@ -32,5 +30,3 @@ function BestSellers() {
     </div>
   );
 }
-
-export default BestSellers;

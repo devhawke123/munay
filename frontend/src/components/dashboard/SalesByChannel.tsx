@@ -6,27 +6,25 @@ const data = [
   { name: "Others", value: 10, color: "#F3E4D0" },
 ];
 
-function SalesByChannel() {
+export function SalesByChannel() {
   return (
-    <div className="bg-white border border-[#E8E6E1] rounded-xl p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-[#E8E6E1] bg-white p-3">
+      <div className="mb-2 flex shrink-0 items-center justify-between">
         <h3 className="text-sm font-bold text-gray-900">Sales by Channel</h3>
         <a href="#" className="text-xs font-medium text-[#8B5A2B]">
           View All →
         </a>
       </div>
 
-      {/* Chart + Legend */}
-      <div className="flex items-center gap-4">
-        <div className="w-24 h-24">
+      <div className="flex min-h-0 flex-1 items-center gap-3">
+        <div className="h-20 w-20 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}
                 dataKey="value"
-                innerRadius={30}
-                outerRadius={45}
+                innerRadius={24}
+                outerRadius={36}
                 startAngle={90}
                 endAngle={-270}
               >
@@ -38,12 +36,11 @@ function SalesByChannel() {
           </ResponsiveContainer>
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           {data.map((entry) => (
             <div key={entry.name} className="flex items-center gap-2 text-xs">
               <span
-                className="w-2 h-2 rounded-full"
+                className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
               ></span>
               <span className="text-gray-600">{entry.name}</span>
@@ -55,5 +52,3 @@ function SalesByChannel() {
     </div>
   );
 }
-
-export default SalesByChannel;
