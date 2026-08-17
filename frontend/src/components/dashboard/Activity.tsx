@@ -1,12 +1,6 @@
-import { ShoppingBag, User, Package, CreditCard, UserPlus, type LucideIcon } from "lucide-react";
+import { ShoppingBag, User, Package, CreditCard, UserPlus } from "lucide-react";
 
-const activities: {
-  icon: LucideIcon;
-  text: string;
-  time: string;
-  bg: string;
-  color: string;
-}[] = [
+const activities = [
   {
     icon: ShoppingBag,
     text: "New order #12345 received",
@@ -46,25 +40,27 @@ const activities: {
 
 export function Activity() {
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-[#E8E6E1] bg-white p-3">
-      <div className="mb-2 flex shrink-0 items-center justify-between">
+    <div className="bg-white border border-[#E8E6E1] rounded-xl p-4 min-h-[370px]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-gray-900">Activity</h3>
         <a href="#" className="text-xs font-medium text-[#8B5A2B]">
           All →
         </a>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col justify-between">
+      {/* List */}
+      <div className="flex flex-col justify-between h-[250px]">
         {activities.map((activity, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={index} className="flex items-center gap-3">
             <div
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${activity.bg}`}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center ${activity.bg}`}
             >
-              <activity.icon size={13} className={activity.color} />
+              <activity.icon size={14} className={activity.color} />
             </div>
-            <div className="min-w-0">
-              <p className="truncate text-xs text-gray-800">{activity.text}</p>
-              <p className="text-[10px] text-gray-400">{activity.time}</p>
+            <div>
+              <p className="text-sm text-gray-800">{activity.text}</p>
+              <p className="text-xs text-gray-400">{activity.time}</p>
             </div>
           </div>
         ))}

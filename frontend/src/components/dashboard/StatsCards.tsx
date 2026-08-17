@@ -1,26 +1,48 @@
-import { DollarSign, ShoppingBag, FileText, Users, Box, type LucideIcon } from "lucide-react";
-
-const stats: { label: string; value: string; icon: LucideIcon }[] = [
-  { label: "Total Revenue", value: "$125,430", icon: DollarSign },
-  { label: "Today's Sales", value: "$8,645", icon: ShoppingBag },
-  { label: "Total Orders", value: "$125,430", icon: FileText },
-  { label: "Customers", value: "$125,430", icon: Users },
-  { label: "Active Products", value: "$125,430", icon: Box },
-];
+import { DollarSign, ShoppingBag, FileText, Users, Box } from "lucide-react";
 
 export function StatsCards() {
+  const stats = [
+    {
+      label: "Total Revenue",
+      value: "$125,430",
+      icon: DollarSign,
+    },
+    {
+      label: "Today's Sales",
+      value: "$8,645",
+      icon: ShoppingBag,
+    },
+    {
+      label: "Total Orders",
+      value: "$125,430",
+      icon: FileText,
+    },
+    {
+      label: "Customers",
+      value: "$125,430",
+      icon: Users,
+    },
+    {
+      label: "Active Products",
+      value: "$125,430",
+      icon: Box,
+    },
+  ];
+
   return (
-    <div className="grid shrink-0 grid-cols-5 gap-3">
+    <div className="grid grid-cols-5 gap-3 mb-5">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="rounded-xl border border-[#E8E6E1] bg-white px-3 py-2"
+          className="bg-white border border-[#E8E6E1] rounded-xl p-2.5"
         >
-          <div className="mb-1 flex h-6 w-6 items-center justify-center rounded-lg bg-[#F3E4D0]">
+          <div className="w-6 h-6 rounded-lg bg-[#F3E4D0] flex items-center justify-center mb-1.5">
             <stat.icon size={13} className="text-[#8B5A2B]" />
           </div>
-          <p className="text-xs text-gray-500">{stat.label}</p>
-          <p className="text-sm font-semibold text-gray-900">{stat.value}</p>
+          <p className="text-xs text-gray-500 mb-0.5">{stat.label}</p>
+          <p className="text-base font-semibold text-gray-900">
+            {stat.value}
+          </p>
         </div>
       ))}
     </div>

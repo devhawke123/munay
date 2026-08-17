@@ -12,25 +12,25 @@ import { BestSellers } from "../components/dashboard/BestSellers";
 export function Dashboard() {
   return (
     <AdminLayout>
-      <div className="flex h-full min-h-0 flex-col gap-3">
-        <WelcomeBanner />
-        <StatsCards />
-        <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
-          <div className="flex min-h-0 flex-col gap-3">
-            <SalesOverview />
-            <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
-              <Activity />
-              <div className="flex min-h-0 flex-col gap-3">
-                <InventoryAlert />
-                <SalesByChannel />
-              </div>
+      <WelcomeBanner />
+      <StatsCards />
+      <div className="grid grid-cols-[1fr_1fr] gap-5 items-start">
+        {/* Left column: Sales Overview + Activity row stacked */}
+        <div className="flex flex-col gap-3">
+          <SalesOverview />
+          <div className="grid grid-cols-2 gap-3 items-start">
+            <Activity />
+            <div className="flex flex-col gap-3">
+              <InventoryAlert />
+              <SalesByChannel />
             </div>
           </div>
-          <div className="flex min-h-0 flex-col gap-3">
-            <RecentOrders />
-            <QuickActions />
-            <BestSellers />
-          </div>
+        </div>
+        {/* Right column: Recent Orders + Quick Actions + Best Sellers stacked */}
+        <div className="flex flex-col gap-3">
+          <RecentOrders />
+          <QuickActions />
+          <BestSellers />
         </div>
       </div>
     </AdminLayout>

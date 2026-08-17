@@ -1,6 +1,6 @@
-import { PackagePlus, BarChart2, Tag, ShoppingCart, FileText, type LucideIcon } from "lucide-react";
+import { PackagePlus, BarChart2, Tag, ShoppingCart, FileText } from "lucide-react";
 
-const actions: { label: string; icon: LucideIcon }[] = [
+const actions = [
   { label: "Add Product", icon: PackagePlus },
   { label: "Analytics", icon: BarChart2 },
   { label: "Category", icon: Tag },
@@ -10,17 +10,17 @@ const actions: { label: string; icon: LucideIcon }[] = [
 
 export function QuickActions() {
   return (
-    <div className="shrink-0 rounded-xl border border-[#E8E6E1] bg-white p-3">
-      <h3 className="mb-2 text-sm font-bold text-gray-900">Quick Actions</h3>
+    <div className="bg-white border border-[#E8E6E1] rounded-xl p-4 -ml-4">
+      <h3 className="text-sm font-bold text-gray-900 mb-4">Quick Actions</h3>
 
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-3">
         {actions.map((action) => (
           <button
             key={action.label}
-            className="flex flex-col items-center justify-center gap-1 rounded-lg bg-[#FDF4E7] py-2 transition-colors hover:bg-[#F3E4D0]"
+            className="flex flex-col items-center justify-center gap-2 bg-[#FDF4E7] rounded-lg py-4 hover:bg-[#F3E4D0] transition-colors"
           >
-            <action.icon size={16} className="text-[#7C3F20]" />
-            <span className="text-center text-[11px] font-medium text-gray-700">
+            <action.icon size={18} className="text-[#7C3F20]" />
+            <span className="text-xs font-medium text-gray-700 text-center">
               {action.label}
             </span>
           </button>
