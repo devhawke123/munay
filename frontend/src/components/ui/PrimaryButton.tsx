@@ -16,7 +16,7 @@ export function PrimaryButton({
   return (
     <button
       type={type}
-      className={`inline-flex h-[47px] items-center rounded-[7px] bg-[#936531] py-3 pl-[25px] pr-[38px] text-base font-semibold text-white ${className}`}
+      className={`inline-flex h-[47px] items-center rounded-[7px] bg-button-brand py-3 pl-[25px] pr-[38px] text-base font-semibold text-white ${className}`}
     >
       {icon ? <span className="mr-1.5 shrink-0">{icon}</span> : null}
       <span className="whitespace-nowrap leading-none">{children}</span>

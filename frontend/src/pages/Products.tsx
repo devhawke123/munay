@@ -7,7 +7,6 @@ import {
   PackageMinus,
   PackageX,
   List,
-  Wallet,
   Search,
 } from "lucide-react";
 import { AdminLayout } from "../components/layout/AdminLayout";
@@ -19,7 +18,7 @@ const stats = [
     label: "Total Products",
     value: "248",
     icon: Box,
-    iconBg: "bg-[#f4ece0]",
+    iconBg: "bg-tint-brand",
     iconColor: "text-brand",
     valueColor: "text-brand-dark",
   },
@@ -27,7 +26,7 @@ const stats = [
     label: "Active Products",
     value: "186",
     icon: PackageCheck,
-    iconBg: "bg-[#ecffd6]",
+    iconBg: "bg-tint-success",
     iconColor: "text-success",
     valueColor: "text-success",
   },
@@ -35,7 +34,7 @@ const stats = [
     label: "Low Stock",
     value: "12",
     icon: PackageMinus,
-    iconBg: "bg-[#ffd0d0]",
+    iconBg: "bg-tint-danger",
     iconColor: "text-danger",
     valueColor: "text-danger",
   },
@@ -43,7 +42,7 @@ const stats = [
     label: "Out of Stock",
     value: "8",
     icon: PackageX,
-    iconBg: "bg-[#f4ece0]",
+    iconBg: "bg-tint-brand",
     iconColor: "text-warning",
     valueColor: "text-warning",
   },
@@ -110,7 +109,7 @@ const products = [
 
 function FilterButton({ label }: { label: string }) {
   return (
-    <button className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-[#fbf7f5] px-4 text-xs text-text-primary">
+    <button className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-surface-muted px-4 text-xs text-text-primary">
       <span>{label}</span>
       <ChevronDown size={14} className="text-text-muted" />
     </button>
@@ -123,7 +122,7 @@ export function Products() {
       <div className="flex flex-col gap-[38px]">
         <div className="flex items-start justify-between">
           <div className="w-[384px]">
-            <h1 className="text-2xl font-bold text-[#22252e]">Products</h1>
+            <h1 className="text-2xl font-bold text-ink">Products</h1>
             <p className="text-[15px] font-medium text-brand-dark">
               Manage and organize all your store products.
             </p>
@@ -144,7 +143,6 @@ export function Products() {
               iconBgClassName={stat.iconBg}
               iconClassName={stat.iconColor}
               valueClassName={stat.valueColor}
-              compact
             />
           ))}
         </div>
@@ -152,7 +150,7 @@ export function Products() {
         <div className="rounded-[7px] bg-white px-[14px] pb-9 pt-[17px]">
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-[11px]">
-            <div className="flex h-[37px] w-[285px] items-center gap-2 rounded-[10px] border border-brand/10 bg-[#fbf7f5] px-[14px]">
+            <div className="flex h-[37px] w-[285px] items-center gap-2 rounded-[10px] border border-brand/10 bg-surface-muted px-[14px]">
               <Search size={13} className="text-text-muted" />
               <span className="text-[13px] text-text-primary/50">
                 Search products...
@@ -162,17 +160,17 @@ export function Products() {
             <FilterButton label="All Statuses" />
           </div>
 
-          <div className="flex w-[89px] items-start gap-[9px] rounded-[9px] bg-[#eae0d2] p-[3px]">
-            <button className="flex h-8 flex-1 items-center justify-center rounded-[7px] bg-white text-[#464646] shadow-[0_1px_2px_rgba(26,13,5,0.08)]">
+          <div className="flex w-[89px] items-start gap-[9px] rounded-[9px] bg-surface-tan p-[3px]">
+            <button className="flex h-8 flex-1 items-center justify-center rounded-[7px] bg-white text-ink-soft shadow-[0_1px_2px_rgba(26,13,5,0.08)]">
               <List size={18} />
             </button>
-            <button className="flex h-8 w-[35px] items-center justify-center rounded-[7px] text-[#464646]">
+            <button className="flex h-8 w-[35px] items-center justify-center rounded-[7px] text-ink-soft">
               <Grid2x2 size={16} />
             </button>
           </div>
         </div>
 
-        <div className="mt-[18px] rounded bg-[#fbf7f5] px-[22px] py-3">
+        <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
           <div className="grid grid-cols-[190px_80px_185px_74px_48px_48px_76px_84px_60px] items-center text-base text-text-primary/70">
             <div>Product</div>
             <div>SKU</div>
@@ -201,7 +199,7 @@ export function Products() {
                 </span>
               </div>
 
-              <div className="flex h-[23px] w-[52px] items-center justify-center rounded-[6px] bg-[#eae0d2] font-mono text-[11px] font-medium text-brand">
+              <div className="flex h-[23px] w-[52px] items-center justify-center rounded-[6px] bg-surface-tan font-mono text-[11px] font-medium text-brand">
                 {product.sku}
               </div>
 

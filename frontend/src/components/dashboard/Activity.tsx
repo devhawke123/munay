@@ -33,8 +33,8 @@ const activities = [
     icon: UserPlus,
     text: "New customer registered",
     time: "3 hours ago",
-    bg: "bg-[#7C3AED]/[0.07]",
-    color: "text-[#7C3AED]",
+    bg: "bg-accent-purple/[0.07]",
+    color: "text-accent-purple",
   },
 ];
 

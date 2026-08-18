@@ -50,7 +50,7 @@ export function Sidebar() {
       </div>
 
       {/* Logout Button */}
-      <button className="flex items-center gap-3 px-4 py-2.5 rounded-card text-sm font-medium bg-[#1A1A1A] text-white hover:bg-gray-800 transition-colors">
+      <button className="flex items-center gap-3 px-4 py-2.5 rounded-card text-sm font-medium bg-charcoal text-white hover:bg-gray-800 transition-colors">
         <LogOut size={18} />
         Log Out
       </button>

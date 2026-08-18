@@ -38,7 +38,6 @@ export function StatsCards() {
           label={stat.label}
           value={stat.value}
           icon={stat.icon}
-          compact
         />
       ))}
     </div>
