@@ -1,17 +1,9 @@
-import {
-  Box,
-  ChevronDown,
-  Ellipsis,
-  Grid2x2,
-  PackageCheck,
-  PackageMinus,
-  PackageX,
-  List,
-  Search,
-} from "lucide-react";
+import {  Box,  ChevronDown,  Ellipsis,  Grid2x2,  PackageCheck,  PackageMinus,  PackageX,  List,  Search,} from "lucide-react";
+import { Link } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatCard } from "../components/ui/StatCard";
+import { useProducts } from "../context/ProductsContext";
 
 const stats = [
   {
@@ -49,64 +41,6 @@ const stats = [
 
 ];
 
-const products = [
-  {
-    name: "Linen Shirt",
-    sku: "LS-001",
-    category: "Women",
-    subcategory: "Shawls / Scarfs",
-    price: "$89.00",
-    stock: "145",
-    sold: "512",
-    revenue: "$18,450",
-    status: "Active",
-  },
-  {
-    name: "Linen Shirt",
-    sku: "LS-001",
-    category: "Women",
-    subcategory: "Shawls / Scarfs",
-    price: "$89.00",
-    stock: "145",
-    sold: "512",
-    revenue: "$18,450",
-    status: "Active",
-  },
-  {
-    name: "Linen Shirt",
-    sku: "LS-001",
-    category: "Women",
-    subcategory: "Shawls / Scarfs",
-    price: "$89.00",
-    stock: "145",
-    sold: "512",
-    revenue: "$18,450",
-    status: "Active",
-  },
-  {
-    name: "Linen Shirt",
-    sku: "LS-001",
-    category: "Women",
-    subcategory: "Shawls / Scarfs",
-    price: "$89.00",
-    stock: "145",
-    sold: "512",
-    revenue: "$18,450",
-    status: "Active",
-  },
-  {
-    name: "Linen Shirt",
-    sku: "LS-001",
-    category: "Women",
-    subcategory: "Shawls / Scarfs",
-    price: "$89.00",
-    stock: "145",
-    sold: "512",
-    revenue: "$18,450",
-    status: "Active",
-  },
-];
-
 function FilterButton({ label }: { label: string }) {
   return (
     <button className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-surface-muted px-4 text-xs text-text-primary">
@@ -117,6 +51,8 @@ function FilterButton({ label }: { label: string }) {
 }
 
 export function Products() {
+  const { products } = useProducts();
+
   return (
     <AdminLayout>
       <div className="flex flex-col gap-[38px]">
@@ -128,9 +64,9 @@ export function Products() {
             </p>
           </div>
 
-          <PrimaryButton className="w-[162px]">
-            + Add Product
-          </PrimaryButton>
+          <Link to="/admin/products/new">
+            <PrimaryButton className="w-[162px]">+ Add Product</PrimaryButton>
+          </Link>
         </div>
 
         <div className="grid grid-cols-5 gap-[10px]">
@@ -160,14 +96,7 @@ export function Products() {
             <FilterButton label="All Statuses" />
           </div>
 
-          <div className="flex w-[89px] items-start gap-[9px] rounded-[9px] bg-surface-tan p-[3px]">
-            <button className="flex h-8 flex-1 items-center justify-center rounded-[7px] bg-white text-ink-soft shadow-[0_1px_2px_rgba(26,13,5,0.08)]">
-              <List size={18} />
-            </button>
-            <button className="flex h-8 w-[35px] items-center justify-center rounded-[7px] text-ink-soft">
-              <Grid2x2 size={16} />
-            </button>
-          </div>
+          
         </div>
 
         <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
