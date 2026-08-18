@@ -1,4 +1,5 @@
 import { DollarSign, ShoppingBag, FileText, Users, Box } from "lucide-react";
+import { StatCard } from "../ui/StatCard";
 
 export function StatsCards() {
   const stats = [
@@ -30,20 +31,15 @@ export function StatsCards() {
   ];
 
   return (
-    <div className="grid grid-cols-5 gap-3 mb-5">
+    <div className="grid grid-cols-5 gap-2.5">
       {stats.map((stat) => (
-        <div
+        <StatCard
           key={stat.label}
-          className="bg-white border border-[#E8E6E1] rounded-xl p-2.5"
-        >
-          <div className="w-6 h-6 rounded-lg bg-[#F3E4D0] flex items-center justify-center mb-1.5">
-            <stat.icon size={13} className="text-[#8B5A2B]" />
-          </div>
-          <p className="text-xs text-gray-500 mb-0.5">{stat.label}</p>
-          <p className="text-base font-semibold text-gray-900">
-            {stat.value}
-          </p>
-        </div>
+          label={stat.label}
+          value={stat.value}
+          icon={stat.icon}
+          compact
+        />
       ))}
     </div>
   );

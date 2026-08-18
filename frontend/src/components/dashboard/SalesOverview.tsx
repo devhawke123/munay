@@ -24,34 +24,34 @@ export function SalesOverview() {
   const tabs = ["Daily", "Weekly", "Monthly", "Yearly"];
 
   return (
-    <div className="bg-white border border-[#E8E6E1] rounded-xl p-5 max-w-[97%]">
+    <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
       {/* Header row */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold text-gray-900">Sales Overview</h3>
+        <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Sales Overview</h3>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-4 text-xs text-text-muted">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#8B5A2B]"></span>
+            <span className="w-2 h-2 rounded-full bg-brand"></span>
             Revenue
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#F3E4D0]"></span>
+            <span className="w-2 h-2 rounded-full bg-brand-soft"></span>
             Orders
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-[#F7F7F8] rounded-lg p-1 w-fit mb-2">
+      <div className="flex items-center gap-1 bg-brand-bg rounded-panel p-1 w-fit m-4">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-display font-medium transition-colors ${
               activeTab === tab
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500"
+                ? "bg-white text-text-primary shadow-card"
+                : "text-text-muted"
             }`}
           >
             {tab}
@@ -60,20 +60,20 @@ export function SalesOverview() {
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={150}>
+      <ResponsiveContainer width="100%" height={215}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
           <XAxis
             dataKey="day"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "#9CA3AF" }}
+            tick={{ fontSize: 12, fill: "#9CA3AF" }}
           />
           <YAxis
             yAxisId="left"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "#9CA3AF" }}
+            tick={{ fontSize: 12, fill: "#9CA3AF" }}
             tickFormatter={(val: number) => `$${val / 1000}K`}
           />
           <YAxis
@@ -81,7 +81,7 @@ export function SalesOverview() {
             orientation="right"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 11, fill: "#9CA3AF" }}
+            tick={{ fontSize: 12, fill: "#9CA3AF" }}
           />
           <Tooltip />
           <Line
@@ -90,7 +90,7 @@ export function SalesOverview() {
             dataKey="revenue"
             stroke="#8B5A2B"
             strokeWidth={2}
-            dot={{ r: 2, fill: "#8B5A2B" }}
+            dot={{ r: 3, fill: "#8B5A2B" }}
           />
           <Line
             yAxisId="right"
@@ -98,7 +98,7 @@ export function SalesOverview() {
             dataKey="orders"
             stroke="#F3D9B8"
             strokeWidth={2}
-            dot={{ r: 2, fill: "#F3D9B8" }}
+            dot={{ r: 3, fill: "#F3D9B8" }}
           />
         </LineChart>
       </ResponsiveContainer>

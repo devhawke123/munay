@@ -5,62 +5,62 @@ const activities = [
     icon: ShoppingBag,
     text: "New order #12345 received",
     time: "2 mins ago",
-    bg: "bg-[#FEF2F2]",
-    color: "text-[#DC2626]",
+    bg: "bg-brand-accent/[0.07]",
+    color: "text-brand-accent",
   },
   {
     icon: User,
     text: "John Smith placed an order",
     time: "15 mins ago",
-    bg: "bg-[#EFF6FF]",
-    color: "text-[#2563EB]",
+    bg: "bg-brand/[0.07]",
+    color: "text-brand",
   },
   {
     icon: Package,
     text: "'Linen Shirt' stock updated",
     time: "1 hour ago",
-    bg: "bg-[#FDF4E7]",
-    color: "text-[#8B5A2B]",
+    bg: "bg-success/[0.07]",
+    color: "text-success",
   },
   {
     icon: CreditCard,
     text: "Payment of $259.00 confirmed",
     time: "2 hours ago",
-    bg: "bg-[#F0FDF4]",
-    color: "text-[#16A34A]",
+    bg: "bg-info/[0.07]",
+    color: "text-info",
   },
   {
     icon: UserPlus,
     text: "New customer registered",
     time: "3 hours ago",
-    bg: "bg-[#F5F3FF]",
+    bg: "bg-[#7C3AED]/[0.07]",
     color: "text-[#7C3AED]",
   },
 ];
 
 export function Activity() {
   return (
-    <div className="bg-white border border-[#E8E6E1] rounded-xl p-4 min-h-[370px]">
+    <div className="bg-white border border-brand-border rounded-[14px] p-6 min-h-[370px] shadow-card">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-gray-900">Activity</h3>
-        <a href="#" className="text-xs font-medium text-[#8B5A2B]">
+        <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Activity</h3>
+        <a href="#" className="text-xs font-display font-semibold text-brand-accent">
           All →
         </a>
       </div>
 
       {/* List */}
-      <div className="flex flex-col justify-between h-[250px]">
+      <div className="flex flex-col gap-3.5">
         {activities.map((activity, index) => (
-          <div key={index} className="flex items-center gap-3">
+          <div key={index} className="flex items-start gap-2.5">
             <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center ${activity.bg}`}
+              className={`w-[30px] h-[30px] rounded-[9px] flex items-center justify-center shrink-0 ${activity.bg}`}
             >
               <activity.icon size={14} className={activity.color} />
             </div>
             <div>
-              <p className="text-sm text-gray-800">{activity.text}</p>
-              <p className="text-xs text-gray-400">{activity.time}</p>
+              <p className="text-[11.5px] font-display font-medium text-text-primary leading-tight">{activity.text}</p>
+              <p className="text-[10.5px] text-text-muted mt-0.5">{activity.time}</p>
             </div>
           </div>
         ))}

@@ -7,19 +7,19 @@ const orders = [
 ];
 
 const statusStyles: Record<string, string> = {
-  Processing: "bg-[#FEF3E2] text-[#EA580C]",
-  Shipped: "bg-[#EFF6FF] text-[#2563EB]",
-  Delivered: "bg-[#F0FDF4] text-[#16A34A]",
-  Cancelled: "bg-[#FEF2F2] text-[#DC2626]",
+  Processing: "bg-warning/10 border border-warning/20 text-warning",
+  Shipped: "bg-info/10 border border-info/15 text-info",
+  Delivered: "bg-success/10 border border-success/20 text-success",
+  Cancelled: "bg-danger/10 border border-danger/15 text-danger",
 };
 
 export function RecentOrders() {
   return (
-    <div className="bg-white border border-[#E8E6E1] rounded-xl p-6 max-w-[99%] -ml-4">
+    <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold text-gray-900">Recent Orders</h3>
-        <a href="#" className="text-xs font-medium text-[#8B5A2B]">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Recent Orders</h3>
+        <a href="#" className="text-xs font-display font-semibold text-brand-accent">
           View All →
         </a>
       </div>
@@ -27,34 +27,33 @@ export function RecentOrders() {
       {/* Table */}
       <table className="w-full text-left">
         <thead>
-          <tr className="text-xs text-gray-400">
-            <th className="font-medium pb-1.5">ORDER</th>
-            <th className="font-medium pb-1.5">CUSTOMER</th>
-            <th className="font-medium pb-1.5">ITEMS</th>
-            <th className="font-medium pb-1.5">STATUS</th>
-            <th className="font-medium pb-1.5">AMOUNT</th>
-            <th className="font-medium pb-1.5">DATE</th>
+          <tr className="text-[10px] text-text-muted uppercase tracking-widest font-display font-bold border-b border-brand/[0.08]">
+            <th className="pb-2">Order</th>
+            <th className="pb-2">Customer</th>
+            <th className="pb-2">Items</th>
+            <th className="pb-2">Status</th>
+            <th className="pb-2">Amount</th>
+            <th className="pb-2">Date</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order, index) => (
-            <tr key={index} className="text-xs border-t border-[#F0F0F0]">
-              <td className="py-2 font-medium text-[#8B5A2B]">{order.id}</td>
+            <tr key={index} className="text-xs border-b border-brand/[0.05]">
+              <td className="py-2 font-mono font-bold text-brand-accent">{order.id}</td>
               <td className="py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-700">{order.customer}</span>
-                </div>
+                <span className="font-display font-semibold text-text-primary">{order.customer}</span>
               </td>
-              <td className="py-[9px] text-gray-500">{order.items}</td>
-              <td className="py-[9px]">
+              <td className="py-2 text-text-muted">{order.items}</td>
+              <td className="py-2">
                 <span
-                  className={`px-2 py-[9px] rounded-full text-[10px] font-medium ${statusStyles[order.status]}`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold tracking-wide ${statusStyles[order.status]}`}
                 >
-                  • {order.status}
+                  <span className="w-[5px] h-[5px] rounded-sm bg-current"></span>
+                  {order.status}
                 </span>
               </td>
-              <td className="py-[9px] text-gray-700">{order.amount}</td>
-              <td className="py-[9px] text-gray-400">{order.date}</td>
+              <td className="py-2 font-display font-extrabold text-text-primary text-[10px]">{order.amount}</td>
+              <td className="py-2 text-[11px] text-text-muted">{order.date}</td>
             </tr>
           ))}
         </tbody>

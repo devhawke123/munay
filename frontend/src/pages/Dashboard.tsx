@@ -14,21 +14,21 @@ export function Dashboard() {
     <AdminLayout>
       <WelcomeBanner />
       <StatsCards />
-      <div className="grid grid-cols-[1fr_1fr] gap-5 items-start">
-        {/* Left column: Sales Overview + Activity row stacked */}
-        <div className="flex flex-col gap-3">
-          <SalesOverview />
-          <div className="grid grid-cols-2 gap-3 items-start">
-            <Activity />
-            <div className="flex flex-col gap-3">
-              <InventoryAlert />
-              <SalesByChannel />
-            </div>
-          </div>
+
+      {/* Row 2: SalesOverview + RecentOrders side by side */}
+      <div className="grid grid-cols-[1fr_1fr] gap-5 mt-3.5">
+        <SalesOverview />
+        <RecentOrders />
+      </div>
+
+      {/* Row 3: Activity | Inventory+Channel | QuickActions+BestSellers */}
+      <div className="grid grid-cols-[350px_388px_1fr] gap-3 mt-4">
+        <Activity />
+        <div className="flex flex-col gap-4">
+          <InventoryAlert />
+          <SalesByChannel />
         </div>
-        {/* Right column: Recent Orders + Quick Actions + Best Sellers stacked */}
-        <div className="flex flex-col gap-3">
-          <RecentOrders />
+        <div className="flex flex-col gap-2.5">
           <QuickActions />
           <BestSellers />
         </div>
