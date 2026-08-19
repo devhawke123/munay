@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+  --breakpoint-3xl: 120rem;
+
+  --color-brand: #8b5a2b;
+  --color-brand-dark: #6b4a2a;
+  --color-brand-accent: #c9973a;
+  --color-brand-panel: #fbf7f0;
+  --color-brand-bg: #fbf9f6;
+  --color-brand-border: #e8e6e1;
+  --color-brand-soft: #f2e2cf;
+  --color-text-primary: #1a0d05;
+  --color-text-muted: #907868;
+  --color-text-soft: #919593;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-accent-purple: #7c3aed;
+  --color-ink: #22252e;
+  --color-ink-soft: #464646;
+  --color-charcoal: #1a1a1a;
+  --color-surface-muted: #fbf7f5;
+  --color-surface-tan: #eae0d2;
+  --color-tint-brand: #f4ece0;
+  --color-tint-success: #ecffd6;
+  --color-tint-danger: #ffd0d0;
+  --color-tint-mint: #e2fff6;
+  --color-tint-blue: #e5edff;
+  --color-tint-peach: #fff5e8;
+  --color-button-brand: #936531;
+  --color-label-slate: #424653;
+  --color-price-value: #8b5e2b;
+  --color-accent-orange: #f8ab55;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
+  --radius-panel: 0.5rem;
+
+  --shadow-card: 0 1px 2px rgba(26, 13, 5, 0.06);
+
+  --container-dashboard: 120rem;
+}
+
+@custom-variant short (@media (max-height: 750px));
+@custom-variant medium (@media (min-height: 751px) and (max-height: 899px));
+@custom-variant tall (@media (min-height: 900px));

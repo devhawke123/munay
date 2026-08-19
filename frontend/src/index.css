@@ -1,2 +1,5 @@
-@config "../tailwind.config.js";
-@import "tailwindcss";
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

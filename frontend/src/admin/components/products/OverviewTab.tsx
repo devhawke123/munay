@@ -1,7 +1,7 @@
 import { Star, ImageIcon, SquarePen, Boxes, LineChart as LineChartIcon } from "lucide-react";
+import { useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import type { Product } from "../../types/product";
-import { StatCard } from "../ui/StatCard";
 
 const monthlySales = [
   { month: "Jan", units: 40 },
@@ -20,50 +20,41 @@ const detailRows = (product: Product) => [
   { label: "Collection", value: product.collection },
 ];
 
+const statTiles = (product: Product) => [
+  { label: "Price", value: product.price, bg: "bg-tint-brand", labelColor: "text-text-muted", valueColor: "text-price-value" },
+  { label: "Stock", value: product.stock, bg: "bg-tint-mint", labelColor: "text-label-slate", valueColor: "text-success" },
+  { label: "Units Sold", value: product.sold, bg: "bg-tint-blue", labelColor: "text-label-slate", valueColor: "text-info" },
+  { label: "Revenue", value: product.revenue, bg: "bg-tint-peach", labelColor: "text-label-slate", valueColor: "text-accent-orange" },
+];
+
 export function OverviewTab({ product }: { product: Product }) {
   const images = product.images ?? [];
-  const mainImage = images[0];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const mainImage = images[selectedIndex];
 
   return (
-    <div className="grid grid-cols-[260px_1fr_300px] gap-5 items-start">
+    <div className="grid grid-cols-[420px_1fr_300px] gap-5 items-start">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-2.5">
-          <StatCard
-            label="Price"
-            value={product.price}
-            icon={Boxes}
-            iconBgClassName="bg-tint-brand"
-            iconClassName="text-brand"
-            valueClassName="text-brand-dark"
-          />
-          <StatCard
-            label="Stock"
-            value={product.stock}
-            icon={Boxes}
-            iconBgClassName="bg-tint-success"
-            iconClassName="text-success"
-            valueClassName="text-success"
-          />
-          <StatCard
-            label="Units Sold"
-            value={product.sold}
-            icon={LineChartIcon}
-            iconBgClassName="bg-info/10"
-            iconClassName="text-info"
-            valueClassName="text-info"
-          />
-          <StatCard
-            label="Revenue"
-            value={product.revenue}
-            icon={Boxes}
-            iconBgClassName="bg-warning/10"
-            iconClassName="text-warning"
-            valueClassName="text-warning"
-          />
-        </div>
+        <div className="rounded-[14px] border border-white/80 bg-white py-6 pl-[11px] pr-6 shadow-card">
+          <div className="flex flex-wrap gap-[7px]">
+            {statTiles(product).map((tile) => (
+              <div
+                key={tile.label}
+                className={`flex w-[73px] flex-col gap-1.5 rounded-[9px] px-2 py-4 ${tile.bg}`}
+              >
+                <p className={`text-[9px] font-bold uppercase tracking-wide ${tile.labelColor}`}>
+                  {tile.label}
+                </p>
+                <p className={`text-sm font-display font-black tracking-tight ${tile.valueColor}`}>
+                  {tile.value}
+                </p>
+              </div>
+            ))}
+          </div>
 
-        <div className="rounded-card border border-brand-border bg-white p-4 shadow-card">
-          <p className="mb-3 text-sm font-display font-bold text-text-primary">Monthly Sales</p>
+          <p className="mb-3 mt-7 text-sm font-display font-bold text-text-primary">
+            Monthly Sales
+          </p>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={monthlySales}>
               <XAxis
@@ -97,23 +88,27 @@ export function OverviewTab({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex aspect-square items-center justify-center overflow-hidden rounded-card border border-brand-border bg-brand-soft/30">
+      <div className="overflow-hidden rounded-[14px] border border-white/80 bg-white shadow-card">
+        <div className="flex h-[339px] w-full items-center justify-center bg-brand-soft/30">
           {mainImage ? (
             <img src={mainImage.url} alt={product.name} className="h-full w-full object-cover" />
           ) : (
             <ImageIcon className="text-text-muted" size={40} />
           )}
         </div>
-        {images.length > 1 && (
-          <div className="flex gap-2">
-            {images.slice(1).map((image) => (
-              <div
+        {images.length > 0 && (
+          <div className="flex gap-2 p-3">
+            {images.map((image, index) => (
+              <button
                 key={image.id}
-                className="h-16 w-16 overflow-hidden rounded-panel border border-brand-border"
+                type="button"
+                onClick={() => setSelectedIndex(index)}
+                className={`h-14 w-14 shrink-0 overflow-hidden rounded-[9px] border-2 ${
+                  index === selectedIndex ? "border-price-value" : "border-transparent"
+                }`}
               >
                 <img src={image.url} alt="" className="h-full w-full object-cover" />
-              </div>
+              </button>
             ))}
           </div>
         )}

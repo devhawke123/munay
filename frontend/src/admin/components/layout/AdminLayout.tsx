@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "../../theme.css";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 

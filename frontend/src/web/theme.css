@@ -1,0 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Playfair+Display:wght@500&family=Inter:wght@300;400;500&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #2c2a28;
+  --color-cream: #efe9e1;
+  --color-gold: #b89b68;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, serif;
+  --font-serif-alt: "Playfair Display", ui-serif, serif;
+}
