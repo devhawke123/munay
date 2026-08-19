@@ -1,4 +1,4 @@
-import {  Box,  ChevronDown,  Ellipsis,  Grid2x2,  PackageCheck,  PackageMinus,  PackageX,  List,  Search,} from "lucide-react";
+import { Box, ChevronDown, Ellipsis, PackageCheck, PackageMinus, PackageX, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
