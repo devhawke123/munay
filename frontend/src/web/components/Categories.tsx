@@ -54,13 +54,15 @@ export function Categories() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-16 bg-[#f3eee6] pt-32">
-      <div className="flex max-w-[600px] flex-col items-center gap-6 px-12 text-center">
+    <div className="flex flex-col items-center gap-8 bg-[#f3eee6] pt-16 sm:gap-16 sm:pt-32">
+      <div className="flex max-w-[600px] flex-col items-center gap-4 px-4 text-center sm:gap-6 sm:px-12">
         <p className="text-xs font-medium uppercase tracking-[3.6px] text-ink">
           Browse by category
         </p>
-        <h2 className="font-serif text-5xl text-ink">Find What You Love</h2>
-        <p className="text-lg font-light text-ink/60">
+        <h2 className="font-serif text-3xl text-ink sm:text-4xl lg:text-5xl">
+          Find What You Love
+        </h2>
+        <p className="text-base font-light text-ink/60 sm:text-lg">
           Explore our collection by category and discover styles that fit your lifestyle and
           every occasion.
         </p>
@@ -78,27 +80,29 @@ export function Categories() {
           />
         ))}
 
-        <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-12 md:px-24">
+        <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-8 sm:py-0 lg:px-12 xl:px-24">
           <div className="relative flex w-full max-w-[1440px] items-center">
             {categories.map((category, index) => (
               <div
                 key={category.name}
-                className={`absolute inset-0 flex items-center gap-16 transition-opacity duration-700 ease-out ${
+                className={`absolute inset-0 flex flex-col items-center justify-center gap-4 transition-opacity duration-700 ease-out sm:gap-8 lg:flex-row lg:gap-16 ${
                   index === activeIndex ? "opacity-100" : "pointer-events-none opacity-0"
                 }`}
               >
                 {category.imageSide === "left" && (
-                  <div className="aspect-[776/717] w-1/2 min-w-0 overflow-hidden">
+                  <div className="aspect-[16/9] w-full shrink-0 overflow-hidden sm:aspect-[776/717] lg:aspect-[776/717] lg:w-1/2 lg:min-w-0">
                     <img
                       src={category.image}
                       alt={category.name}
-                      className=" object-cover"
+                      className="object-cover"
                     />
                   </div>
                 )}
-                <div className="flex w-1/2 flex-col items-start gap-8">
-                  <h3 className="font-serif text-7xl text-ink">{category.name}</h3>
-                  <p className="max-w-[448px] text-lg font-light text-ink/70">
+                <div className="flex w-full flex-col items-start gap-3 sm:gap-6 lg:w-1/2 lg:gap-8">
+                  <h3 className="font-serif text-3xl text-ink sm:text-5xl lg:text-7xl">
+                    {category.name}
+                  </h3>
+                  <p className="max-w-[448px] text-sm font-light text-ink/70 sm:text-base lg:text-lg">
                     {category.description}
                   </p>
                   <a
@@ -110,7 +114,7 @@ export function Categories() {
                   </a>
                 </div>
                 {category.imageSide === "right" && (
-                  <div className="aspect-[776/717] w-1/2 min-w-0 overflow-hidden">
+                  <div className="aspect-[16/9] w-full shrink-0 overflow-hidden sm:aspect-[776/717] lg:aspect-[776/717] lg:w-1/2 lg:min-w-0">
                     <img
                       src={category.image}
                       alt={category.name}

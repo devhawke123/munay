@@ -1,4 +1,4 @@
-export const PRODUCT_TABS = ["Overview", "Variants", "Reviews", "History"] as const;
+export const PRODUCT_TABS = ["Overview", "Variants"] as const;
 export type ProductTab = (typeof PRODUCT_TABS)[number];
 
 type ProductTabsProps = {

@@ -10,22 +10,22 @@ export function StatsCards() {
     },
     {
       label: "Today's Sales",
-      value: "$8,645",
+      value: "8,645",
       icon: ShoppingBag,
     },
     {
       label: "Total Orders",
-      value: "$125,430",
+      value: "430",
       icon: FileText,
     },
     {
       label: "Customers",
-      value: "$125,430",
+      value: "125",
       icon: Users,
     },
     {
       label: "Active Products",
-      value: "$125,430",
+      value: "12",
       icon: Box,
     },
   ];
