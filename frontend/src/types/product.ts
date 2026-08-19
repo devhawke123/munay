@@ -43,7 +43,8 @@ export const emptyProductDraft: ProductDraft = {
   stockByVariant: {},
 };
 
-export type ProductRow = {
+export type Product = {
+  id: string;
   name: string;
   sku: string;
   category: string;
@@ -53,13 +54,23 @@ export type ProductRow = {
   sold: string;
   revenue: string;
   status: string;
+  // Detail-page-only fields — undefined for seed rows created before the
+  // product detail page existed, so the detail page falls back to "—".
+  description?: string;
+  images?: ProductImage[];
+  composition?: string;
+  weight?: string;
+  dimensions?: string;
+  origin?: string;
+  collection?: string;
+  rating?: number;
 };
 
 export function variantKey(color: string, size: string) {
   return `${color}|${size}`;
 }
 
-export function draftToRow(draft: ProductDraft): ProductRow {
+export function draftToProduct(draft: ProductDraft): Product {
   const totalStock = Object.values(draft.stockByVariant).reduce(
     (sum, qty) => sum + (Number(qty) || 0),
     0,
@@ -67,6 +78,7 @@ export function draftToRow(draft: ProductDraft): ProductRow {
   const price = Number(draft.price) || 0;
 
   return {
+    id: crypto.randomUUID(),
     name: draft.name,
     sku: draft.sku,
     category: draft.mainCategory,
@@ -76,5 +88,13 @@ export function draftToRow(draft: ProductDraft): ProductRow {
     sold: "0",
     revenue: "$0",
     status: "Active",
+    description: draft.description,
+    images: draft.images,
+    composition: draft.composition,
+    weight: draft.weight,
+    dimensions: draft.dimensions,
+    origin: draft.origin,
+    collection: draft.brand,
+    rating: 4.8,
   };
 }

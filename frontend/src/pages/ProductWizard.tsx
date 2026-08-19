@@ -10,7 +10,7 @@ import { PricingStep } from "../components/products/steps/PricingStep";
 import { VariantsStep } from "../components/products/steps/VariantsStep";
 import { ReviewStep } from "../components/products/steps/ReviewStep";
 import { useProducts } from "../context/ProductsContext";
-import { emptyProductDraft, draftToRow, type ProductDraft } from "../types/product";
+import { emptyProductDraft, draftToProduct, type ProductDraft } from "../types/product";
 
 function isStepValid(index: number, draft: ProductDraft) {
   switch (index) {
@@ -49,7 +49,7 @@ export function ProductWizard() {
   }
 
   function handlePublish() {
-    addProduct(draftToRow(draft));
+    addProduct(draftToProduct(draft));
     navigate("/admin/products");
   }
 

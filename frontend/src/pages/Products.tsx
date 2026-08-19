@@ -114,9 +114,10 @@ export function Products() {
         </div>
 
         <div className="mt-[26px] flex flex-col gap-[26px] px-[18px]">
-          {products.map((product, index) => (
-            <div
-              key={`${product.sku}-${index}`}
+          {products.map((product) => (
+            <Link
+              key={product.id}
+              to={`/admin/products/${product.id}`}
               className="grid grid-cols-[190px_80px_185px_74px_48px_48px_76px_84px_60px] items-center"
             >
               <div className="flex items-center gap-3">
@@ -158,10 +159,14 @@ export function Products() {
                 </span>
               </div>
 
-              <button className="flex h-8 w-8 items-center justify-center text-text-primary">
+              <button
+                type="button"
+                onClick={(e) => e.preventDefault()}
+                className="flex h-8 w-8 items-center justify-center text-text-primary"
+              >
                 <Ellipsis size={20} />
               </button>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

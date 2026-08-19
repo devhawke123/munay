@@ -6,6 +6,9 @@ const Products = lazy(() => import("./pages/Products").then((m) => ({ default: m
 const ProductWizard = lazy(() =>
   import("./pages/ProductWizard").then((m) => ({ default: m.ProductWizard })),
 );
+const ProductDetail = lazy(() =>
+  import("./pages/ProductDetail").then((m) => ({ default: m.ProductDetail })),
+);
 const Orders = lazy(() => import("./pages/Orders").then((m) => ({ default: m.Orders })));
 const Customers = lazy(() => import("./pages/Customers").then((m) => ({ default: m.Customers })));
 const SalesAnalytics = lazy(() =>
@@ -26,6 +29,7 @@ export function App() {
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/products" element={<Products />} />
         <Route path="/admin/products/new" element={<ProductWizard />} />
+        <Route path="/admin/products/:id" element={<ProductDetail />} />
         <Route path="/admin/orders" element={<Orders />} />
         <Route path="/admin/customers" element={<Customers />} />
         <Route path="/admin/sales-analytics" element={<SalesAnalytics />} />
