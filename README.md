@@ -65,6 +65,12 @@ Format:
 
 <!-- Newest entries go on top -->
 
+### 2026-08-19 — Fatima — Orders (migrated to admin/ structure)
+- Branch: `fatima/orders`
+- Status: in progress
+- Changes: Migrated the Orders list + detail pages onto the new `frontend/src/admin/` structure after another dev's restructure landed on `main` (see [[project-munay-folder-structure]] in memory). Files moved: `pages/{Orders,OrderDetail}.tsx`, `types/order.ts`, `data/orders.ts`, `components/ui/StatusBadge.tsx` all now under `frontend/src/admin/`. Pure relocation, no logic changes — relative imports resolve identically one level deeper under `admin/`. `App.tsx` updated to add the `OrderDetail` lazy import and a relative `/orders/:orderId` route inside `AdminRoutes`.
+- Next steps / notes for other devs: same caveats as before the migration — Print Invoice/Update Status/Save Note are no-ops, filter/search/sort/pagination are visual-only, and "View Profile" on the order detail page still reuses the order id as a stand-in customer id.
+
 ### 2026-08-19 — Fatima — Customers (migrated to admin/ structure)
 - Branch: `fatima/customers`
 - Status: in progress

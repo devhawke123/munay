@@ -21,6 +21,9 @@ const ProductDetail = lazy(() =>
   import("./admin/pages/ProductDetail").then((m) => ({ default: m.ProductDetail })),
 );
 const Orders = lazy(() => import("./admin/pages/Orders").then((m) => ({ default: m.Orders })));
+const OrderDetail = lazy(() =>
+  import("./admin/pages/OrderDetail").then((m) => ({ default: m.OrderDetail })),
+);
 const Customers = lazy(() =>
   import("./admin/pages/Customers").then((m) => ({ default: m.Customers })),
 );
@@ -50,6 +53,7 @@ function AdminRoutes() {
         <Route path="/products/new" element={<ProductWizard />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId" element={<OrderDetail />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/customers/:customerId" element={<CustomerDetail />} />
         <Route path="/sales-analytics" element={<SalesAnalytics />} />
