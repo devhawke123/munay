@@ -8,6 +8,8 @@ export type ProductDraft = {
   description: string;
   mainCategory: string;
   subcategory: string;
+  group: string;
+  section: string;
   brand: string;
   composition: string;
   weight: string;
@@ -28,6 +30,8 @@ export const emptyProductDraft: ProductDraft = {
   description: "",
   mainCategory: "",
   subcategory: "",
+  group: "",
+  section: "",
   brand: "",
   composition: "",
   weight: "",
@@ -49,6 +53,14 @@ export type Product = {
   sku: string;
   category: string;
   subcategory: string;
+  // Groups subcategories under a heading on the public category page (e.g.
+  // "Knitwears" containing "Pullovers"/"Cardigans"). Falls back to "More"
+  // when unset, so older rows without a group still render.
+  group?: string;
+  // Splits a subcategory's product listing page into headed sub-sections
+  // (e.g. "Shawls / Scarfs" showing separate "Scarfs" and "Shawls" grids).
+  // Left unset, the listing page renders one flat grid.
+  section?: string;
   price: string;
   stock: string;
   sold: string;
@@ -63,6 +75,8 @@ export type Product = {
   dimensions?: string;
   origin?: string;
   collection?: string;
+  colors?: string[];
+  sizes?: string[];
   rating?: number;
 };
 
@@ -83,6 +97,8 @@ export function draftToProduct(draft: ProductDraft): Product {
     sku: draft.sku,
     category: draft.mainCategory,
     subcategory: draft.subcategory,
+    group: draft.group || undefined,
+    section: draft.section || undefined,
     price: `$${price.toFixed(2)}`,
     stock: String(totalStock),
     sold: "0",
@@ -95,6 +111,8 @@ export function draftToProduct(draft: ProductDraft): Product {
     dimensions: draft.dimensions,
     origin: draft.origin,
     collection: draft.brand,
+    colors: draft.colors,
+    sizes: draft.sizes,
     rating: 4.8,
   };
 }

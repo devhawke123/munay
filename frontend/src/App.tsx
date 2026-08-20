@@ -1,10 +1,25 @@
-import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ProductsProvider } from "./admin/context/ProductsContext";
 
 const Home = lazy(() =>
   import("./web/theme.css").then(() =>
     import("./web/pages/Home").then((m) => ({ default: m.Home })),
+  ),
+);
+const CategoryPage = lazy(() =>
+  import("./web/theme.css").then(() =>
+    import("./web/pages/CategoryPage").then((m) => ({ default: m.CategoryPage })),
+  ),
+);
+const ProductTypePage = lazy(() =>
+  import("./web/theme.css").then(() =>
+    import("./web/pages/ProductTypePage").then((m) => ({ default: m.ProductTypePage })),
+  ),
+);
+const ProductPage = lazy(() =>
+  import("./web/theme.css").then(() =>
+    import("./web/pages/ProductPage").then((m) => ({ default: m.ProductPage })),
   ),
 );
 
@@ -44,36 +59,59 @@ const Settings = lazy(() =>
   import("./admin/pages/Settings").then((m) => ({ default: m.Settings })),
 );
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+function ProductPageRoute() {
+  const { productId } = useParams<{ productId: string }>();
+  return <ProductPage key={productId} />;
+}
+
 function AdminRoutes() {
   return (
-    <ProductsProvider>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/new" element={<ProductWizard />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/orders/:orderId" element={<OrderDetail />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/customers/:customerId" element={<CustomerDetail />} />
-        <Route path="/sales-analytics" element={<SalesAnalytics />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/content-manager" element={<ContentManager />} />
-        <Route path="/reviews" element={<Reviews />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </ProductsProvider>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/products" element={<Products />} />
+      <Route path="/products/new" element={<ProductWizard />} />
+      <Route path="/products/:id" element={<ProductDetail />} />
+      <Route path="/orders" element={<Orders />} />
+      <Route path="/orders/:orderId" element={<OrderDetail />} />
+      <Route path="/customers" element={<Customers />} />
+      <Route path="/customers/:customerId" element={<CustomerDetail />} />
+      <Route path="/sales-analytics" element={<SalesAnalytics />} />
+      <Route path="/inventory" element={<Inventory />} />
+      <Route path="/content-manager" element={<ContentManager />} />
+      <Route path="/reviews" element={<Reviews />} />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
   );
 }
 
 export function App() {
   return (
-    <Suspense fallback={null}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+    <ProductsProvider>
+      <Suspense fallback={null}>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/category/:categorySlug" element={<CategoryPage />} />
+          <Route
+            path="/category/:categorySlug/:subcategorySlug"
+            element={<ProductTypePage />}
+          />
+          <Route
+            path="/category/:categorySlug/:subcategorySlug/:productId"
+            element={<ProductPageRoute />}
+          />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </ProductsProvider>
   );
 }

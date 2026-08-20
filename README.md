@@ -1,12 +1,24 @@
 # Munay
 
-Online store monorepo (admin dashboard first, then customer site).
+Online store monorepo: a public storefront and an admin dashboard, in one Vite app.
 
 ## Stack
 
 - **Frontend:** Vite + React + TypeScript (`frontend`)
 - **Backend:** Express + TypeScript (`backend`)
 - **Database:** Postgres via Prisma
+
+## Frontend structure
+
+One React Router app split into two independently themed sections:
+
+- `frontend/src/web/` — the public storefront (`/`). Pages in `web/pages`, components in
+  `web/components`, own Tailwind theme (`web/theme.css`) with the site's serif/ink/cream palette.
+- `frontend/src/admin/` — the admin dashboard (`/admin/*`). Pages, components, and product context
+  live here, with its own Tailwind theme (`admin/theme.css`).
+
+Each theme is a separate Tailwind v4 CSS entry, code-split per route so a visitor only downloads
+the theme for the section they're in.
 
 ## Prerequisites
 
