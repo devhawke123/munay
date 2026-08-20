@@ -58,6 +58,26 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="Category Page Group (optional)"
+          placeholder="e.g. Knitwears, Outerwear's, Accessories"
+          value={draft.group}
+          onChange={(e) => onChange({ group: e.target.value })}
+        />
+        <FormField
+          label="Listing Page Section (optional)"
+          placeholder="e.g. Scarfs, Shawls"
+          value={draft.section}
+          onChange={(e) => onChange({ section: e.target.value })}
+        />
+      </div>
+      <p className="-mt-3 text-xs text-text-muted">
+        Group organizes subcategories on the public category page (blank falls back to "More").
+        Section splits a subcategory's own listing page into headed sub-grids (blank keeps one
+        flat grid).
+      </p>
+
       <FormField
         label="Brand / Collection"
         placeholder="e.g. Munay Essentials"

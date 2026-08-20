@@ -1,8 +1,15 @@
 import { Heart, Menu, ShoppingBag, User, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 
-const primaryLinks = ["Women", "Men", "Home", "Our Story", "Vicuna"];
+const primaryLinks = [
+  { label: "Women", href: "/category/women" },
+  { label: "Men", href: "/category/men" },
+  { label: "Home", href: "/category/home-essentials" },
+  { label: "Our Story", href: "#" },
+  { label: "Vicuna", href: "#" },
+];
 const secondaryLinks = ["Fiber", "Community"];
 
 export function PublicHeader() {
@@ -20,10 +27,10 @@ export function PublicHeader() {
         </button>
 
         <nav className="hidden items-center gap-6 lg:flex">
-          {primaryLinks.map((label) => (
-            <a key={label} href="#" className="text-sm tracking-[0.35px] text-ink">
-              {label}
-            </a>
+          {primaryLinks.map((link) => (
+            <Link key={link.label} to={link.href} className="text-sm tracking-[0.35px] text-ink">
+              {link.label}
+            </Link>
           ))}
         </nav>
 
@@ -58,7 +65,17 @@ export function PublicHeader() {
 
       {menuOpen && (
         <nav className="flex flex-col gap-1 border-t border-ink/10 bg-white px-4 py-4 lg:hidden">
-          {[...primaryLinks, ...secondaryLinks].map((label) => (
+          {primaryLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="py-2 text-sm tracking-[0.35px] text-ink"
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          {secondaryLinks.map((label) => (
             <a
               key={label}
               href="#"
