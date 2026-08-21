@@ -6,7 +6,7 @@ Online store monorepo: a public storefront and an admin dashboard, in one Vite a
 
 - **Frontend:** Vite + React + TypeScript (`frontend`)
 - **Backend:** Express + TypeScript (`backend`)
-- **Database:** Postgres via Prisma
+- **Database:** MariaDB via Prisma (MySQL provider)
 
 ## Frontend structure
 
@@ -23,7 +23,7 @@ the theme for the section they're in.
 ## Prerequisites
 
 - Node.js 20+
-- A running Postgres instance
+- Docker (for local MariaDB) — or your own running MariaDB/MySQL instance
 
 ## Setup
 
@@ -31,13 +31,52 @@ the theme for the section they're in.
 cp .env.example .env
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
-# Edit DATABASE_URL in backend/.env to match your Postgres credentials
+# Edit DATABASE_URL in backend/.env to match your MariaDB credentials
+docker compose up -d
 npm install
 npm run db:generate
 npm run db:migrate
 ```
 
 Prisma reads `DATABASE_URL` from `backend/.env`. The API also loads the repo-root `.env` if present.
+
+## Local database (Docker)
+
+MariaDB runs locally via `docker-compose.yml` in the repo root. Credentials come from the root `.env` (see `.env.example`) and are shared with `backend/.env`'s `DATABASE_URL`.
+
+```bash
+# Start the DB (detached) — data persists in the munay_db_data volume
+docker compose up -d
+
+# Check it's healthy
+docker compose ps
+
+# Stop the DB (keeps data)
+docker compose stop
+
+# Stop and remove the container (keeps the volume/data)
+docker compose down
+
+# Wipe the DB entirely (drops the volume too — you'll lose local data)
+docker compose down -v
+```
+
+Once the DB is up, run migrations from `backend/`:
+
+```bash
+npm run db:migrate   # prisma migrate dev — creates/applies migrations
+npm run db:generate  # prisma generate — regenerate the client after schema changes
+npm run db:studio    # prisma studio — browse data in the browser
+```
+
+Note: the `MARIADB_USER` from `.env` only gets privileges scoped to `MARIADB_DATABASE` by default. `prisma migrate dev` needs broader privileges to create/drop its temporary shadow database, so for local dev the container grants that user global privileges after first start:
+
+```bash
+docker exec munay-db mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -e \
+  "GRANT ALL PRIVILEGES ON *.* TO '$MARIADB_USER'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+```
+
+This only needs to run once per fresh volume (i.e. after `docker compose down -v` or on first setup).
 
 ## Develop
 
@@ -76,6 +115,20 @@ Format:
 ```
 
 <!-- Newest entries go on top -->
+
+### 2026-08-21 — Fatima — Backend (inventory tracking schema + admin CRUD APIs)
+- Branch: `fatima/prisma-schema`
+- Status: in progress (PR #3 open against `main`)
+- Changes: Extended `schema.prisma` — added `SalesChannel` enum plus `channel`/`storeLocation` on `Order` (and made `customerId` nullable, for anonymous in-store sales), added `reorderPoint` to `Inventory` (per-warehouse, derived stock status by design — no stored status column), added `location` to `Warehouse`, and a new `InventoryImport` model for CSV import audit history. Migration: `20260821080131_add_inventory_tracking`. Also scaffolded modular admin CRUD APIs under `backend/src/admin/` — one `routes/controller/service` triple per domain (`products`, `customers`, `orders`, `inventory`, `events`), mounted at `/api/admin/*` in `index.ts`, plus a shared `HttpError`/`errorHandler`.
+- `inventory.service.ts` includes `importInventoryFromCsv(warehouseId, filePath, importedBy?)` — parses CSV via `csv-parse` (new dependency), upserts `Inventory` rows by SKU inside a `prisma.$transaction`, skips (not fails) unmatched SKUs, and writes an `InventoryImport` audit record (`completed`/`partial`/`failed`).
+- All endpoints manually verified via curl (list/get/create/update, 404 and validation-error paths) against local MariaDB — no seed data yet, so lists currently return `[]` until real data exists.
+- Next steps / notes for other devs: No auth/permissions on any admin route yet. Order creation (checkout-side, with totals/snapshot fields) intentionally not built here — this PR only covers admin-side read/status-update for orders. `POST /api/admin/inventory/import` currently takes a server-local `filePath` in the body, not a real file upload — will need multipart handling once the frontend Import CSV flow (see `fatima/sales-analytics` entry below) is wired to a real backend.
+
+### 2026-08-20 — Fatima — Backend (MariaDB + initial Prisma schema)
+- Branch: `fatima/prisma-schema`
+- Status: in progress
+- Changes: Set up local MariaDB via Docker Compose (`docker-compose.yml`, named volume `munay_db_data`) and switched `schema.prisma`'s datasource from the outdated Postgres example to `mysql` (MariaDB is MySQL-wire-compatible). Added the initial Prisma migration (`20260820142209_init`) covering `Product`, `ProductVariant`, `ProductImage`, `Warehouse`, `Inventory`, `Customer`, `Order`, `OrderItem`, `Event`, `EventImage`. Updated `.env.example`/`backend/.env.example` and README setup docs accordingly.
+- Next steps / notes for other devs: `main`'s README previously documented Postgres — that was stale/incorrect even before this change, actual local dev DB has always been intended as MariaDB.
 
 ### 2026-08-19 — Fatima — Content Manager (real event images)
 - Branch: `fatima/content-manager`

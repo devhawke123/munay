@@ -7,4 +7,235 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Product / category models will be added with the admin dashboard work.
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  FULFILLED
+  CANCELLED
+}
+
+enum SalesChannel {
+  ONLINE
+  IN_STORE
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  categoryId  String
+  status      ProductStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+  images     ProductImage[]
+
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  // File path / storage key for the image, not the raw file itself
+  path      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+}
+
+model ProductVariant {
+  id              String        @id @default(cuid())
+  productId       String
+  sku             String        @unique
+  // Plain-text description of this variant's distinguishing options, e.g. "Medium / Blue / Linen"
+  variantName     String
+  price           Decimal       @db.Decimal(10, 2)
+  compareAtPrice  Decimal?      @db.Decimal(10, 2)
+  status          ProductStatus @default(DRAFT)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id])
+  inventory  Inventory[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model Warehouse {
+  id       String  @id @default(cuid())
+  name     String
+  // Short display label shown under the warehouse name in the UI, e.g. "Lima, Peru" — distinct from `address`, which is the full shipping/fulfillment address
+  location String?
+  address  String?
+  isActive Boolean @default(true)
+
+  inventory  Inventory[]
+  orderItems OrderItem[]
+  imports    InventoryImport[]
+}
+
+model Inventory {
+  variantId   String
+  warehouseId String
+  // Physical stock actually in the warehouse
+  quantityOnHand   Int      @default(0)
+  // Held during checkout before payment confirms, so the same unit can't be sold twice while checkout is in flight
+  quantityReserved Int      @default(0)
+  // Stock threshold below which this variant+warehouse combination should be flagged "Low Stock" in the UI.
+  // Lives here rather than on ProductVariant because it's scoped per-warehouse, matching this model's composite key.
+  reorderPoint     Int      @default(0)
+  updatedAt        DateTime @updatedAt
+
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  warehouse Warehouse      @relation(fields: [warehouseId], references: [id])
+
+  // Stock status (In Stock / Low Stock / Out of Stock) is intentionally NOT stored here.
+  // It must be derived at query time from quantityOnHand vs. reorderPoint and 0, so it can
+  // never go stale relative to the actual stock count. Do not add a status column.
+
+  @@id([variantId, warehouseId])
+  @@index([warehouseId])
+}
+
+model InventoryImport {
+  id          String   @id @default(cuid())
+  warehouseId String
+  fileName    String
+  rowCount    Int
+  // completed | failed | partial
+  status      String   @default("completed")
+  importedAt  DateTime @default(now())
+  // admin/user id who ran the import
+  importedBy  String?
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@index([warehouseId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+
+  orders Order[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  // Nullable — in-store walk-in sales often have no account
+  customerId String?
+  status     OrderStatus @default(PENDING)
+
+  channel SalesChannel @default(ONLINE)
+  // Only set when channel = IN_STORE. Which physical store/exhibition made the sale.
+  storeLocation String?
+
+  subtotal     Decimal @db.Decimal(10, 2)
+  shippingCost Decimal @db.Decimal(10, 2)
+  total        Decimal @db.Decimal(10, 2)
+
+  // Shipping address, captured at checkout — this order's address only, not a reusable saved address
+  shippingFullName   String
+  shippingPhone      String?
+  shippingLine1      String
+  shippingLine2      String?
+  shippingCity       String
+  shippingState      String?
+  shippingPostalCode String
+  shippingCountry    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer?   @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+
+  @@index([customerId])
+  @@index([channel])
+  @@index([storeLocation])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  // Live reference for reporting/analytics joins only — never used to resolve display data, see snapshot fields below
+  variantId   String?
+  productId   String?
+
+  // --- Snapshot fields ---
+  // These freeze product/variant details as they were at time of purchase, so historical
+  // orders and receipts never silently change if the live product/variant is later
+  // edited, renamed, repriced, or deleted.
+  sku          String
+  // Snapshot of the product name at time of purchase
+  productName  String
+  // Snapshot of the variant's distinguishing options at time of purchase (e.g. "Medium / Blue / Linen")
+  variantLabel String?
+  // Snapshot of the unit price at time of purchase
+  unitPrice    Decimal @db.Decimal(10, 2)
+
+  quantity  Int
+  lineTotal Decimal @db.Decimal(10, 2)
+
+  // Which warehouse this line is fulfilled from
+  warehouseId       String?
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+
+  order     Order           @relation(fields: [orderId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  product   Product?        @relation(fields: [productId], references: [id])
+  warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])
+
+  @@index([orderId])
+  @@index([variantId])
+  @@index([productId])
+  @@index([warehouseId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  images EventImage[]
+}
+
+model EventImage {
+  id        String   @id @default(cuid())
+  eventId   String
+  // File path / storage key for the image, not the raw file itself
+  path      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@index([eventId])
+}

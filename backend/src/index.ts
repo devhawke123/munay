@@ -3,6 +3,12 @@ import { fileURLToPath } from "node:url";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { customersRouter } from "./admin/customers/customers.routes.js";
+import { eventsRouter } from "./admin/events/events.routes.js";
+import { inventoryRouter } from "./admin/inventory/inventory.routes.js";
+import { ordersRouter } from "./admin/orders/orders.routes.js";
+import { productsRouter } from "./admin/products/products.routes.js";
+import { errorHandler } from "./admin/shared/middleware/errorHandler.js";
 import { prisma } from "./db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +33,14 @@ app.get("/api/health", async (_req, res) => {
     res.status(503).json({ ok: false, db: "down" });
   }
 });
+
+app.use("/api/admin/products", productsRouter);
+app.use("/api/admin/customers", customersRouter);
+app.use("/api/admin/orders", ordersRouter);
+app.use("/api/admin/inventory", inventoryRouter);
+app.use("/api/admin/events", eventsRouter);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Munay API listening on http://localhost:${port}`);
