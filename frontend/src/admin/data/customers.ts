@@ -1,3 +1,4 @@
+import { formatCurrency, parseCurrency } from "../lib/money";
 import type { CustomerDetail, CustomerOrderRow, CustomerRow } from "../types/customer";
 
 export const customers: CustomerRow[] = Array.from({ length: 7 }, (_, index) => ({
@@ -19,12 +20,16 @@ const sampleOrders: CustomerOrderRow[] = [
 export function getCustomerDetail(id: string): CustomerDetail {
   const customer = customers.find((c) => c.id === id) ?? customers[0];
 
+  const totalOrders = sampleOrders.length;
+  const lifetimeValue = sampleOrders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
+  const avgOrder = totalOrders > 0 ? lifetimeValue / totalOrders : 0;
+
   return {
     ...customer,
-    lifetimeValue: "$2,890.5",
-    totalOrders: 14,
-    avgOrder: "$206",
-    lastOrder: "24 May, 2025",
+    lifetimeValue: formatCurrency(lifetimeValue),
+    totalOrders,
+    avgOrder: formatCurrency(avgOrder),
+    lastOrder: sampleOrders[0]?.date ?? "—",
     orders: sampleOrders,
   };
 }

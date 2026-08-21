@@ -1,6 +1,16 @@
 import { AlertTriangle, XCircle } from "lucide-react";
+import { useProducts } from "../../context/ProductsContext";
+
+const LOW_STOCK_THRESHOLD = 20;
 
 export function InventoryAlert() {
+  const { products } = useProducts();
+  const lowStockCount = products.filter((p) => {
+    const stock = Number(p.stock) || 0;
+    return stock > 0 && stock < LOW_STOCK_THRESHOLD;
+  }).length;
+  const outOfStockCount = products.filter((p) => (Number(p.stock) || 0) === 0).length;
+
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-4 shadow-card">
       {/* Header */}
@@ -22,7 +32,7 @@ export function InventoryAlert() {
               <p className="text-[10px] text-text-muted">Needs restocking soon</p>
             </div>
           </div>
-          <span className="text-sm font-display font-extrabold text-warning">23</span>
+          <span className="text-sm font-display font-extrabold text-warning">{lowStockCount}</span>
         </div>
 
         {/* Out of Stock */}
@@ -34,7 +44,7 @@ export function InventoryAlert() {
               <p className="text-[10px] text-text-muted">Immediate action</p>
             </div>
           </div>
-          <span className="text-sm font-display font-extrabold text-danger">7</span>
+          <span className="text-sm font-display font-extrabold text-danger">{outOfStockCount}</span>
         </div>
       </div>
     </div>

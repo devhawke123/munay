@@ -9,15 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { day: "18 May", revenue: 12000, orders: 200 },
-  { day: "19 May", revenue: 18000, orders: 350 },
-  { day: "20 May", revenue: 22000, orders: 400 },
-  { day: "21 May", revenue: 38000, orders: 750 },
-  { day: "22 May", revenue: 25000, orders: 420 },
-  { day: "23 May", revenue: 30000, orders: 500 },
-  { day: "24 May", revenue: 20000, orders: 380 },
-];
+import { revenueByDay as data } from "../../data/salesAnalytics";
 
 export function SalesOverview() {
   const [activeTab, setActiveTab] = useState("Weekly");

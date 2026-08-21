@@ -1,50 +1,56 @@
-import { Eye, ShoppingBag, UserPlus, Users } from "lucide-react";
+import { Eye, MapPin, Users } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { StatCard } from "../components/ui/StatCard";
+import { SearchBar } from "../components/ui/SearchBar";
 import { customers } from "../data/customers";
 
-const totalCustomers = 284;
-
-const stats = [
-  {
-    label: "Total Customers",
-    value: "3,256",
-    icon: Users,
-    iconBg: "bg-tint-brand",
-    iconColor: "text-brand",
-    valueColor: "text-brand-dark",
-  },
-  {
-    label: "New This Month",
-    value: "156",
-    icon: UserPlus,
-    iconBg: "bg-tint-success",
-    iconColor: "text-success",
-    valueColor: "text-success",
-  },
-  {
-    label: "Avg. Order Value",
-    value: "3,256",
-    icon: ShoppingBag,
-    iconBg: "bg-tint-brand",
-    iconColor: "text-brand",
-    valueColor: "text-brand-dark",
-  },
-];
-
 export function Customers() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const uniqueLocations = new Set(customers.map((c) => c.location)).size;
+
+  const visibleCustomers = customers.filter((customer) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      customer.name.toLowerCase().includes(query) ||
+      customer.email.toLowerCase().includes(query) ||
+      customer.phone.toLowerCase().includes(query) ||
+      customer.location.toLowerCase().includes(query)
+    );
+  });
+
+  const stats = [
+    {
+      label: "Total Customers",
+      value: String(customers.length),
+      icon: Users,
+      iconBg: "bg-tint-brand",
+      iconColor: "text-brand",
+      valueColor: "text-brand-dark",
+    },
+    {
+      label: "Locations Served",
+      value: String(uniqueLocations),
+      icon: MapPin,
+      iconBg: "bg-tint-success",
+      iconColor: "text-success",
+      valueColor: "text-success",
+    },
+  ];
+
   return (
     <AdminLayout>
       <div className="flex flex-col gap-[38px]">
         <div>
           <h1 className="text-2xl font-bold text-ink">Customers</h1>
           <p className="text-[15px] font-medium text-brand-dark">
-            {totalCustomers} total customers
+            {customers.length} total customers
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-[10px]">
+        <div className="grid grid-cols-2 gap-[10px]">
           {stats.map((stat) => (
             <StatCard
               key={stat.label}
@@ -59,6 +65,15 @@ export function Customers() {
         </div>
 
         <div className="rounded-[7px] bg-white px-[14px] pb-9 pt-[17px]">
+          <div className="mb-[18px] px-[8px]">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search customers..."
+              className="w-[320px]"
+            />
+          </div>
+
           <div className="rounded bg-surface-muted px-[22px] py-3">
             <div className="grid grid-cols-[1fr_1fr_140px_1fr_60px] items-center text-base text-text-primary/70">
               <div>Customer</div>
@@ -70,7 +85,7 @@ export function Customers() {
           </div>
 
           <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
-            {customers.map((customer) => (
+            {visibleCustomers.map((customer) => (
               <div
                 key={customer.id}
                 className="grid grid-cols-[1fr_1fr_140px_1fr_60px] items-center"

@@ -12,7 +12,7 @@ type EventCardProps = {
 export function EventCard({ event, onViewDetails, onEdit }: EventCardProps) {
   return (
     <div className="rounded-[10px] border border-brand/10 bg-white p-2">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[8px]">
+      <div className="relative  w-full overflow-hidden rounded-[8px]">
         <EventImagePlaceholder
           src={event.posterImage}
           label={event.title}
