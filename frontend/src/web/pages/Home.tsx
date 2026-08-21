@@ -11,9 +11,11 @@ import { PublicHeader } from "../components/PublicHeader";
 export function Home() {
   return (
     <div className="bg-white">
-      <Announcement />
-      <PublicHeader />
-      <Hero />
+      <div className="flex h-[100dvh] flex-col">
+        <Announcement />
+        <PublicHeader />
+        <Hero />
+      </div>
       <NewArrivals />
       <Categories />
       <Founder />

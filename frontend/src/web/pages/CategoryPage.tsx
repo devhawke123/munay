@@ -111,9 +111,11 @@ export function CategoryPage() {
 
   return (
     <div className="bg-white">
-      <Announcement />
-      <PublicHeader />
-      <CategoryHero title={category === "Women" ? "Womens wear" : category} image={heroImage} />
+      <div className="flex h-[100dvh] flex-col">
+        <Announcement />
+        <PublicHeader />
+        <CategoryHero title={category === "Women" ? "Womens wear" : category} image={heroImage} />
+      </div>
 
       <div className="mx-auto flex max-w-[1304px] flex-col gap-24 px-4 py-16 sm:gap-32 sm:px-8 sm:py-24 lg:gap-40 lg:px-0">
         {groups.map((group) => (

@@ -16,13 +16,13 @@ export function Dashboard() {
       <StatsCards />
 
       {/* Row 2: SalesOverview + RecentOrders side by side */}
-      <div className="grid grid-cols-[1fr_1fr] gap-5 mt-3.5">
+      <div className="grid grid-cols-1 gap-5 mt-3.5 lg:grid-cols-[1fr_1fr]">
         <SalesOverview />
         <RecentOrders />
       </div>
 
       {/* Row 3: Activity | Inventory+Channel | QuickActions+BestSellers */}
-      <div className="grid grid-cols-[350px_388px_1fr] gap-3 mt-4">
+      <div className="grid grid-cols-1 gap-3 mt-4 lg:grid-cols-[350px_388px_1fr]">
         <Activity />
         <div className="flex flex-col gap-4">
           <InventoryAlert />

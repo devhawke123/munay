@@ -74,6 +74,7 @@ export type Product = {
   weight?: string;
   dimensions?: string;
   origin?: string;
+  fiber?: string;
   collection?: string;
   colors?: string[];
   sizes?: string[];

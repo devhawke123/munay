@@ -1,26 +1,24 @@
-import { lazy, Suspense, useEffect } from "react";
+import { type ComponentType, lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ProductsProvider } from "./admin/context/ProductsContext";
 
-const Home = lazy(() =>
-  import("./web/theme.css").then(() =>
-    import("./web/pages/Home").then((m) => ({ default: m.Home })),
-  ),
+// Every public page loads through this so web/theme.css (Tailwind config for
+// the storefront) is guaranteed to load first — add new public pages here
+// rather than calling lazy() directly.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- matches React.lazy's own loose loader type
+function lazyWebPage(loader: () => Promise<{ default: ComponentType<any> }>) {
+  return lazy(() => import("./web/theme.css").then(() => loader()));
+}
+
+const Home = lazyWebPage(() => import("./web/pages/Home").then((m) => ({ default: m.Home })));
+const CategoryPage = lazyWebPage(() =>
+  import("./web/pages/CategoryPage").then((m) => ({ default: m.CategoryPage })),
 );
-const CategoryPage = lazy(() =>
-  import("./web/theme.css").then(() =>
-    import("./web/pages/CategoryPage").then((m) => ({ default: m.CategoryPage })),
-  ),
+const ProductTypePage = lazyWebPage(() =>
+  import("./web/pages/ProductTypePage").then((m) => ({ default: m.ProductTypePage })),
 );
-const ProductTypePage = lazy(() =>
-  import("./web/theme.css").then(() =>
-    import("./web/pages/ProductTypePage").then((m) => ({ default: m.ProductTypePage })),
-  ),
-);
-const ProductPage = lazy(() =>
-  import("./web/theme.css").then(() =>
-    import("./web/pages/ProductPage").then((m) => ({ default: m.ProductPage })),
-  ),
+const ProductPage = lazyWebPage(() =>
+  import("./web/pages/ProductPage").then((m) => ({ default: m.ProductPage })),
 );
 
 const Dashboard = lazy(() =>

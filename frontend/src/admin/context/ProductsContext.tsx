@@ -3,6 +3,12 @@ import type { Product } from "../types/product";
 import scarfPachakuti from "../../web/assets/women-subcategories/scarfsshawls/scarf-pachakuti-red-300x375.jpg.png";
 import scarfQuri from "../../web/assets/women-subcategories/scarfsshawls/scarf-quri-grey-300x375.jpg.png";
 import scarfYachay from "../../web/assets/women-subcategories/scarfsshawls/scarf-yachay-coral-pink.png.png";
+import scarfTikayMain from "../../web/assets/women-subcategories/scarfsshawls/tikay-main.png";
+import scarfTikayDraped from "../../web/assets/women-subcategories/scarfsshawls/tikay-draped.png";
+import scarfTikayModel from "../../web/assets/women-subcategories/scarfsshawls/tikay-model.png";
+import scarfLianpu from "../../web/assets/women-subcategories/scarfsshawls/38.png";
+import scarfTinkuy from "../../web/assets/women-subcategories/scarfsshawls/177.png";
+import scarfTawa from "../../web/assets/women-subcategories/scarfsshawls/111.png";
 import shawlQuni from "../../web/assets/women-subcategories/scarfsshawls/shawl-quni-gray-300x375.jpg.png";
 import shawlSinchi from "../../web/assets/women-subcategories/scarfsshawls/shawl-sinchi-fuchsia-300x375.jpg.png";
 import shawlSumaq from "../../web/assets/women-subcategories/scarfsshawls/shawl-sumaq-lilac-300x375.jpg.png";
@@ -54,6 +60,100 @@ const initialProducts: Product[] = [
     status: "Active",
   },
   {
+    id: "seed-3b",
+    name: "Scarf T'ikay",
+    sku: "SC-004",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Scarfs",
+    images: [
+      { id: "seed-3b-img-1", url: scarfTikayMain },
+      { id: "seed-3b-img-2", url: scarfTikayModel },
+      { id: "seed-3b-img-3", url: scarfTikayDraped },
+      { id: "seed-3b-img-4", url: scarfTikayDraped },
+    ],
+    price: "$190.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+    collection: "Baby Alpaca & Silk",
+    composition: "70% Baby Alpaca 30% Silk",
+    weight: "100 g",
+    dimensions: "180 x 30 cm",
+    origin: "Peru",
+    fiber: "Alpaca",
+    colors: ["Fuchsia & Blue", "Coral & Red", "Stone Gray"],
+    description:
+      "There's a certain kind of luxury that doesn't shout, it whispers. T'IKAY is that quiet elegance.\n\n" +
+      "• Exquisite blend of baby alpaca and silk for a refined finish\n" +
+      "• Meticulously crafted with an obsessive attention to detail\n" +
+      "• Infused with a subtle allure and captivating charm\n" +
+      "• Named after the Quechua word for \"to blossom\" or \"to flower\"\n\n" +
+      "A timeless statement piece that exudes sophistication from every angle.\n\n" +
+      "It's the kind of piece you will reach for again and again—draped over your shoulders to elevate a casual ensemble, or styled with effortless finesse as the perfect accessory for a formal evening out.",
+  },
+  {
+    id: "seed-3c",
+    name: "Lianpu Scarf",
+    sku: "SC-005",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Scarfs",
+    images: [{ id: "seed-3c-img-1", url: scarfLianpu }],
+    price: "$130.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+  },
+  {
+    id: "seed-3d",
+    name: "Tinkuy Scarf",
+    sku: "SC-006",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Scarfs",
+    images: [{ id: "seed-3d-img-1", url: scarfTinkuy }],
+    price: "$149.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+  },
+  {
+    id: "seed-3e",
+    name: "Tawa Scarf",
+    sku: "SC-007",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Scarfs",
+    images: [{ id: "seed-3e-img-1", url: scarfTawa }],
+    price: "$190.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+  },
+  {
+    id: "seed-3f",
+    name: "Ñahua Scarf",
+    sku: "SC-008",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Scarfs",
+    price: "$500.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+  },
+  {
     id: "seed-4",
     name: "Q'uñi Shawl",
     sku: "SH-001",
@@ -93,6 +193,20 @@ const initialProducts: Product[] = [
     section: "Shawls",
     images: [{ id: "seed-5b-img-1", url: shawlSumaq }],
     price: "$170.00",
+    stock: "145",
+    sold: "512",
+    revenue: "$18,450",
+    status: "Active",
+  },
+  {
+    id: "seed-5c",
+    name: "Sayri Shawl",
+    sku: "SH-004",
+    category: "Women",
+    subcategory: "Shawls / Scarfs",
+    group: "Accessories",
+    section: "Shawls",
+    price: "$160.00",
     stock: "145",
     sold: "512",
     revenue: "$18,450",

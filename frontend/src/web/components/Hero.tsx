@@ -2,7 +2,7 @@ import hero from "../assets/hero.png";
 
 export function Hero() {
   return (
-    <div className="relative flex h-[520px] items-center justify-center overflow-hidden sm:h-[650px] lg:h-[812px]">
+    <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
       <img src={hero} alt="" className="absolute inset-0 size-full object-cover" />
       <div className="absolute inset-0 bg-black/[0.07]" />
       <div className="relative flex max-w-[896px] flex-col items-center px-4 text-center">

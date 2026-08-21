@@ -94,7 +94,7 @@ export function Categories() {
                     <img
                       src={category.image}
                       alt={category.name}
-                      className="object-cover"
+                      className="size-full object-cover"
                     />
                   </div>
                 )}

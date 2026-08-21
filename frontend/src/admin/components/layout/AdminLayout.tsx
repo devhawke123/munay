@@ -1,15 +1,19 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import "../../theme.css";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex bg-brand-bg min-h-screen">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <div className="flex-1 p-3 flex flex-col px-10">{children}</div>
+    <div className="flex min-h-screen bg-brand-bg">
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <div className="flex flex-1 flex-col overflow-x-auto p-3 px-4 sm:px-6 lg:px-10">
+          {children}
+        </div>
       </div>
     </div>
   );

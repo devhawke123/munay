@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -20,17 +20,31 @@ function getPageTitle(pathname: string): string {
   return "Dashboard";
 }
 
-export function Header() {
+type HeaderProps = {
+  onMenuClick: () => void;
+};
+
+export function Header({ onMenuClick }: HeaderProps) {
   const { pathname } = useLocation();
   const title = getPageTitle(pathname);
 
   return (
-   <div className="flex items-center justify-between px-6 py-2 bg-[#FBF7F0] border-b border-[#E8E6E1]">
-      {/* Left: Page Title */}
-      <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+   <div className="flex items-center justify-between gap-4 px-4 py-2 sm:px-6 bg-[#FBF7F0] border-b border-[#E8E6E1]">
+      {/* Left: Menu toggle + Page Title */}
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          aria-label="Open menu"
+          onClick={onMenuClick}
+          className="text-gray-700 lg:hidden"
+        >
+          <Menu size={22} />
+        </button>
+        <h1 className="truncate text-lg font-semibold text-gray-900">{title}</h1>
+      </div>
 
       {/* Right: Search + Profile */}
-      <div className="flex items-center gap-6">
+      <div className="flex shrink-0 items-center gap-6">
 
         {/* Admin Profile */}
         <div className="flex items-center gap-2">
