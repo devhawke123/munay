@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ProductsProvider } from "./admin/context/ProductsContext";
+import { OrdersProvider } from "./admin/context/OrdersContext";
 
 const Home = lazy(() =>
   import("./web/theme.css").then(() =>
@@ -54,7 +55,6 @@ const Inventory = lazy(() =>
 const ContentManager = lazy(() =>
   import("./admin/pages/ContentManager").then((m) => ({ default: m.ContentManager })),
 );
-const Reviews = lazy(() => import("./admin/pages/Reviews").then((m) => ({ default: m.Reviews })));
 const Settings = lazy(() =>
   import("./admin/pages/Settings").then((m) => ({ default: m.Settings })),
 );
@@ -86,7 +86,6 @@ function AdminRoutes() {
       <Route path="/sales-analytics" element={<SalesAnalytics />} />
       <Route path="/inventory" element={<Inventory />} />
       <Route path="/content-manager" element={<ContentManager />} />
-      <Route path="/reviews" element={<Reviews />} />
       <Route path="/settings" element={<Settings />} />
     </Routes>
   );
@@ -95,23 +94,25 @@ function AdminRoutes() {
 export function App() {
   return (
     <ProductsProvider>
-      <Suspense fallback={null}>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category/:categorySlug" element={<CategoryPage />} />
-          <Route
-            path="/category/:categorySlug/:subcategorySlug"
-            element={<ProductTypePage />}
-          />
-          <Route
-            path="/category/:categorySlug/:subcategorySlug/:productId"
-            element={<ProductPageRoute />}
-          />
-          <Route path="/admin/*" element={<AdminRoutes />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <OrdersProvider>
+        <Suspense fallback={null}>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug"
+              element={<ProductTypePage />}
+            />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug/:productId"
+              element={<ProductPageRoute />}
+            />
+            <Route path="/admin/*" element={<AdminRoutes />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </OrdersProvider>
     </ProductsProvider>
   );
 }

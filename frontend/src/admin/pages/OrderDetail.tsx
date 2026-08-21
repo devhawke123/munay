@@ -3,15 +3,22 @@ import {
   CheckCircle2,
   Clock,
   CreditCard,
+  ExternalLink,
   type LucideIcon,
   MapPin,
   PackageSearch,
+  Save,
   Truck,
+  XCircle,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
-import { getOrderDetail } from "../data/orders";
+import { buildOrderDetail } from "../data/orders";
+import { useOrders } from "../context/OrdersContext";
 import type { OrderTimelineTone } from "../types/order";
+
+const CARRIER_OPTIONS = ["DHL", "FedEx", "UPS", "USPS"];
 
 const timelineIcons: Record<string, LucideIcon> = {
   "Order Placed": Clock,
@@ -19,6 +26,7 @@ const timelineIcons: Record<string, LucideIcon> = {
   Processing: PackageSearch,
   Shipped: Truck,
   Delivered: CheckCircle2,
+  Cancelled: XCircle,
 };
 
 const timelineTone: Record<OrderTimelineTone, { bg: string; border: string; text: string }> = {
@@ -26,11 +34,27 @@ const timelineTone: Record<OrderTimelineTone, { bg: string; border: string; text
   info: { bg: "bg-info/10", border: "border-info/20", text: "text-info" },
   warning: { bg: "bg-warning/10", border: "border-warning/20", text: "text-warning" },
   neutral: { bg: "bg-surface-muted", border: "border-brand/10", text: "text-text-muted" },
+  danger: { bg: "bg-danger/10", border: "border-danger/20", text: "text-danger" },
 };
 
 export function OrderDetail() {
   const { orderId } = useParams<{ orderId: string }>();
-  const order = getOrderDetail(orderId ?? "1");
+  const { orders } = useOrders();
+  const orderRow = orders.find((o) => o.id === orderId) ?? orders[0];
+  const order = buildOrderDetail(orderRow);
+
+  const [carrier, setCarrier] = useState(order.shippingCarrier);
+  const [trackingId, setTrackingId] = useState(order.trackingId);
+  const [isSaved, setIsSaved] = useState(true);
+  const [lastChecked, setLastChecked] = useState(order.shippingStatusUpdatedAt);
+
+  function handleSave() {
+    setIsSaved(true);
+  }
+
+  function handleTrackShipment() {
+    setLastChecked(new Date().toLocaleString());
+  }
 
   return (
     <AdminLayout>
@@ -45,48 +69,101 @@ export function OrderDetail() {
           </Link>
         </div>
 
-        <div className="flex items-start justify-between rounded-[7px] bg-brand-panel px-6 py-5">
-          <div>
-            <h1 className="text-2xl font-bold text-ink">{order.number}</h1>
-            <p className="mt-1 text-[13px] text-text-muted">
-              {order.date} · {order.paymentMethod} ****{order.paymentLast4}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="inline-flex h-[34px] items-center rounded-[8px] border border-brand/10 bg-white px-4 text-xs font-semibold text-text-primary">
-              Print Invoice
-            </button>
-            <button className="inline-flex h-[34px] items-center rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white">
-              Update Status
-            </button>
-          </div>
+        <div className="rounded-[7px] bg-brand-panel px-6 py-5">
+          <h1 className="text-2xl font-bold text-ink">{order.number}</h1>
+          <p className="mt-1 text-[13px] text-text-muted">{order.date}</p>
         </div>
 
         <div className="grid grid-cols-[1fr_280px] items-start gap-[18px]">
           <div className="flex flex-col gap-[18px]">
-            <div className="rounded-[7px] bg-white p-5">
-              <h2 className="mb-5 text-base font-bold text-text-primary">Order Timeline</h2>
+            <div className="grid grid-cols-2 items-stretch gap-[18px]">
+              <div className="rounded-[7px] bg-white p-5">
+                <h2 className="mb-5 text-base font-bold text-text-primary">Order Timeline</h2>
 
-              <div className="relative flex flex-col gap-6 pl-1">
-                <div className="absolute bottom-4 left-[17px] top-4 w-px bg-brand-border" />
-                {order.timeline.map((step) => {
-                  const Icon = timelineIcons[step.label] ?? Clock;
-                  const tone = timelineTone[step.tone];
-                  return (
-                    <div key={step.label} className="relative z-10 flex items-start gap-3">
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${tone.border} ${tone.bg}`}
-                      >
-                        <Icon size={16} className={tone.text} />
+                <div className="relative flex flex-col gap-6 pl-1">
+                  <div className="absolute bottom-4 left-[17px] top-4 w-px bg-brand-border" />
+                  {order.timeline.map((step) => {
+                    const Icon = timelineIcons[step.label] ?? Clock;
+                    const tone = timelineTone[step.tone];
+                    return (
+                      <div key={step.label} className="relative z-10 flex items-start gap-3">
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${tone.border} ${tone.bg}`}
+                        >
+                          <Icon size={16} className={tone.text} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-text-primary">{step.label}</p>
+                          <p className="text-xs text-text-muted">{step.timestamp}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-text-primary">{step.label}</p>
-                        <p className="text-xs text-text-muted">{step.timestamp}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="w-[85%] justify-self-start rounded-[7px] bg-white p-5">
+                <h2 className="mb-4 text-center text-xs font-bold uppercase tracking-wide text-text-primary">
+                  Shipping Card
+                </h2>
+
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium text-text-muted">Carrier</span>
+                  <select
+                    value={carrier}
+                    onChange={(e) => {
+                      setCarrier(e.target.value);
+                      setIsSaved(false);
+                    }}
+                    className="h-9 w-full rounded-[8px] border border-brand/10 bg-surface-muted px-3 text-sm text-text-primary outline-none focus:border-brand/40"
+                  >
+                    {CARRIER_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="mt-3 flex flex-col gap-1.5">
+                  <span className="text-xs font-medium text-text-muted">Tracking ID</span>
+                  <input
+                    value={trackingId}
+                    onChange={(e) => {
+                      setTrackingId(e.target.value);
+                      setIsSaved(false);
+                    }}
+                    className="h-9 w-full rounded-[8px] border border-brand/10 bg-surface-muted px-3 text-sm text-text-primary outline-none focus:border-brand/40"
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-[8px] bg-brand-dark text-xs font-semibold text-white"
+                >
+                  <Save size={13} />
+                  {isSaved ? "Saved" : "Save"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleTrackShipment}
+                  className="mt-2 flex h-9 w-full items-center justify-center gap-1.5 text-xs font-semibold text-success"
+                >
+                  Track Shipment
+                  <ExternalLink size={12} />
+                </button>
+
+                <div className="mt-3 rounded-[6px] bg-success/10 px-3 py-2">
+                  <p className="text-xs font-semibold text-success">
+                    Status: {order.shippingStatus}
+                  </p>
+                  <p className="text-[11px] text-text-muted">Last checked: {lastChecked}</p>
+                  <p className="mt-0.5 text-[10px] text-text-muted/70">
+                    (Updated automatically in Phase 2)
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -110,8 +187,8 @@ export function OrderDetail() {
                     className="grid grid-cols-[1fr_70px_50px_90px_90px] items-center"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border border-brand/10 bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700 text-[10px] font-semibold text-white">
-                        IMG
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border border-brand/10 bg-brand-soft/30">
+                        <PackageSearch size={16} className="text-text-muted" />
                       </div>
                       <div>
                         <p className="text-[13px] font-semibold text-text-primary">{item.name}</p>
@@ -187,37 +264,6 @@ export function OrderDetail() {
                   <p className="text-xs text-text-muted">{order.shippingAddress}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="rounded-[7px] bg-white p-5">
-              <h2 className="mb-4 text-sm font-bold text-text-primary">Payment</h2>
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
-                  <CreditCard size={14} className="text-brand" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-text-primary">
-                    {order.paymentMethod} ****{order.paymentLast4}
-                  </p>
-                  <p className="text-xs text-text-muted">**** **** **** 4242</p>
-                </div>
-              </div>
-              <div className="mt-3 rounded-[6px] bg-success/10 px-3 py-2">
-                <p className="text-xs font-semibold text-success">Payment Confirmed</p>
-                <p className="text-[11px] text-text-muted">{order.paymentConfirmedDate}</p>
-              </div>
-            </div>
-
-            <div className="rounded-[7px] bg-white p-5">
-              <h2 className="mb-4 text-sm font-bold text-text-primary">Order Notes</h2>
-              <textarea
-                placeholder="Add internal note..."
-                rows={3}
-                className="w-full resize-none rounded-[6px] border border-brand/10 bg-surface-muted p-3 text-xs text-text-primary placeholder:text-text-muted"
-              />
-              <button className="mt-3 flex h-[30px] items-center justify-center rounded-[6px] bg-brand-dark px-4 text-xs font-semibold text-white">
-                Save Note
-              </button>
             </div>
           </div>
         </div>

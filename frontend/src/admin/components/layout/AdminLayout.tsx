@@ -8,7 +8,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     <div className="flex bg-brand-bg min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Header />
+        <div className="sticky top-0 z-30">
+          <Header />
+        </div>
         <div className="flex-1 p-3 flex flex-col px-10">{children}</div>
       </div>
     </div>

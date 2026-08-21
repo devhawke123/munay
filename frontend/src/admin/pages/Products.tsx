@@ -1,45 +1,69 @@
-import { Box, ChevronDown, Ellipsis, PackageCheck, PackageMinus, PackageX, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  Box,
+  ChevronDown,
+  Ellipsis,
+  Eye,
+  ImageIcon,
+  PackageCheck,
+  PackageMinus,
+  PackageX,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatCard } from "../components/ui/StatCard";
+import { SearchBar } from "../components/ui/SearchBar";
 import { useProducts } from "../context/ProductsContext";
+import type { Product } from "../types/product";
 
-const stats = [
-  {
-    label: "Total Products",
-    value: "248",
-    icon: Box,
-    iconBg: "bg-tint-brand",
-    iconColor: "text-brand",
-    valueColor: "text-brand-dark",
-  },
-  {
-    label: "Active Products",
-    value: "186",
-    icon: PackageCheck,
-    iconBg: "bg-tint-success",
-    iconColor: "text-success",
-    valueColor: "text-success",
-  },
-  {
-    label: "Low Stock",
-    value: "12",
-    icon: PackageMinus,
-    iconBg: "bg-tint-danger",
-    iconColor: "text-danger",
-    valueColor: "text-danger",
-  },
-  {
-    label: "Out of Stock",
-    value: "8",
-    icon: PackageX,
-    iconBg: "bg-tint-brand",
-    iconColor: "text-warning",
-    valueColor: "text-warning",
-  },
+const LOW_STOCK_THRESHOLD = 20;
 
-];
+function getStats(products: Product[]) {
+  const activeCount = products.filter((p) => p.status === "Active").length;
+  const lowStockCount = products.filter((p) => {
+    const stock = Number(p.stock) || 0;
+    return stock > 0 && stock < LOW_STOCK_THRESHOLD;
+  }).length;
+  const outOfStockCount = products.filter((p) => (Number(p.stock) || 0) === 0).length;
+
+  return [
+    {
+      label: "Total Products",
+      value: String(products.length),
+      icon: Box,
+      iconBg: "bg-tint-brand",
+      iconColor: "text-brand",
+      valueColor: "text-brand-dark",
+    },
+    {
+      label: "Active Products",
+      value: String(activeCount),
+      icon: PackageCheck,
+      iconBg: "bg-tint-success",
+      iconColor: "text-success",
+      valueColor: "text-success",
+    },
+    {
+      label: "Low Stock",
+      value: String(lowStockCount),
+      icon: PackageMinus,
+      iconBg: "bg-tint-danger",
+      iconColor: "text-danger",
+      valueColor: "text-danger",
+    },
+    {
+      label: "Out of Stock",
+      value: String(outOfStockCount),
+      icon: PackageX,
+      iconBg: "bg-tint-brand",
+      iconColor: "text-warning",
+      valueColor: "text-warning",
+    },
+  ];
+}
 
 function FilterButton({ label }: { label: string }) {
   return (
@@ -51,7 +75,22 @@ function FilterButton({ label }: { label: string }) {
 }
 
 export function Products() {
-  const { products } = useProducts();
+  const { products, removeProduct } = useProducts();
+  const navigate = useNavigate();
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const stats = getStats(products);
+
+  const visibleProducts = products.filter((product) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.sku.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query) ||
+      product.subcategory.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <AdminLayout>
@@ -86,12 +125,12 @@ export function Products() {
         <div className="rounded-[7px] bg-white px-[14px] pb-9 pt-[17px]">
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-[11px]">
-            <div className="flex h-[37px] w-[285px] items-center gap-2 rounded-[10px] border border-brand/10 bg-surface-muted px-[14px]">
-              <Search size={13} className="text-text-muted" />
-              <span className="text-[13px] text-text-primary/50">
-                Search products...
-              </span>
-            </div>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search products..."
+              className="w-[285px]"
+            />
             <FilterButton label="All Categories" />
             <FilterButton label="All Statuses" />
           </div>
@@ -100,7 +139,7 @@ export function Products() {
         </div>
 
         <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
-          <div className="grid grid-cols-[190px_80px_185px_74px_48px_48px_76px_84px_60px] items-center text-base text-text-primary/70">
+          <div className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_70px_100px_110px_60px] items-center gap-x-6 text-base text-text-primary/70">
             <div>Product</div>
             <div>SKU</div>
             <div>Category</div>
@@ -113,60 +152,110 @@ export function Products() {
           </div>
         </div>
 
-        <div className="mt-[26px] flex flex-col gap-[26px] px-[18px]">
-          {products.map((product) => (
-            <Link
-              key={product.id}
-              to={`/admin/products/${product.id}`}
-              className="grid grid-cols-[190px_80px_185px_74px_48px_48px_76px_84px_60px] items-center"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-[60px] w-16 items-center justify-center rounded-[11px] border border-brand/10 bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700 text-xs font-semibold text-white">
-                  IMG
-                </div>
-                <span className="text-base font-display font-semibold leading-5 text-text-primary">
-                  {product.name}
-                </span>
-              </div>
-
-              <div className="flex h-[23px] w-[52px] items-center justify-center rounded-[6px] bg-surface-tan font-mono text-[11px] font-medium text-brand">
-                {product.sku}
-              </div>
-
-              <div className="flex items-center gap-1 text-xs leading-[18px]">
-                <span className="font-display font-semibold text-text-primary">
-                  {product.category}
-                </span>
-                <span className="text-brand/30">/</span>
-                <span className="text-text-muted">{product.subcategory}</span>
-              </div>
-
-              <div className="text-sm font-display font-bold text-text-primary">
-                {product.price}
-              </div>
-              <div className="text-[13px] font-medium text-text-primary">
-                {product.stock}
-              </div>
-              <div className="text-[13px] text-text-primary">{product.sold}</div>
-              <div className="text-[13px] font-display font-bold text-text-primary">
-                {product.revenue}
-              </div>
-
-              <div className="inline-flex h-[23.833px] items-center gap-[5px] rounded-full border border-success/20 bg-success/10 px-[10px] py-[3px]">
-                <span className="h-[5px] w-[5px] rounded-[2.5px] bg-success" />
-                <span className="text-[11px] font-display font-semibold tracking-[0.11px] text-success">
-                  {product.status}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={(e) => e.preventDefault()}
-                className="flex h-8 w-8 items-center justify-center text-text-primary"
+        <div className="mt-[10px] flex flex-col px-[18px]">
+          {visibleProducts.map((product) => (
+            <div key={product.id} className="relative border-b border-brand-border last:border-0">
+              <Link
+                to={`/admin/products/${product.id}`}
+                className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_70px_100px_110px_60px] items-center gap-x-6 py-4"
               >
-                <Ellipsis size={20} />
-              </button>
-            </Link>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-[60px] w-16 shrink-0 items-center justify-center overflow-hidden rounded-[11px] border border-brand/10 bg-brand-soft/30">
+                    {product.images?.[0] ? (
+                      <img
+                        src={product.images[0].url}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon size={20} className="text-text-muted" />
+                    )}
+                  </div>
+                  <span className="text-base font-display font-semibold leading-5 text-text-primary">
+                    {product.name}
+                  </span>
+                </div>
+
+                <div className="flex h-[23px] w-[52px] items-center justify-center rounded-[6px] bg-surface-tan font-mono text-[11px] font-medium text-brand">
+                  {product.sku}
+                </div>
+
+                <div className="flex items-center gap-1 text-xs leading-[18px]">
+                  <span className="font-display font-semibold text-text-primary">
+                    {product.category}
+                  </span>
+                  <span className="text-brand/30">/</span>
+                  <span className="text-text-muted">{product.subcategory}</span>
+                </div>
+
+                <div className="text-sm font-display font-bold text-text-primary">
+                  {product.price}
+                </div>
+                <div className="text-[13px] font-medium text-text-primary">
+                  {product.stock}
+                </div>
+                <div className="text-[13px] text-text-primary">{product.sold}</div>
+                <div className="text-[13px] font-display font-bold text-text-primary">
+                  {product.revenue}
+                </div>
+
+                <div className="inline-flex h-[23.833px] w-fit items-center gap-[5px] rounded-full border border-success/20 bg-success/10 px-[10px] py-[3px]">
+                  <span className="h-[5px] w-[5px] rounded-[2.5px] bg-success" />
+                  <span className="text-[11px] font-display font-semibold tracking-[0.11px] text-success">
+                    {product.status}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpenMenuId((prev) => (prev === product.id ? null : product.id));
+                  }}
+                  className="flex h-8 w-8 items-center justify-center text-text-primary"
+                >
+                  <Ellipsis size={20} />
+                </button>
+              </Link>
+
+              {openMenuId === product.id && (
+                <div className="absolute right-0 top-full z-10 w-44 rounded-[12px] border border-brand-border bg-white p-1.5 shadow-card">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenMenuId(null);
+                      navigate(`/admin/products/${product.id}`);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-sm text-text-primary hover:bg-brand-soft/60"
+                  >
+                    <Eye size={15} />
+                    View Details
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenMenuId(null);
+                      navigate(`/admin/products/${product.id}`);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-sm text-text-primary hover:bg-brand-soft/60"
+                  >
+                    <Pencil size={15} />
+                    Edit Product
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenMenuId(null);
+                      removeProduct(product.id);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-sm text-danger hover:bg-danger/10"
+                  >
+                    <Trash2 size={15} />
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>

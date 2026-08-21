@@ -1,4 +1,4 @@
-import { LayoutGrid, Package, ShoppingCart, Users, BarChart2, Boxes, FileText, Star, Settings, LogOut } from "lucide-react";
+import { LayoutGrid, Package, ShoppingCart, Users, BarChart2, Boxes, FileText, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import munayLogo from "../../assets/munay-logo.png";
 
@@ -13,7 +13,6 @@ export function Sidebar() {
     { name: "Sales & Analytics", icon: BarChart2, path: "/admin/sales-analytics" },
     { name: "Inventory", icon: Boxes, path: "/admin/inventory" },
     { name: "Content Manager", icon: FileText, path: "/admin/content-manager" },
-    { name: "Reviews", icon: Star, path: "/admin/reviews" },
     { name: "Settings", icon: Settings, path: "/admin/settings" },
   ];
 
