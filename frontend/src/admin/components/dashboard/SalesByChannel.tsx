@@ -1,10 +1,13 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { salesByChannel } from "../../data/salesAnalytics";
 
-const data = [
-  { name: "Website", value: 72, color: "#8b5e2b" },
-  { name: "Mobile", value: 18, color: "#c9973a" },
-  { name: "Others", value: 10, color: "#d4b896" },
-];
+const CHANNEL_COLORS = ["#8b5e2b", "#c9973a", "#d4b896"];
+
+const data = salesByChannel.map((channel, index) => ({
+  name: channel.label.replace(" Sales", ""),
+  value: channel.percent,
+  color: CHANNEL_COLORS[index % CHANNEL_COLORS.length],
+}));
 
 export function SalesByChannel() {
   return (

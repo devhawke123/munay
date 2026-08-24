@@ -1,19 +1,24 @@
-const orders = [
-  { id: "#12345", customer: "Emily ", items: "2 items", status: "Processing", amount: "$259.00", date: "24 May" },
-  { id: "#12345", customer: "Emily", items: "2 items", status: "Shipped", amount: "$259.00", date: "24 May" },
-  { id: "#12345", customer: "Emily", items: "2 items", status: "Delivered", amount: "$259.00", date: "24 May" },
-  { id: "#12345", customer: "Emily", items: "2 items", status: "Cancelled", amount: "$259.00", date: "24 May" },
-  { id: "#12345", customer: "Emily", items: "2 items", status: "Processing", amount: "$259.00", date: "24 May" },
-];
+import { useOrders } from "../../context/OrdersContext";
 
 const statusStyles: Record<string, string> = {
   Processing: "bg-warning/10 border border-warning/20 text-warning",
+  Pending: "bg-warning/10 border border-warning/20 text-warning",
   Shipped: "bg-info/10 border border-info/15 text-info",
   Delivered: "bg-success/10 border border-success/20 text-success",
   Cancelled: "bg-danger/10 border border-danger/15 text-danger",
 };
 
 export function RecentOrders() {
+  const { orders } = useOrders();
+  const recentOrders = orders.slice(0, 5).map((order) => ({
+    id: order.number,
+    customer: order.customerName,
+    items: order.products,
+    status: order.status,
+    amount: order.amount,
+    date: order.date,
+  }));
+
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
       {/* Header */}
@@ -37,7 +42,7 @@ export function RecentOrders() {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order, index) => (
+          {recentOrders.map((order, index) => (
             <tr key={index} className="text-xs border-b border-brand/[0.05]">
               <td className="py-2 font-mono font-bold text-brand-accent">{order.id}</td>
               <td className="py-2">

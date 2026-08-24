@@ -18,7 +18,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { name: "Sales & Analytics", icon: BarChart2, path: "/admin/sales-analytics" },
     { name: "Inventory", icon: Boxes, path: "/admin/inventory" },
     { name: "Content Manager", icon: FileText, path: "/admin/content-manager" },
-    { name: "Reviews", icon: Star, path: "/admin/reviews" },
     { name: "Settings", icon: Settings, path: "/admin/settings" },
   ];
 

@@ -2,6 +2,7 @@ import lesAutomnalesImage from "../../web/assets/Image (Les Automnales — Genev
 import empowermentEleganceImage from "../../web/assets/Image (An Evening of Empowerment & Elegance).jpg";
 import winterCollectionImage from "../../web/assets/Image (Munay Winter Collection Preview).jpg";
 import alpacaPopUpImage from "../../web/assets/Image (Alpaca Pop-up — Larco Mar).jpg";
+import sampleContentImage from "../assets/samplecontent.jpg";
 import type { EventRow } from "../types/event";
 
 export const initialEvents: EventRow[] = [
@@ -104,28 +105,8 @@ export const initialEvents: EventRow[] = [
       "Meet our team for wholesale and press inquiries.",
       "Preview our new home accessories line.",
     ],
-    posterImage: null,
-    heroImage: null,
-    galleryThumbnails: [],
-  },
-  {
-    id: "6",
-    monthYear: "March 2026",
-    standSubtitle: "",
-    title: "Munay Spring Showcase — Milan",
-    dateRange: "12 – 15 March 2026",
-    location: "Fiera Milano, Milan, Italy",
-    type: "Fair / Expo",
-    status: "Published",
-    description:
-      "Our Spring Showcase debuts in Milan, bringing Munay's newest lightweight alpaca-blend pieces to a European audience.",
-    venueCallout: "Find us in Hall 4, close to the main entrance.",
-    bulletPoints: [
-      "Discover our new lightweight spring fabrics.",
-      "Meet the Munay team and ask about stockist partnerships.",
-    ],
-    posterImage: null,
-    heroImage: null,
+    posterImage: sampleContentImage,
+    heroImage: sampleContentImage,
     galleryThumbnails: [],
   },
 ];

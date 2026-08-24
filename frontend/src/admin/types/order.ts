@@ -21,7 +21,7 @@ export type OrderRow = {
   date: string;
 };
 
-export type OrderTimelineTone = "brand" | "info" | "warning" | "neutral";
+export type OrderTimelineTone = "brand" | "info" | "warning" | "neutral" | "danger";
 
 export type OrderTimelineStep = {
   label: string;
@@ -43,6 +43,10 @@ export type OrderDetail = OrderRow & {
   paymentLast4: string;
   paymentConfirmedDate: string;
   shippingAddress: string;
+  shippingCarrier: string;
+  trackingId: string;
+  shippingStatus: string;
+  shippingStatusUpdatedAt: string;
   timeline: OrderTimelineStep[];
   items: OrderItemRow[];
   subtotal: string;

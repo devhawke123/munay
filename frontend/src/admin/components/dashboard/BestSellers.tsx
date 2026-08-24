@@ -1,10 +1,12 @@
-const products = [
-  { name: "Oversized Coat", sold: "392 sold" },
-  { name: "Oversized Coat", sold: "392 sold" },
-  { name: "Oversized Coat", sold: "392 sold" },
-];
+import { useProducts } from "../../context/ProductsContext";
 
 export function BestSellers() {
+  const { products: allProducts } = useProducts();
+  const products = [...allProducts]
+    .sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0))
+    .slice(0, 3)
+    .map((p) => ({ name: p.name, sold: `${p.sold} sold` }));
+
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
       {/* Header */}
