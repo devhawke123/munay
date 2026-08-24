@@ -1,4 +1,4 @@
-import { Check, GripVertical, ImagePlus, Plus, X } from "lucide-react";
+import { Check, ImagePlus, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { EVENT_STATUSES, EVENT_TYPES, type EventRow } from "../../types/event";
 import { EventImagePlaceholder } from "./EventImagePlaceholder";
@@ -195,7 +195,6 @@ export function EventFormModal({ event, isNew, onCancel, onSave }: EventFormModa
             <div className="flex flex-col gap-2">
               {form.bulletPoints.map((point, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <GripVertical size={14} className="shrink-0 text-text-muted" />
                   <input
                     className={fieldClass()}
                     value={point}

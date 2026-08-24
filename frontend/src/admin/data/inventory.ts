@@ -66,8 +66,9 @@ export const warehouses: Warehouse[] = [
         totalStock: 23,
         reorderPoint: 30,
         variants: [
+          { color: "Oatmeal", size: "S", qty: 5 },
           { color: "Oatmeal", size: "M", qty: 10 },
-          { color: "Oatmeal", size: "L", qty: 13 },
+          { color: "Oatmeal", size: "L", qty: 8 },
         ],
       },
       {
@@ -102,8 +103,15 @@ export const warehouses: Warehouse[] = [
         totalStock: 55,
         reorderPoint: 25,
         variants: [
-          { color: "Blue", size: "S", qty: 20 },
-          { color: "Blue", size: "M", qty: 35 },
+          { color: "Blue", size: "S", qty: 12 },
+          { color: "Blue", size: "M", qty: 18 },
+          { color: "Blue", size: "L", qty: 8 },
+          { color: "Cream", size: "S", qty: 5 },
+          { color: "Cream", size: "M", qty: 7 },
+          { color: "Cream", size: "L", qty: 0 },
+          { color: "Camel", size: "S", qty: 2 },
+          { color: "Camel", size: "M", qty: 2 },
+          { color: "Camel", size: "L", qty: 1 },
         ],
       },
       {
