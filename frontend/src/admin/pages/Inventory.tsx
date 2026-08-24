@@ -1,4 +1,4 @@
-import { Box, Boxes, Clock, Hash, MapPin, PackageCheck, PackageMinus, PackageX, Upload, Warehouse as WarehouseIcon, X } from "lucide-react";
+import { Box, Boxes, Clock, Globe, Hash, MapPin, PackageCheck, PackageMinus, PackageX, Store, Upload, Warehouse as WarehouseIcon, X } from "lucide-react";
 import { useState } from "react";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
@@ -8,6 +8,7 @@ import { StatusBadge, type StatusTone } from "../components/ui/StatusBadge";
 import { ImportInventoryModal } from "../components/inventory/ImportInventoryModal";
 import type { ImportRow } from "../components/inventory/importTypes";
 import { BulkAdjustStockModal } from "../components/inventory/BulkAdjustStockModal";
+import { ProductVariantDetail } from "../components/inventory/ProductVariantDetail";
 import { warehouses as initialWarehouses } from "../data/inventory";
 import { getInventoryStatus, type InventoryItem, type InventoryStatus, type Warehouse } from "../types/inventory";
 
@@ -124,8 +125,11 @@ export function Inventory() {
   const [adjustingItemId, setAdjustingItemId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBulkAdjustModal, setShowBulkAdjustModal] = useState(false);
+  const [inventoryMode, setInventoryMode] = useState<"offline" | "online">("offline");
+  const [viewingItemId, setViewingItemId] = useState<string | null>(null);
 
   const activeWarehouse = warehouses.find((w) => w.id === activeWarehouseId) ?? warehouses[0];
+  const viewingItem = activeWarehouse.items.find((i) => i.id === viewingItemId) ?? null;
 
   const inStockCount = activeWarehouse.items.filter((i) => getInventoryStatus(i) === "In Stock").length;
   const lowStockCount = activeWarehouse.items.filter((i) => getInventoryStatus(i) === "Low Stock").length;
@@ -204,7 +208,7 @@ export function Inventory() {
               subcategory: "",
               totalStock: row.totalStock,
               reorderPoint: row.reorderPoint,
-              variants: [{ label: "OS", qty: row.totalStock }],
+              variants: [{ color: "Default", size: "OS", qty: row.totalStock }],
             });
           }
         });
@@ -243,6 +247,62 @@ export function Inventory() {
           </div>
         </div>
 
+        <div className="flex w-fit items-center gap-1 rounded-panel bg-brand-bg p-1">
+          <button
+            type="button"
+            onClick={() => setInventoryMode("offline")}
+            className={`flex flex-col items-start rounded-md px-4 py-2 text-left transition-colors ${
+              inventoryMode === "offline" ? "bg-brand-dark text-white" : "text-text-muted"
+            }`}
+          >
+            <span className="flex items-center gap-1.5 text-[13px] font-display font-semibold">
+              <Store size={13} />
+              Offline Inventory
+            </span>
+            <span
+              className={`text-[10px] ${inventoryMode === "offline" ? "text-white/70" : "text-text-muted/70"}`}
+            >
+              Warehouses · manual &amp; CSV
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setInventoryMode("online")}
+            className={`flex flex-col items-start rounded-md px-4 py-2 text-left transition-colors ${
+              inventoryMode === "online" ? "bg-brand-dark text-white" : "text-text-muted"
+            }`}
+          >
+            <span className="flex items-center gap-1.5 text-[13px] font-display font-semibold">
+              <Globe size={13} />
+              Online Inventory
+            </span>
+            <span
+              className={`text-[10px] ${inventoryMode === "online" ? "text-white/70" : "text-text-muted/70"}`}
+            >
+              Website · auto-tracked
+            </span>
+          </button>
+        </div>
+
+        {inventoryMode === "online" && (
+          <div className="flex flex-col items-center justify-center gap-2 rounded-[7px] border border-brand-border bg-white px-6 py-16 text-center">
+            <Globe size={28} className="text-brand" />
+            <p className="text-sm font-display font-bold text-text-primary">
+              Online inventory syncing isn't connected yet
+            </p>
+            <p className="max-w-sm text-xs text-text-muted">
+              Once your storefront is wired up, stock sold online will update here automatically.
+              For now, manage stock under Offline Inventory.
+            </p>
+          </div>
+        )}
+
+        {inventoryMode === "offline" && viewingItem && (
+          <ProductVariantDetail item={viewingItem} onBack={() => setViewingItemId(null)} />
+        )}
+
+        {inventoryMode === "offline" && !viewingItem && (
+        <>
         <div className="flex w-fit items-center gap-2 rounded-panel bg-brand-bg p-1">
           {warehouses.map((warehouse) => {
             const isActive = warehouse.id === activeWarehouseId;
@@ -255,6 +315,7 @@ export function Inventory() {
                   setActiveWarehouseId(warehouse.id);
                   setActiveFilter("All");
                   setSearchQuery("");
+                  setViewingItemId(null);
                 }}
                 className={`flex items-center gap-2 rounded-md px-4 py-2 text-[13px] font-display font-medium transition-colors ${
                   isActive ? "bg-white text-text-primary shadow-card" : "text-text-muted"
@@ -392,7 +453,8 @@ export function Inventory() {
               return (
                 <div
                   key={item.id}
-                  className="grid grid-cols-[minmax(180px,1.8fr)_90px_minmax(140px,1.2fr)_130px_100px_minmax(140px,1.4fr)_100px_90px] items-center gap-x-4 border-b border-brand-border py-4 last:border-0"
+                  onClick={() => setViewingItemId(item.id)}
+                  className="grid cursor-pointer grid-cols-[minmax(180px,1.8fr)_90px_minmax(140px,1.2fr)_130px_100px_minmax(140px,1.4fr)_100px_90px] items-center gap-x-4 border-b border-brand-border py-4 last:border-0 hover:bg-surface-muted/60"
                 >
                   <div className="text-sm font-display font-semibold text-text-primary">
                     {item.product}
@@ -427,10 +489,10 @@ export function Inventory() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     {item.variants.map((variant) => (
                       <span
-                        key={variant.label}
+                        key={`${variant.color}-${variant.size}`}
                         className="flex h-[22px] items-center rounded-[6px] bg-surface-tan px-2 text-[11px] font-medium text-text-primary"
                       >
-                        {variant.label}: {variant.qty}
+                        {variant.color}/{variant.size}: {variant.qty}
                       </span>
                     ))}
                   </div>
@@ -440,7 +502,10 @@ export function Inventory() {
                   <div>
                     <button
                       type="button"
-                      onClick={() => setAdjustingItemId(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAdjustingItemId(item.id);
+                      }}
                       className="rounded-[8px] bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand-dark"
                     >
                       Adjust
@@ -451,6 +516,8 @@ export function Inventory() {
             })}
           </div>
         </div>
+        </>
+        )}
       </div>
 
       {adjustingItemId && (
