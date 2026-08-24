@@ -34,6 +34,12 @@ function sizeLabel(size: string): string {
   return SIZE_LABELS[size] ?? size;
 }
 
+function joinSizeLabels(sizes: string[]): string {
+  const labels = sizes.map(sizeLabel);
+  if (labels.length <= 1) return labels.join("");
+  return `${labels.slice(0, -1).join(", ")} & ${labels[labels.length - 1]}`;
+}
+
 const LEGEND = [
   { key: "healthy", label: "Healthy", dot: "bg-[#00BC7D]" },
   { key: "running-low", label: "Running low", dot: "bg-[#FE9A00]" },
@@ -58,8 +64,8 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
       </button>
 
       <div className="grid grid-cols-4 gap-[10px]">
-        <div className="flex items-center gap-3 rounded-card border border-brand-border bg-white p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
+        <div className="flex items-center gap-3 rounded-card border border-black/[0.06] bg-[#FBE7D4] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-white/50">
             <Boxes size={18} className="text-brand" />
           </div>
           <div>
@@ -68,8 +74,8 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-card border border-brand-border bg-white p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
+        <div className="flex items-center gap-3 rounded-card border border-black/[0.06] bg-[#FFFAF2] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-white/50">
             <AlertTriangle size={18} className="text-warning" />
           </div>
           <div>
@@ -78,8 +84,8 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-card border border-brand-border bg-white p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-mint">
+        <div className="flex items-center gap-3 rounded-card border border-black/[0.06] bg-[#CBFFEF] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-white/50">
             <span className="text-[9px] font-bold text-success">{sizes.join("/")}</span>
           </div>
           <div>
@@ -88,8 +94,8 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-card border border-brand-border bg-white p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
+        <div className="flex items-center gap-3 rounded-card border border-black/[0.06] bg-[#F9F7F4] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-white/50">
             <AlertTriangle size={18} className="text-warning" />
           </div>
           <div>
@@ -109,7 +115,7 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
             </p>
             <p className="mt-1 text-xs text-text-muted">
               For each color, see how many units are in stock in{" "}
-              <strong className="text-text-primary">{sizes.join(", ")}</strong>.
+              <strong className="text-text-primary">{joinSizeLabels(sizes)}</strong>.
             </p>
           </div>
           <span className="rounded-full bg-surface-tan px-3 py-1 text-[11px] font-semibold text-text-muted">
@@ -147,10 +153,10 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
                         key={size}
                         className={`flex flex-col items-center gap-0.5 rounded-[8px] py-3 ${CELL_CLASS[status]}`}
                       >
-                        <span className="text-[10px] font-display font-medium uppercase tracking-wide text-text-muted/70">
+                        <span className="text-[12px] font-bold uppercase tracking-wide text-text-primary">
                           {size}
                         </span>
-                        <span className="text-lg font-display font-bold leading-tight">
+                        <span className="text-xl font-display font-bold leading-tight">
                           {status === "out-of-stock" ? "Out" : status === "not-offered" ? "—" : qty}
                         </span>
                         <span className="text-[10px] text-text-muted/70">{sizeLabel(size)}</span>
@@ -167,7 +173,7 @@ export function ProductVariantDetail({ item, onBack }: ProductVariantDetailProps
           <div className="flex items-center gap-4">
             {LEGEND.map((entry) => (
               <div key={entry.key} className="flex items-center gap-1.5 text-[11px] text-text-muted">
-                <span className={`h-2 w-2 rounded-full ${entry.dot}`} />
+                <span className={`h-3 w-3 rounded-full ${entry.dot}`} />
                 {entry.label}
               </div>
             ))}

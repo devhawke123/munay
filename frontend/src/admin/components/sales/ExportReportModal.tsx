@@ -1,6 +1,12 @@
-import { ArrowLeft, CheckCircle2, Download, FileSpreadsheet, FileText, X } from "lucide-react";
+import { CheckCircle2, Download, FileSpreadsheet, FileText, Table2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { buildCsv, buildSimplePdf, triggerDownload, type ExportScopeOption } from "./exportUtils";
+import {
+  buildCsv,
+  buildExcelWorkbook,
+  buildSimplePdf,
+  triggerDownload,
+  type ExportScopeOption,
+} from "./exportUtils";
 
 type ExportReportModalProps = {
   tabLabel: string;
@@ -10,8 +16,13 @@ type ExportReportModalProps = {
   onClose: () => void;
 };
 
-type Step = "scope" | "format" | "done";
-type Format = "PDF" | "CSV";
+type Format = "CSV" | "Excel" | "PDF";
+
+const FORMAT_OPTIONS: { key: Format; label: string; description: string; icon: typeof Table2 }[] = [
+  { key: "CSV", label: "CSV", description: "Raw rows for spreadsheets", icon: Table2 },
+  { key: "Excel", label: "Excel", description: "Formatted workbook", icon: FileSpreadsheet },
+  { key: "PDF", label: "PDF", description: "Print-ready report", icon: FileText },
+];
 
 function slugify(startDay: string, endDay: string) {
   const [startNum] = startDay.split(" ");
@@ -26,36 +37,43 @@ export function ExportReportModal({
   scopeOptions,
   onClose,
 }: ExportReportModalProps) {
-  const [step, setStep] = useState<Step>("scope");
-  const [scopeKey, setScopeKey] = useState(scopeOptions[0]?.key);
-  const [format, setFormat] = useState<Format>("PDF");
+  const [format, setFormat] = useState<Format>("Excel");
+  const [done, setDone] = useState(false);
   const [filename, setFilename] = useState("");
 
-  const selectedOption = scopeOptions.find((option) => option.key === scopeKey) ?? scopeOptions[0];
+  const fullReport = scopeOptions.find((option) => option.key === "full") ?? scopeOptions[0];
   const dateRangeLabel = `${startDay} – ${endDay}`;
 
   useEffect(() => {
-    if (step !== "done") return;
+    if (!done) return;
     const timer = setTimeout(onClose, 2500);
     return () => clearTimeout(timer);
-  }, [step, onClose]);
+  }, [done, onClose]);
 
-  function handleDownload() {
-    const sections = selectedOption.getSections();
+  function handleGenerate() {
+    const sections = fullReport.getSections();
     const slug = slugify(startDay, endDay);
-    const name = `sales-report-${slug}.${format.toLowerCase()}`;
 
-    const blob =
-      format === "CSV"
-        ? new Blob([buildCsv(sections)], { type: "text/csv" })
-        : buildSimplePdf("Export report", `${dateRangeLabel} · ${tabLabel}`, sections);
+    let blob: Blob;
+    let extension: string;
+    if (format === "CSV") {
+      blob = new Blob([buildCsv(sections)], { type: "text/csv" });
+      extension = "csv";
+    } else if (format === "Excel") {
+      blob = buildExcelWorkbook(sections);
+      extension = "xls";
+    } else {
+      blob = buildSimplePdf("Export report", `${dateRangeLabel} · ${tabLabel}`, sections);
+      extension = "pdf";
+    }
 
+    const name = `sales-report-${slug}.${extension}`;
     triggerDownload(blob, name);
     setFilename(name);
-    setStep("done");
+    setDone(true);
   }
 
-  if (step === "done") {
+  if (done) {
     return (
       <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-[10px] bg-[#161412] px-4 py-3 shadow-card">
         <CheckCircle2 size={18} className="shrink-0 text-success" />
@@ -69,119 +87,61 @@ export function ExportReportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-[500px] rounded-[12px] border border-brand-border bg-white p-7 shadow-card">
-        {step === "scope" && (
-          <>
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-display font-bold text-text-primary">Export report</p>
-                <p className="mt-0.5 text-xs text-text-muted">
-                  {dateRangeLabel} · {tabLabel}
-                </p>
-              </div>
-              <button type="button" onClick={onClose} className="text-text-muted hover:text-text-primary">
-                <X size={18} />
-              </button>
+      <div className="w-full max-w-[420px] overflow-hidden rounded-[12px] bg-white shadow-card">
+        <div className="flex items-center justify-between bg-brand-dark px-5 py-4">
+          <div className="flex items-center gap-3">
+            <Download size={18} className="text-white" />
+            <div>
+              <p className="text-sm font-display font-bold text-white">Export report</p>
+              <p className="text-xs text-white/70">
+                Sales &amp; Analytics · {tabLabel}
+              </p>
             </div>
-
-            <p className="mb-3 mt-6 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-              What to export
-            </p>
-          <div className="flex flex-col gap-3">
-            {scopeOptions.map((option) => {
-              const isSelected = option.key === scopeKey;
-              return (
-                <button
-                  key={option.key}
-                  type="button"
-                  onClick={() => {
-                    setScopeKey(option.key);
-                    setStep("format");
-                  }}
-                  className={`flex items-center gap-2 rounded-[8px] border px-4 py-3.5 text-left text-sm ${
-                    isSelected
-                      ? "border-brand-accent bg-brand-soft/30 font-semibold text-text-primary"
-                      : "border-brand-border text-text-primary"
-                  }`}
-                >
-                  <span
-                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                      isSelected ? "border-brand-accent" : "border-brand-border"
-                    }`}
-                  >
-                    {isSelected && <span className="h-2 w-2 rounded-full bg-brand-accent" />}
-                  </span>
-                  {option.label}
-                </button>
-              );
-            })}
           </div>
+          <button type="button" onClick={onClose} className="text-white/80 hover:text-white">
+            <X size={18} />
+          </button>
+        </div>
 
-          <p className="mt-6 text-[11px] text-text-muted">Step 1 of 3 — choose scope</p>
-        </>
-      )}
-
-      {step === "format" && (
-        <>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-3 px-5 py-5">
+          {FORMAT_OPTIONS.map((option) => {
+            const isSelected = option.key === format;
+            return (
               <button
+                key={option.key}
                 type="button"
-                onClick={() => setStep("scope")}
-                className="text-text-muted hover:text-text-primary"
+                onClick={() => setFormat(option.key)}
+                className={`flex items-center gap-3 rounded-[8px] border px-4 py-3 text-left transition-colors ${
+                  isSelected ? "border-brand-accent bg-brand-soft/20" : "border-brand-border"
+                }`}
               >
-                <ArrowLeft size={14} />
+                {isSelected && <span className="h-8 w-1 shrink-0 rounded-full bg-brand-accent" />}
+                <div>
+                  <p className="text-sm font-semibold text-text-primary">{option.label}</p>
+                  <p className="text-xs text-text-muted">{option.description}</p>
+                </div>
               </button>
-              <div>
-                <p className="text-sm font-display font-bold text-text-primary">Export report</p>
-                <p className="text-xs text-text-muted">{selectedOption.label} selected</p>
-              </div>
-            </div>
-            <button type="button" onClick={onClose} className="text-text-muted hover:text-text-primary">
-              <X size={18} />
-            </button>
-          </div>
+            );
+          })}
+        </div>
 
-          <p className="mb-3 mt-6 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-            Format
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setFormat("PDF")}
-              className={`flex flex-col items-center gap-1.5 rounded-[8px] border px-4 py-5 ${
-                format === "PDF" ? "border-brand-accent bg-brand-soft/30" : "border-brand-border"
-              }`}
-            >
-              <FileText size={22} className="text-brand-accent" />
-              <span className="text-sm font-semibold text-text-primary">PDF</span>
-              <span className="text-[11px] text-text-muted">Visual report</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormat("CSV")}
-              className={`flex flex-col items-center gap-1.5 rounded-[8px] border px-4 py-5 ${
-                format === "CSV" ? "border-brand-accent bg-brand-soft/30" : "border-brand-border"
-              }`}
-            >
-              <FileSpreadsheet size={22} className="text-brand-accent" />
-              <span className="text-sm font-semibold text-text-primary">CSV</span>
-              <span className="text-[11px] text-text-muted">Raw data</span>
-            </button>
-          </div>
-
+        <div className="flex items-center justify-between border-t border-brand-border px-5 py-4">
           <button
             type="button"
-            onClick={handleDownload}
-            className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-[8px] bg-brand-dark text-sm font-semibold text-white"
+            onClick={onClose}
+            className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
           >
-            <Download size={15} />
-            Download
+            Cancel
           </button>
-
-          <p className="mt-4 text-[11px] text-text-muted">Step 2 of 3 — choose format</p>
-        </>
-      )}
+          <button
+            type="button"
+            onClick={handleGenerate}
+            className="inline-flex h-10 items-center gap-2 rounded-[8px] bg-brand-dark px-5 text-sm font-semibold text-white"
+          >
+            <Download size={14} />
+            Generate {format}
+          </button>
+        </div>
       </div>
     </div>
   );

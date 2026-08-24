@@ -5,6 +5,7 @@ import { AddEventCard } from "../components/content/AddEventCard";
 import { EventCard } from "../components/content/EventCard";
 import { EventDetailPanel } from "../components/content/EventDetailPanel";
 import { EventFormModal } from "../components/content/EventFormModal";
+import { DeleteEventConfirm } from "../components/content/DeleteEventConfirm";
 import { StatCard } from "../components/ui/StatCard";
 import { initialEvents } from "../data/events";
 import { emptyEvent, EVENT_STATUSES, type EventRow, type EventStatus } from "../types/event";
@@ -17,6 +18,7 @@ export function ContentManager() {
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<EventRow | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [deletingEvent, setDeletingEvent] = useState<EventRow | null>(null);
 
   const filters: { label: FilterValue; count: number }[] = useMemo(
     () => [
@@ -47,6 +49,17 @@ export function ContentManager() {
       isAddingNew ? [...prev, updated] : prev.map((e) => (e.id === updated.id ? updated : e)),
     );
     setEditingEvent(null);
+  }
+
+  function handleDelete(event: EventRow) {
+    setDeletingEvent(event);
+  }
+
+  function confirmDelete() {
+    if (!deletingEvent) return;
+    setEvents((prev) => prev.filter((e) => e.id !== deletingEvent.id));
+    if (viewingEventId === deletingEvent.id) setViewingEventId(null);
+    setDeletingEvent(null);
   }
 
   return (
@@ -93,6 +106,7 @@ export function ContentManager() {
               event={event}
               onViewDetails={() => setViewingEventId(event.id)}
               onEdit={() => handleEdit(event)}
+              onDelete={() => handleDelete(event)}
             />
           ))}
           <AddEventCard onClick={handleAdd} />
@@ -113,6 +127,14 @@ export function ContentManager() {
           isNew={isAddingNew}
           onCancel={() => setEditingEvent(null)}
           onSave={handleSave}
+        />
+      )}
+
+      {deletingEvent && (
+        <DeleteEventConfirm
+          event={deletingEvent}
+          onCancel={() => setDeletingEvent(null)}
+          onConfirm={confirmDelete}
         />
       )}
     </AdminLayout>
