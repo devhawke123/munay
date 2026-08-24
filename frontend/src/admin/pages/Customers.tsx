@@ -86,9 +86,10 @@ export function Customers() {
 
           <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
             {visibleCustomers.map((customer) => (
-              <div
+              <Link
                 key={customer.id}
-                className="grid grid-cols-[1fr_1fr_140px_1fr_60px] items-center"
+                to={`/admin/customers/${customer.id}`}
+                className="grid grid-cols-[1fr_1fr_140px_1fr_60px] items-center rounded-[8px] hover:bg-surface-muted/60"
               >
                 <div className="text-base font-display font-semibold text-text-primary">
                   {customer.name}
@@ -96,13 +97,10 @@ export function Customers() {
                 <div className="text-[13px] text-text-primary">{customer.email}</div>
                 <div className="text-[13px] text-text-primary">{customer.phone}</div>
                 <div className="text-[13px] text-text-primary">{customer.location}</div>
-                <Link
-                  to={`/admin/customers/${customer.id}`}
-                  className="flex h-8 w-8 items-center justify-center text-text-primary"
-                >
+                <div className="flex h-8 w-8 items-center justify-center text-text-primary">
                   <Eye size={18} />
-                </Link>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

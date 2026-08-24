@@ -122,6 +122,35 @@ export function buildSimplePdf(title: string, subtitle: string, sections: Export
   return new Blob([pdf], { type: "application/pdf" });
 }
 
+function escapeHtml(value: string | number): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+export function buildExcelWorkbook(sections: ExportSection[]): Blob {
+  const tables = sections
+    .map((section) => {
+      const headerRow = `<tr>${section.headers
+        .map((h) => `<th style="background:#f4ece0;font-weight:bold;padding:6px 10px;border:1px solid #e8e6e1;">${escapeHtml(h)}</th>`)
+        .join("")}</tr>`;
+      const bodyRows = section.rows
+        .map(
+          (row) =>
+            `<tr>${row
+              .map((cell) => `<td style="padding:6px 10px;border:1px solid #e8e6e1;">${escapeHtml(cell)}</td>`)
+              .join("")}</tr>`,
+        )
+        .join("");
+      return `<p style="font-weight:bold;font-size:14px;margin:16px 0 6px;">${escapeHtml(section.title)}</p><table style="border-collapse:collapse;font-family:sans-serif;font-size:12px;">${headerRow}${bodyRows}</table>`;
+    })
+    .join("");
+
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8" /></head><body>${tables}</body></html>`;
+  return new Blob([html], { type: "application/vnd.ms-excel" });
+}
+
 export function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

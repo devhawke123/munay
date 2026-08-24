@@ -190,7 +190,9 @@ export function SalesAnalytics() {
             {activeTab === "Website Sales" && <RecentWebsiteOrders />}
           </div>
 
-          <ChannelBreakdown />
+          <div className="mt-9">
+            <ChannelBreakdown />
+          </div>
         </div>
       </div>
 
