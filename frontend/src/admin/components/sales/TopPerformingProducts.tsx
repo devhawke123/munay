@@ -7,20 +7,18 @@ export function TopPerformingProducts() {
         Top Performing Products
       </h2>
 
-      <div className="grid grid-cols-[50px_1fr_90px_60px_90px_90px] items-center px-1 text-xs uppercase tracking-wide text-text-muted">
+      <div className="grid grid-cols-[50px_1fr_90px_60px] items-center px-1 text-xs uppercase tracking-wide text-text-muted">
         <div>Rank</div>
         <div>Product</div>
         <div>Revenue</div>
         <div>Units</div>
-        <div>Growth</div>
-        <div>Share</div>
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
         {topPerformingProducts.map((product) => (
           <div
             key={product.rank}
-            className="grid grid-cols-[50px_1fr_90px_60px_90px_90px] items-center px-1"
+            className="grid grid-cols-[50px_1fr_90px_60px] items-center px-1"
           >
             <div className="text-[13px] font-semibold text-brand">#{product.rank}</div>
             <div className="text-[13px] font-semibold text-text-primary">{product.name}</div>
@@ -28,22 +26,6 @@ export function TopPerformingProducts() {
               {product.revenue}
             </div>
             <div className="text-[13px] text-text-primary">{product.units}</div>
-            <div
-              className={`text-[13px] font-semibold ${
-                product.growthPositive ? "text-success" : "text-danger"
-              }`}
-            >
-              {product.growthPositive ? "↑" : "↓"} {product.growth}
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-10 overflow-hidden rounded-full bg-surface-muted">
-                <div
-                  className="h-full rounded-full bg-brand-accent"
-                  style={{ width: `${product.share}%` }}
-                />
-              </div>
-              <span className="text-xs text-text-muted">{product.share}%</span>
-            </div>
           </div>
         ))}
       </div>
