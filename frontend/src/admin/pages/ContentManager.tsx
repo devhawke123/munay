@@ -1,4 +1,4 @@
-import { CalendarCheck, CalendarRange, Clock3 } from "lucide-react";
+import { CalendarRange } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { AddEventCard } from "../components/content/AddEventCard";
@@ -32,9 +32,6 @@ export function ContentManager() {
   const visibleEvents = filter === "All" ? events : events.filter((e) => e.status === filter);
   const viewingEvent = events.find((e) => e.id === viewingEventId) ?? null;
 
-  const liveCount = events.filter((e) => e.status === "Published").length;
-  const upcomingCount = events.filter((e) => e.status === "Scheduled").length;
-
   function handleAdd() {
     setEditingEvent({ ...emptyEvent, id: crypto.randomUUID() });
     setIsAddingNew(true);
@@ -62,24 +59,8 @@ export function ContentManager() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-[10px]">
+        <div className="gap-[10px] max-w-[300px] ">
           <StatCard label="Total Events" value={String(events.length)} icon={CalendarRange} />
-          <StatCard
-            label="Live now"
-            value={String(liveCount)}
-            icon={CalendarCheck}
-            iconBgClassName="bg-tint-success"
-            iconClassName="text-success"
-            valueClassName="text-success"
-          />
-          <StatCard
-            label="Upcoming"
-            value={String(upcomingCount)}
-            icon={Clock3}
-            iconBgClassName="bg-surface-muted"
-            iconClassName="text-text-muted"
-            valueClassName="text-text-primary"
-          />
         </div>
 
         <div className="flex w-fit items-center gap-1 rounded-full border border-brand/10 bg-white p-1">

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const actions = [
   { label: "Add Product", icon: PackagePlus, path: "/admin/products/new" },
   { label: "Analytics", icon: BarChart2, path: "/admin/sales-analytics" },
-  { label: "Category", icon: Tag, path: undefined },
+  { label: "Category", icon: Tag, path: "/admin/products" },
   { label: "Orders", icon: ShoppingCart, path: "/admin/orders" },
   { label: "Content", icon: FileText, path: "/admin/content-manager" },
 ];

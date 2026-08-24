@@ -22,7 +22,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex h-[47px] items-center rounded-[7px] bg-brand-dark py-3 pl-[25px] pr-[38px] text-base font-semibold text-white disabled:opacity-40 disabled:pointer-events-none ${className}`}
+      className={`inline-flex h-[47px] items-center rounded-[7px] bg-brand py-3 pl-[25px] pr-[38px] text-base font-semibold text-white disabled:opacity-40 disabled:pointer-events-none ${className}`}
     >
       {icon ? <span className="mr-1.5 shrink-0">{icon}</span> : null}
       <span className="whitespace-nowrap leading-none">{children}</span>

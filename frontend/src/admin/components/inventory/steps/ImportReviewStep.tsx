@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { extractImportRows } from "../inventoryCsvUtils";
 import { getInventoryStatus, type InventoryStatus } from "../../../types/inventory";
 import type { ColumnMapping, ImportSummary, ParsedCsv, RowValidation } from "../importTypes";
+import { ImportSummaryStats } from "./ImportSummaryStats";
 
 type ImportReviewStepProps = {
   warehouseName: string;
@@ -35,56 +36,39 @@ export function ImportReviewStep({
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <SummaryStat label="Total Rows" value={String(summary.totalRows)} />
-        <SummaryStat
-          label="Invalid Rows"
-          value={String(summary.invalidRows)}
-          tone={summary.invalidRows > 0 ? "danger" : undefined}
-        />
-        <SummaryStat label="Valid Rows" value={String(summary.validRows)} tone="success" />
-      </div>
+      <ImportSummaryStats summary={summary} />
 
       <div>
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
           Data Preview (First 5 Rows)
         </p>
-        <div className="overflow-x-auto rounded-[8px] border border-brand/10">
-          <table className="w-full text-left text-[12px]">
-            <thead className="bg-surface-muted text-text-muted">
-              <tr>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">SKU</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Product Name</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Category</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Total Stock</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Reorder Point</th>
-                <th className="whitespace-nowrap px-3 py-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {previewRows.map((row, index) => {
-                const status = getInventoryStatus(row);
-                return (
-                  <tr key={`${row.sku}-${index}`} className="border-t border-brand/10">
-                    <td className="whitespace-nowrap px-3 py-2 font-mono text-brand">{row.sku}</td>
-                    <td className="whitespace-nowrap px-3 py-2 font-medium text-text-primary">
-                      {row.product}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-text-muted">{row.category}</td>
-                    <td className="whitespace-nowrap px-3 py-2 font-semibold text-text-primary">
-                      {row.totalStock}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-text-primary">
-                      {row.reorderPoint}
-                    </td>
-                    <td className={`whitespace-nowrap px-3 py-2 font-semibold ${STATUS_CLASS[status]}`}>
-                      {status}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+
+        <div className="grid grid-cols-[70px_1.4fr_90px_90px_100px_90px] items-center gap-x-4 border-b border-brand-border pb-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+          <div>SKU</div>
+          <div>Product Name</div>
+          <div>Category</div>
+          <div>Total Stock</div>
+          <div>Reorder Point</div>
+          <div>Status</div>
+        </div>
+
+        <div className="flex flex-col">
+          {previewRows.map((row, index) => {
+            const status = getInventoryStatus(row);
+            return (
+              <div
+                key={`${row.sku}-${index}`}
+                className="grid grid-cols-[70px_1.4fr_90px_90px_100px_90px] items-center gap-x-4 border-b border-brand-border py-3 last:border-0"
+              >
+                <div className="text-xs text-text-muted">{row.sku}</div>
+                <div className="text-[13px] font-semibold text-text-primary">{row.product}</div>
+                <div className="text-xs text-text-muted">{row.category}</div>
+                <div className="text-[13px] font-bold text-text-primary">{row.totalStock}</div>
+                <div className="text-[13px] text-text-primary">{row.reorderPoint}</div>
+                <div className={`text-[13px] font-semibold ${STATUS_CLASS[status]}`}>{status}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -100,25 +84,6 @@ export function ImportReviewStep({
           imported.
         </div>
       )}
-    </div>
-  );
-}
-
-function SummaryStat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "success" | "danger";
-}) {
-  const toneClass = tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : "text-text-primary";
-
-  return (
-    <div className="rounded-[8px] border border-brand/10 bg-white p-3 text-center">
-      <p className={`text-lg font-bold ${toneClass}`}>{value}</p>
-      <p className="text-[11px] text-text-muted">{label}</p>
     </div>
   );
 }

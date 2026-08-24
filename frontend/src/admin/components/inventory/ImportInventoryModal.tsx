@@ -1,23 +1,11 @@
 import { ArrowRight, Check, Upload, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import {
-  autoMapColumns,
-  buildSummary,
-  extractImportRows,
-  mappedFieldCount,
-  validateRows,
-} from "./inventoryCsvUtils";
+import { autoMapColumns, buildSummary, extractImportRows, validateRows } from "./inventoryCsvUtils";
 import { ImportMappingStep } from "./steps/ImportMappingStep";
 import { ImportResultStep } from "./steps/ImportResultStep";
 import { ImportReviewStep } from "./steps/ImportReviewStep";
 import { ImportUploadStep } from "./steps/ImportUploadStep";
-import {
-  REQUIRED_FIELDS,
-  type ColumnMapping,
-  type ImportRow,
-  type ImportStep,
-  type ParsedCsv,
-} from "./importTypes";
+import { type ColumnMapping, type ImportRow, type ImportStep, type ParsedCsv } from "./importTypes";
 
 const STEPS: { key: ImportStep; label: string }[] = [
   { key: "upload", label: "Upload File" },
@@ -136,8 +124,8 @@ export function ImportInventoryModal({ warehouseName, onClose, onImport }: Impor
             />
           )}
 
-          {step === "mapping" && csv && (
-            <ImportMappingStep csv={csv} mapping={mapping} onMappingChange={setMapping} />
+          {step === "mapping" && csv && summary && (
+            <ImportMappingStep csv={csv} summary={summary} />
           )}
 
           {step === "review" && csv && summary && (
@@ -191,7 +179,7 @@ export function ImportInventoryModal({ warehouseName, onClose, onImport }: Impor
 
             {step === "mapping" && (
               <button
-                disabled={mappedFieldCount(mapping) < REQUIRED_FIELDS.length}
+                disabled={!summary || summary.validRows === 0}
                 onClick={() => setStep("review")}
                 className="inline-flex h-[38px] items-center gap-1.5 rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white disabled:pointer-events-none disabled:opacity-40"
               >
