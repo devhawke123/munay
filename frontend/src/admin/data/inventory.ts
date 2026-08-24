@@ -16,8 +16,21 @@ export const warehouses: Warehouse[] = [
         totalStock: 145,
         reorderPoint: 20,
         variants: [
-          { label: "OS/Ivo", qty: 80 },
-          { label: "OS/Cam", qty: 65 },
+          { color: "Ivory", size: "S", qty: 14 },
+          { color: "Ivory", size: "M", qty: 22 },
+          { color: "Ivory", size: "L", qty: 18 },
+          { color: "Camel", size: "S", qty: 10 },
+          { color: "Camel", size: "M", qty: 16 },
+          { color: "Camel", size: "L", qty: 9 },
+          { color: "Natural", size: "S", qty: 8 },
+          { color: "Natural", size: "M", qty: 3 },
+          { color: "Natural", size: "L", qty: 0 },
+          { color: "Charcoal", size: "S", qty: 5 },
+          { color: "Charcoal", size: "M", qty: 0 },
+          { color: "Charcoal", size: "L", qty: 0 },
+          { color: "Espresso", size: "S", qty: 0 },
+          { color: "Espresso", size: "M", qty: 6 },
+          { color: "Espresso", size: "L", qty: 7 },
         ],
       },
       {
@@ -29,9 +42,9 @@ export const warehouses: Warehouse[] = [
         totalStock: 42,
         reorderPoint: 30,
         variants: [
-          { label: "S/Esp", qty: 12 },
-          { label: "M/Esp", qty: 18 },
-          { label: "L/Esp", qty: 12 },
+          { color: "Espresso", size: "S", qty: 12 },
+          { color: "Espresso", size: "M", qty: 18 },
+          { color: "Espresso", size: "L", qty: 12 },
         ],
       },
       {
@@ -42,7 +55,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Shawls / Scarfs",
         totalStock: 78,
         reorderPoint: 25,
-        variants: [{ label: "OS/Nat", qty: 78 }],
+        variants: [{ color: "Natural", size: "OS", qty: 78 }],
       },
       {
         id: "w1-4",
@@ -53,8 +66,8 @@ export const warehouses: Warehouse[] = [
         totalStock: 23,
         reorderPoint: 30,
         variants: [
-          { label: "M/Oat", qty: 10 },
-          { label: "L/Oat", qty: 13 },
+          { color: "Oatmeal", size: "M", qty: 10 },
+          { color: "Oatmeal", size: "L", qty: 13 },
         ],
       },
       {
@@ -65,7 +78,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Blanket / Throws",
         totalStock: 0,
         reorderPoint: 15,
-        variants: [{ label: "OS/Ter", qty: 0 }],
+        variants: [{ color: "Terracotta", size: "OS", qty: 0 }],
       },
       {
         id: "w1-6",
@@ -76,8 +89,8 @@ export const warehouses: Warehouse[] = [
         totalStock: 98,
         reorderPoint: 20,
         variants: [
-          { label: "OS/Cre", qty: 56 },
-          { label: "OS/Moc", qty: 42 },
+          { color: "Cream", size: "OS", qty: 56 },
+          { color: "Mocha", size: "OS", qty: 42 },
         ],
       },
       {
@@ -89,8 +102,8 @@ export const warehouses: Warehouse[] = [
         totalStock: 55,
         reorderPoint: 25,
         variants: [
-          { label: "S/Blu", qty: 20 },
-          { label: "M/Blu", qty: 35 },
+          { color: "Blue", size: "S", qty: 20 },
+          { color: "Blue", size: "M", qty: 35 },
         ],
       },
       {
@@ -101,7 +114,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Shawls / Scarfs",
         totalStock: 18,
         reorderPoint: 20,
-        variants: [{ label: "OS/Cha", qty: 18 }],
+        variants: [{ color: "Charcoal", size: "OS", qty: 18 }],
       },
     ],
   },
@@ -119,7 +132,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Gloves & Mittens",
         totalStock: 34,
         reorderPoint: 20,
-        variants: [{ label: "OS/Bla", qty: 34 }],
+        variants: [{ color: "Black", size: "OS", qty: 34 }],
       },
       {
         id: "w2-2",
@@ -129,7 +142,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Capes",
         totalStock: 0,
         reorderPoint: 15,
-        variants: [{ label: "OS/Gre", qty: 0 }],
+        variants: [{ color: "Grey", size: "OS", qty: 0 }],
       },
       {
         id: "w2-3",
@@ -140,8 +153,8 @@ export const warehouses: Warehouse[] = [
         totalStock: 61,
         reorderPoint: 25,
         variants: [
-          { label: "OS/Bei", qty: 31 },
-          { label: "OS/Bla", qty: 30 },
+          { color: "Beige", size: "OS", qty: 31 },
+          { color: "Black", size: "OS", qty: 30 },
         ],
       },
     ],
@@ -160,7 +173,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Snoods & Hoods",
         totalStock: 40,
         reorderPoint: 20,
-        variants: [{ label: "OS/Mus", qty: 40 }],
+        variants: [{ color: "Mustard", size: "OS", qty: 40 }],
       },
       {
         id: "w3-2",
@@ -170,7 +183,7 @@ export const warehouses: Warehouse[] = [
         subcategory: "Cardigans",
         totalStock: 12,
         reorderPoint: 20,
-        variants: [{ label: "OS/Cre", qty: 12 }],
+        variants: [{ color: "Cream", size: "OS", qty: 12 }],
       },
     ],
   },
