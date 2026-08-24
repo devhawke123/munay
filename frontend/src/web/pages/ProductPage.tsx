@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useProducts } from "../../admin/context/ProductsContext";
+import alpacasHighlands from "../assets/product-detail/alpacas-highlands.png";
 import placeholderImage from "../assets/product-1.png";
 import { Announcement } from "../components/Announcement";
 import { Footer } from "../components/Footer";
@@ -13,16 +14,45 @@ import {
   getProduct,
   getRelatedProducts,
 } from "../lib/catalog";
-import { swatchColor } from "../lib/colorSwatches";
+import { isSwatchGradient, swatchColor } from "../lib/colorSwatches";
+
+type GalleryArrowButtonProps = {
+  direction: "prev" | "next";
+  onClick: () => void;
+  label: string;
+};
+
+function GalleryArrowButton({ direction, onClick, label }: GalleryArrowButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className={`group flex size-[42px] items-center justify-center rounded-full border border-ink/[0.46] transition-colors hover:border-ink/60 hover:bg-gold-deep/[0.13] ${
+        direction === "next" ? "rotate-180" : ""
+      }`}
+    >
+      <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M14.3 21L22.7499 30L24.3 28.349L17.4002 21L24.3 13.6533L22.7499 12L14.3 21Z"
+          className="fill-ink/[0.36] transition-colors group-hover:fill-ink/60"
+        />
+      </svg>
+    </button>
+  );
+}
 
 const DETAIL_FIELDS: Array<{
   label: string;
-  key: "composition" | "weight" | "dimensions" | "origin";
+  key: "composition" | "weight" | "dimensions" | "origin" | "fiber";
 }> = [
   { label: "Composition", key: "composition" },
   { label: "Weight", key: "weight" },
   { label: "Dimensions", key: "dimensions" },
   { label: "Origin", key: "origin" },
+  { label: "Fiber", key: "fiber" },
 ];
 
 export function ProductPage() {
@@ -86,35 +116,46 @@ export function ProductPage() {
             />
           </div>
           {images.length > 1 && (
-            <div className="flex gap-3">
-              {images.map((image, index) => (
-                <button
-                  key={image.id}
-                  type="button"
-                  onClick={() => setActiveImage(index)}
-                  className={`size-20 shrink-0 overflow-hidden bg-cream sm:size-24 lg:size-[144px] ${
-                    index === activeImage ? "ring-1 ring-ink" : "opacity-80"
-                  }`}
-                >
-                  <img src={image.url} alt="" className="size-full object-cover" />
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="flex gap-3">
+                {images.map((image, index) => (
+                  <button
+                    key={`${image.id}-${index}`}
+                    type="button"
+                    onClick={() => setActiveImage(index)}
+                    className={`size-20 shrink-0 overflow-hidden bg-cream sm:size-24 lg:size-[144px] ${
+                      index === activeImage ? "ring-1 ring-ink" : "opacity-80"
+                    }`}
+                  >
+                    <img src={image.url} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-4">
+                <GalleryArrowButton
+                  direction="prev"
+                  label="Previous image"
+                  onClick={() =>
+                    setActiveImage((current) => (current - 1 + images.length) % images.length)
+                  }
+                />
+                <GalleryArrowButton
+                  direction="next"
+                  label="Next image"
+                  onClick={() => setActiveImage((current) => (current + 1) % images.length)}
+                />
+              </div>
+            </>
           )}
         </div>
 
         <div className="flex flex-1 flex-col gap-8">
           <div className="flex flex-col gap-2">
             <p className="text-xs uppercase tracking-[2px] text-gold-deep">
-              {product.composition || product.collection || product.category}
+              {product.collection || product.composition || product.category}
             </p>
             <h1 className="font-serif text-4xl text-ink sm:text-5xl">{product.name}</h1>
-            <p className="font-serif text-2xl text-ink">{product.price}</p>
-            {product.origin && (
-              <p className="text-sm font-semibold tracking-[0.4px] text-gold-deep">
-                Made in {product.origin}
-              </p>
-            )}
+            <p className="font-serif text-[32px] leading-[48px] text-ink">{product.price}</p>
           </div>
 
           {product.colors && product.colors.length > 0 && (
@@ -132,7 +173,11 @@ export function ProductPage() {
                     className={`size-9 rounded-full ${
                       selectedColor === color ? "ring-2 ring-ink ring-offset-2" : ""
                     }`}
-                    style={{ backgroundColor: swatchColor(color) }}
+                    style={
+                      isSwatchGradient(color)
+                        ? { backgroundImage: swatchColor(color) }
+                        : { backgroundColor: swatchColor(color) }
+                    }
                   />
                 ))}
               </div>
@@ -171,7 +216,7 @@ export function ProductPage() {
                   </span>
                 </button>
                 {openSection === section && (
-                  <p className="mt-4 text-[15px] font-light leading-6 text-ink/70">
+                  <p className="mt-4 whitespace-pre-line text-[15px] font-light leading-6 text-ink/70">
                     {section === "description"
                       ? product.description || "No description yet."
                       : "Hand wash cold with a gentle detergent. Lay flat to dry, away from direct sunlight."}
@@ -187,6 +232,29 @@ export function ProductPage() {
           >
             Add to Cart
           </button>
+        </div>
+      </div>
+
+      <div className="mx-auto grid max-w-[1344px] grid-cols-1 gap-10 px-4 py-12 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:px-0">
+        <div className="aspect-[632/395] w-full overflow-hidden bg-cream">
+          <img src={alpacasHighlands} alt="Alpacas in the Peruvian highlands" className="size-full object-cover" />
+        </div>
+        <div className="flex flex-col justify-center gap-4">
+          <p className="text-xs uppercase tracking-[3.6px] text-ink">The Fiber</p>
+          <h2 className="font-serif text-4xl text-ink sm:text-5xl">The Alpaca</h2>
+          <p className="text-base font-light leading-[26px] text-ink/70">
+            Soft, warm, and naturally breathable, alpaca is a noble fiber sourced from the
+            highlands of Peru. Known for its exceptional softness and lightweight warmth, it
+            offers the comfort of wool without the heaviness. Hypoallergenic and durable, alpaca
+            drapes beautifully while maintaining its shape over time. A timeless material that
+            blends tradition, craftsmanship, and everyday elegance.
+          </p>
+          <Link
+            to="/category/women"
+            className="flex items-center gap-2 pt-2 text-[13px] uppercase tracking-[1.4px] text-ink"
+          >
+            Explore Collection <span aria-hidden>→</span>
+          </Link>
         </div>
       </div>
 

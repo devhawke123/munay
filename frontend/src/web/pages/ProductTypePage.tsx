@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useProducts } from "../../admin/context/ProductsContext";
 import heroImage from "../assets/hero.png";
+import shawlsScarfsHero from "../assets/women-subcategories/scarfsshawls/IMG_2122.jpg";
 import { Announcement } from "../components/Announcement";
 import { CategoryHero } from "../components/CategoryHero";
 import { Footer } from "../components/Footer";
@@ -49,9 +50,14 @@ export function ProductTypePage() {
 
   return (
     <div className="bg-white">
-      <Announcement />
-      <PublicHeader />
-      <CategoryHero title={subcategory} image={heroImage} />
+      <div className="flex h-[100dvh] flex-col">
+        <Announcement />
+        <PublicHeader />
+        <CategoryHero
+          title={subcategory === "Shawls / Scarfs" ? "Shawls & Scarfs" : subcategory}
+          image={subcategory === "Shawls / Scarfs" ? shawlsScarfsHero : heroImage}
+        />
+      </div>
 
       <div className="mx-auto flex max-w-[1304px] flex-col gap-24 px-4 py-16 sm:gap-32 sm:px-8 sm:py-24 lg:px-0">
         {items.length === 0 ? (
