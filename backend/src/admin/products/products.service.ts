@@ -3,7 +3,7 @@ import { prisma } from "../../db.js";
 
 export function listProducts() {
   return prisma.product.findMany({
-    include: { variants: true, images: true },
+    include: { variants: true, images: true, subcategory: true },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -11,14 +11,16 @@ export function listProducts() {
 export function getProduct(id: string) {
   return prisma.product.findUnique({
     where: { id },
-    include: { variants: true, images: true },
+    include: { variants: true, images: true, subcategory: true },
   });
 }
 
 interface CreateProductInput {
   name: string;
   description?: string;
-  categoryId: string;
+  sku: string;
+  subcategoryId: string;
+  section?: string;
   status?: ProductStatus;
 }
 
@@ -29,7 +31,9 @@ export function createProduct(data: CreateProductInput) {
 interface UpdateProductInput {
   name?: string;
   description?: string;
-  categoryId?: string;
+  sku?: string;
+  subcategoryId?: string;
+  section?: string;
   status?: ProductStatus;
 }
 

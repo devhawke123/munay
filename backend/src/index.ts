@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { categoriesRouter } from "./admin/categories/categories.routes.js";
 import { customersRouter } from "./admin/customers/customers.routes.js";
 import { eventsRouter } from "./admin/events/events.routes.js";
 import { inventoryRouter } from "./admin/inventory/inventory.routes.js";
@@ -34,6 +35,7 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+app.use("/api/admin/categories", categoriesRouter);
 app.use("/api/admin/products", productsRouter);
 app.use("/api/admin/customers", customersRouter);
 app.use("/api/admin/orders", ordersRouter);

@@ -22,9 +22,11 @@ export async function getById(req: Request, res: Response, next: NextFunction) {
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const { name, description, categoryId, status } = req.body;
-    if (!name || !categoryId) throw new HttpError(400, "name and categoryId are required");
-    res.status(201).json(await productsService.createProduct({ name, description, categoryId, status }));
+    const { name, description, sku, subcategoryId, section, status } = req.body;
+    if (!name || !sku || !subcategoryId) throw new HttpError(400, "name, sku and subcategoryId are required");
+    res
+      .status(201)
+      .json(await productsService.createProduct({ name, description, sku, subcategoryId, section, status }));
   } catch (err) {
     next(err);
   }
@@ -32,8 +34,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const { name, description, categoryId, status } = req.body;
-    res.json(await productsService.updateProduct(req.params.id, { name, description, categoryId, status }));
+    const { name, description, sku, subcategoryId, section, status } = req.body;
+    res.json(
+      await productsService.updateProduct(req.params.id, { name, description, sku, subcategoryId, section, status }),
+    );
   } catch (err) {
     next(err);
   }
