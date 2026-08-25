@@ -3,14 +3,20 @@ import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { useOrders } from "../context/OrdersContext";
-import { getCustomerDetail } from "../data/customers";
+import { getCustomer } from "../data/customers";
 import { orderStatusTone } from "../types/order";
+import { formatCurrency, parseCurrency } from "../lib/money";
 
 export function CustomerDetail() {
   const { customerId } = useParams<{ customerId: string }>();
-  const customer = getCustomerDetail(customerId ?? "1");
+  const customer = getCustomer(customerId ?? "1");
   const { orders } = useOrders();
   const customerOrders = orders.filter((order) => order.customerEmail === customer.email);
+
+  const totalOrders = customerOrders.length;
+  const lifetimeValue = customerOrders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
+  const avgOrder = totalOrders > 0 ? lifetimeValue / totalOrders : 0;
+  const lastOrder = customerOrders[0]?.date ?? "—";
 
   return (
     <AdminLayout>
@@ -28,28 +34,31 @@ export function CustomerDetail() {
 
             <div className="mt-4 flex gap-10">
               <div>
-                <p className="text-lg font-bold text-brand-dark">{customer.lifetimeValue}</p>
+                <p className="text-lg font-bold text-brand-dark">{formatCurrency(lifetimeValue)}</p>
                 <p className="text-xs text-text-muted">Lifetime Value</p>
               </div>
               <div>
-                <p className="text-lg font-bold text-text-primary">{customer.totalOrders}</p>
+                <p className="text-lg font-bold text-text-primary">{totalOrders}</p>
                 <p className="text-xs text-text-muted">Total Orders</p>
               </div>
               <div>
-                <p className="text-lg font-bold text-text-primary">{customer.avgOrder}</p>
+                <p className="text-lg font-bold text-text-primary">{formatCurrency(avgOrder)}</p>
                 <p className="text-xs text-text-muted">Avg. Order</p>
               </div>
               <div>
-                <p className="text-lg font-bold text-text-primary">{customer.lastOrder}</p>
+                <p className="text-lg font-bold text-text-primary">{lastOrder}</p>
                 <p className="text-xs text-text-muted">Last Order</p>
               </div>
             </div>
           </div>
 
-          <button className="inline-flex h-[34px] items-center gap-2 rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white">
+          <a
+            href={`mailto:${customer.email}`}
+            className="inline-flex h-[34px] items-center gap-2 rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white"
+          >
             <Mail size={13} />
             Email
-          </button>
+          </a>
         </div>
 
         <div>
@@ -109,14 +118,14 @@ export function CustomerDetail() {
                 <span className="text-[13px] text-text-primary">{customer.email}</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
-                  <Phone size={14} className="text-brand" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-[#3B82F61A]">
+                  <Phone size={14} className="text-[#3B82F6]" />
                 </div>
                 <span className="text-[13px] text-text-primary">{customer.phone}</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
-                  <MapPin size={14} className="text-brand" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-[#EF44441A]">
+                  <MapPin size={14} className="text-[#EF4444]" />
                 </div>
                 <span className="text-[13px] text-text-primary">{customer.location}</span>
               </div>

@@ -43,6 +43,18 @@ const inStoreScopeOptions: ExportScopeOption[] = [
   { key: "stores", label: "Store sales table", getSections: () => [storeSalesSection] },
 ];
 
+const websiteOrdersSection = {
+  title: "Recent Website Orders",
+  headers: ["Order ID", "Customer", "Items", "Total", "Status", "Date"],
+  rows: websiteOrders.map((o) => [o.orderId, o.customer, o.items, o.total, o.status, o.date]),
+};
+
+const websiteScopeOptions: ExportScopeOption[] = [
+  { key: "full", label: "Full report", getSections: () => [revenueSection, websiteOrdersSection] },
+  { key: "revenue", label: "Revenue overview only", getSections: () => [revenueSection] },
+  { key: "orders", label: "Website orders table", getSections: () => [websiteOrdersSection] },
+];
+
 const tabs = ["Overview", "In-Store Sales", "Website Sales"] as const;
 type Tab = (typeof tabs)[number];
 
@@ -93,7 +105,7 @@ function getTabConfig(): Record<
       stat1Value: formatCurrency(websiteRevenue),
       stat2Label: "Total Orders",
       stat2Value: String(websiteOrders.length),
-      actions: "none",
+      actions: "export-only",
     },
   };
 }
@@ -106,7 +118,12 @@ export function SalesAnalytics() {
 
   const startDay = revenueByDay[0]?.day ?? "";
   const endDay = revenueByDay[revenueByDay.length - 1]?.day ?? "";
-  const scopeOptions = activeTab === "In-Store Sales" ? inStoreScopeOptions : overviewScopeOptions;
+  const scopeOptions =
+    activeTab === "In-Store Sales"
+      ? inStoreScopeOptions
+      : activeTab === "Website Sales"
+        ? websiteScopeOptions
+        : overviewScopeOptions;
 
   return (
     <AdminLayout>
@@ -159,13 +176,15 @@ export function SalesAnalytics() {
           </div>
         </div>
 
-        <div className="flex w-fit items-center gap-1 rounded-panel bg-brand-bg p-1">
+        <div className="flex w-fit items-center gap-1 rounded-full border border-brand/10 bg-brand-panel p-1">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`rounded-md px-4 py-1.5 text-[13px] font-display font-medium transition-colors ${
-                activeTab === tab ? "bg-white text-text-primary shadow-card" : "text-text-muted"
+              className={`rounded-full px-4 py-2 text-[13px] font-display font-semibold transition-colors ${
+                activeTab === tab
+                  ? "bg-white text-brand-dark shadow-card"
+                  : "text-text-muted hover:text-text-primary"
               }`}
             >
               {tab}

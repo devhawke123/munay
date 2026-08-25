@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { WizardStepper } from "../components/products/WizardStepper";
@@ -10,7 +10,7 @@ import { PricingStep } from "../components/products/steps/PricingStep";
 import { VariantsStep } from "../components/products/steps/VariantsStep";
 import { ReviewStep } from "../components/products/steps/ReviewStep";
 import { useProducts } from "../context/ProductsContext";
-import { emptyProductDraft, draftToProduct, type ProductDraft } from "../types/product";
+import { emptyProductDraft, draftToProduct, productToDraft, type ProductDraft } from "../types/product";
 
 function isStepValid(index: number, draft: ProductDraft) {
   switch (index) {
@@ -29,8 +29,14 @@ function isStepValid(index: number, draft: ProductDraft) {
 
 export function ProductWizard() {
   const navigate = useNavigate();
-  const { addProduct } = useProducts();
-  const [draft, setDraft] = useState<ProductDraft>(emptyProductDraft);
+  const { id } = useParams<{ id: string }>();
+  const { products, addProduct, updateProduct } = useProducts();
+  const editingProduct = id ? products.find((p) => p.id === id) : undefined;
+  const isEditing = Boolean(editingProduct);
+
+  const [draft, setDraft] = useState<ProductDraft>(
+    editingProduct ? productToDraft(editingProduct) : emptyProductDraft,
+  );
   const [currentStep, setCurrentStep] = useState(0);
 
   const completedSteps = [0, 1, 2, 3].map((index) => isStepValid(index, draft));
@@ -49,8 +55,13 @@ export function ProductWizard() {
   }
 
   function handlePublish() {
-    addProduct(draftToProduct(draft));
-    navigate("/admin/products");
+    if (isEditing && editingProduct) {
+      updateProduct(draftToProduct(draft, editingProduct));
+      navigate(`/admin/products/${editingProduct.id}`);
+    } else {
+      addProduct(draftToProduct(draft));
+      navigate("/admin/products");
+    }
   }
 
   const nextLabel = ["Next: Media", "Next: Pricing", "Next: Variants", "Next: Review"][currentStep];
@@ -60,14 +71,20 @@ export function ProductWizard() {
       <div className="flex flex-col gap-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-ink">Add New Product</h1>
+            <h1 className="text-2xl font-bold text-ink">
+              {isEditing ? "Edit Product" : "Add New Product"}
+            </h1>
             <p className="text-sm font-medium text-brand-dark">
-              Fill in the details to publish your product
+              {isEditing
+                ? "Update the details of this product"
+                : "Fill in the details to publish your product"}
             </p>
           </div>
           <button
             type="button"
-            onClick={() => navigate("/admin/products")}
+            onClick={() =>
+              navigate(isEditing && editingProduct ? `/admin/products/${editingProduct.id}` : "/admin/products")
+            }
             className="rounded-[10px] border border-brand-border bg-white px-5 py-2 text-sm font-medium text-text-primary"
           >
             Cancel
@@ -98,7 +115,13 @@ export function ProductWizard() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => navigate("/admin/products")}
+                  onClick={() =>
+                    navigate(
+                      isEditing && editingProduct
+                        ? `/admin/products/${editingProduct.id}`
+                        : "/admin/products",
+                    )
+                  }
                   className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
                 >
                   Cancel
@@ -107,19 +130,21 @@ export function ProductWizard() {
 
               {isLastStep ? (
                 <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/admin/products")}
-                    className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
-                  >
-                    Save Draft
-                  </button>
+                  {!isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/admin/products")}
+                      className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
+                    >
+                      Save Draft
+                    </button>
+                  )}
                   <PrimaryButton
                     type="button"
                     onClick={handlePublish}
                     disabled={!completedSteps.every(Boolean)}
                   >
-                    Publish Product
+                    {isEditing ? "Save Changes" : "Publish Product"}
                   </PrimaryButton>
                 </div>
               ) : (

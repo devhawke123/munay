@@ -308,6 +308,7 @@ const initialProducts: Product[] = [
 type ProductsContextValue = {
   products: Product[];
   addProduct: (product: Product) => void;
+  updateProduct: (product: Product) => void;
   removeProduct: (id: string) => void;
 };
 
@@ -320,6 +321,8 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     () => ({
       products,
       addProduct: (product: Product) => setProducts((prev) => [product, ...prev]),
+      updateProduct: (updated: Product) =>
+        setProducts((prev) => prev.map((product) => (product.id === updated.id ? updated : product))),
       removeProduct: (id: string) =>
         setProducts((prev) => prev.filter((product) => product.id !== id)),
     }),

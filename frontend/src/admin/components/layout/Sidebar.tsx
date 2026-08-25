@@ -36,7 +36,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         />
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 -translate-x-full flex-col justify-between border-r border-brand-border bg-brand-panel px-4 py-6 transition-transform duration-200 lg:static lg:h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 -translate-x-full flex-col justify-between border-r border-brand-border bg-brand-panel px-4 py-6 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           open ? "translate-x-0" : ""
         }`}
       >

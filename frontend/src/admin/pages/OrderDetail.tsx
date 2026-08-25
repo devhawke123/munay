@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   CheckCircle2,
+  ChevronDown,
   Clock,
   CreditCard,
   ExternalLink,
@@ -14,11 +15,89 @@ import {
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
-import { buildOrderDetail } from "../data/orders";
+import { buildOrderDetail, TAX_RATE_LABEL } from "../data/orders";
 import { useOrders } from "../context/OrdersContext";
 import type { OrderTimelineTone } from "../types/order";
 
-const CARRIER_OPTIONS = ["DHL", "FedEx", "UPS", "USPS"];
+const CARRIER_OPTIONS = ["DHL", "DPD", "La Poste"];
+
+function CarrierLogo({ carrier, className = "" }: { carrier: string; className?: string }) {
+  if (carrier === "DHL") {
+    return (
+      <span
+        className={`flex h-5 w-8 shrink-0 items-center justify-center rounded-[3px] bg-[#FFCC00] text-[9px] font-black italic text-[#D40511] ${className}`}
+      >
+        DHL
+      </span>
+    );
+  }
+  if (carrier === "DPD") {
+    return (
+      <span
+        className={`flex h-5 w-8 shrink-0 items-center justify-center rounded-[3px] bg-[#DC0032] text-[9px] font-bold lowercase text-white ${className}`}
+      >
+        dpd
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`flex h-5 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFCB05] text-[7px] font-bold text-[#003399] ${className}`}
+    >
+      La Poste
+    </span>
+  );
+}
+
+function CarrierSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex h-9 w-full items-center justify-between rounded-[8px] border border-brand/10 bg-surface-muted px-3 text-sm text-text-primary outline-none focus:border-brand/40"
+      >
+        <span className="flex items-center gap-2">
+          <CarrierLogo carrier={value} />
+          {value}
+        </span>
+        <ChevronDown size={14} className="text-text-muted" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-20 mt-1.5 w-full rounded-[10px] border border-brand-border bg-white p-1.5 shadow-card">
+            {CARRIER_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onChange(option);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center gap-2 rounded-[8px] px-2 py-2 text-left text-sm hover:bg-brand-soft/60 ${
+                  option === value ? "font-semibold text-brand-dark" : "text-text-primary"
+                }`}
+              >
+                <CarrierLogo carrier={option} />
+                {option}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 const timelineIcons: Record<string, LucideIcon> = {
   "Order Placed": Clock,
@@ -109,20 +188,13 @@ export function OrderDetail() {
 
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-medium text-text-muted">Carrier</span>
-                  <select
+                  <CarrierSelect
                     value={carrier}
-                    onChange={(e) => {
-                      setCarrier(e.target.value);
+                    onChange={(value) => {
+                      setCarrier(value);
                       setIsSaved(false);
                     }}
-                    className="h-9 w-full rounded-[8px] border border-brand/10 bg-surface-muted px-3 text-sm text-text-primary outline-none focus:border-brand/40"
-                  >
-                    {CARRIER_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </label>
 
                 <label className="mt-3 flex flex-col gap-1.5">
@@ -215,7 +287,7 @@ export function OrderDetail() {
                   <span className="text-text-primary">{order.shippingCost}</span>
                 </div>
                 <div className="flex justify-between text-[13px] text-text-muted">
-                  <span>Tax (8%)</span>
+                  <span>Tax ({TAX_RATE_LABEL})</span>
                   <span className="text-text-primary">{order.tax}</span>
                 </div>
                 <div className="mt-1 flex justify-between text-base font-bold text-text-primary">
@@ -244,7 +316,7 @@ export function OrderDetail() {
                 </div>
               </div>
               <Link
-                to={`/admin/customers/${order.id}`}
+                to={`/admin/customers/${order.customerId}`}
                 className="mt-4 flex h-[30px] items-center justify-center rounded-[6px] border border-brand/10 text-xs font-semibold text-text-primary"
               >
                 View Profile

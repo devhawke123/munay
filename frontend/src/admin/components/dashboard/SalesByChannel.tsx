@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { Link } from "react-router-dom";
 import { salesByChannel } from "../../data/salesAnalytics";
 
 const CHANNEL_COLORS = ["#8b5e2b", "#c9973a", "#d4b896"];
@@ -15,9 +16,12 @@ export function SalesByChannel() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Sales by Channel</h3>
-        <a href="#" className="text-[10px] font-display font-semibold text-brand-accent">
+        <Link
+          to="/admin/sales-analytics"
+          className="text-[10px] font-display font-semibold text-brand-accent"
+        >
           View All →
-        </a>
+        </Link>
       </div>
 
       {/* Chart + Legend */}

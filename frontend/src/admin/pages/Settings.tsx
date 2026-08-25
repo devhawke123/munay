@@ -248,12 +248,13 @@ export function Settings() {
               </PrimaryButton>
             </div>
 
-            <table className="w-full text-left text-sm">
+            <table className="w-full table-fixed text-left text-sm">
               <thead>
                 <tr className="border-b border-brand-border text-xs text-text-muted">
-                  <th className="pb-3 font-medium">Member</th>
-                  <th className="pb-3 font-medium">Role</th>
-                  <th className="pb-3 font-medium">Manage</th>
+                  <th className="w-[40%] pb-3 font-medium">Member</th>
+                  <th className="w-[20%] pb-3 font-medium">Role</th>
+                  <th className="w-[20%] pb-3 text-center font-medium">Manage</th>
+                  <th className="w-[20%] pb-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -265,7 +266,7 @@ export function Settings() {
                     </td>
                     <td className="py-3 text-text-muted">{member.role}</td>
                     <td className="py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
                           title="Edit"
@@ -284,6 +285,7 @@ export function Settings() {
                         </button>
                       </div>
                     </td>
+                    <td className="py-3"></td>
                   </tr>
                 ))}
               </tbody>

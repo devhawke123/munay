@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronDown, SquarePen, Trash2 } from "lucide-react";
+import { CalendarDays, SquarePen, Trash2 } from "lucide-react";
 import type { EventRow } from "../../types/event";
 import { EventTypeBadge } from "./EventBadges";
 import { EventImagePlaceholder } from "./EventImagePlaceholder";
@@ -26,12 +26,6 @@ export function EventCard({ event, onViewDetails, onEdit, onDelete }: EventCardP
         <div className="absolute left-2 top-2">
           <EventTypeBadge type={event.type} />
         </div>
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-text-primary transition-colors hover:bg-white"
-        >
-          <ChevronDown size={13} />
-        </button>
       </div>
 
       <div className="px-1 pt-3">

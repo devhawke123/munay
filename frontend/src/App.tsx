@@ -76,6 +76,7 @@ function AdminRoutes() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/products" element={<Products />} />
       <Route path="/products/new" element={<ProductWizard />} />
+      <Route path="/products/:id/edit" element={<ProductWizard />} />
       <Route path="/products/:id" element={<ProductDetail />} />
       <Route path="/orders" element={<Orders />} />
       <Route path="/orders/:orderId" element={<OrderDetail />} />

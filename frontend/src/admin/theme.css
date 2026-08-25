@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+button:not(:disabled),
+a {
+  cursor: pointer;
+}
+
 @theme {
   --breakpoint-xs: 30rem;
   --breakpoint-sm: 40rem;
