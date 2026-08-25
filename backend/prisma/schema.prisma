@@ -32,20 +32,57 @@ enum SalesChannel {
   IN_STORE
 }
 
+// Fixed as part of the site's structure — not admin-manageable. Add a value
+// here (and to the storefront nav) only when the site itself grows a new
+// top-level section.
+enum MainCategory {
+  MEN
+  WOMEN
+  HOME
+}
+
+// Admin-manageable taxonomy node under a fixed MainCategory, e.g. "Shirts" under MEN.
+model Subcategory {
+  id           String       @id @default(cuid())
+  mainCategory MainCategory
+  name         String
+  // Optional heading that groups several subcategories together on the public
+  // category landing page, e.g. a "Knitwears" group containing the "Pullovers"
+  // and "Cardigans" subcategories. Falls back to "More" in the UI when unset.
+  group        String?
+  // Display order within its mainCategory on the storefront.
+  sortOrder    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  products Product[]
+
+  @@unique([mainCategory, name])
+  @@index([mainCategory])
+}
+
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  description String?
-  categoryId  String
-  status      ProductStatus @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  // Style-level SKU shared by all variants of this product, e.g. "W-SS-001".
+  // Distinct from ProductVariant.sku, which identifies one color/size combination.
+  sku           String        @unique
+  subcategoryId String
+  // Splits this subcategory's product listing page into headed sub-sections
+  // (e.g. the "Shawls / Scarfs" subcategory showing separate "Scarfs" and
+  // "Shawls" grids). Left unset, the listing page renders one flat grid.
+  section       String?
+  status        ProductStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  variants   ProductVariant[]
-  orderItems OrderItem[]
-  images     ProductImage[]
+  subcategory Subcategory      @relation(fields: [subcategoryId], references: [id])
+  variants    ProductVariant[]
+  orderItems  OrderItem[]
+  images      ProductImage[]
 
-  @@index([categoryId])
+  @@index([subcategoryId])
 }
 
 model ProductImage {
@@ -64,9 +101,10 @@ model ProductImage {
 model ProductVariant {
   id              String        @id @default(cuid())
   productId       String
+  // Variant-level SKU, unique per color/size combination, e.g. "W-SS-001-IVORY-S"
   sku             String        @unique
-  // Plain-text description of this variant's distinguishing options, e.g. "Medium / Blue / Linen"
-  variantName     String
+  color           String
+  size            String
   price           Decimal       @db.Decimal(10, 2)
   compareAtPrice  Decimal?      @db.Decimal(10, 2)
   status          ProductStatus @default(DRAFT)
