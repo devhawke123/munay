@@ -39,6 +39,7 @@ export type OrderItemRow = {
 };
 
 export type OrderDetail = OrderRow & {
+  customerId: string;
   paymentMethod: string;
   paymentLast4: string;
   paymentConfirmedDate: string;

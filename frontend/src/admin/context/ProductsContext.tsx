@@ -1,6 +1,8 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { Product } from "../types/product";
-import scarfPachakuti from "../../web/assets/women-subcategories/scarfsshawls/scarf-pachakuti-red-300x375.jpg.png";
+import scarfPachakutiMain from "../../web/assets/women-subcategories/scarfsshawls/pachakuti-figma-main.png";
+import scarfPachakutiThumb2 from "../../web/assets/women-subcategories/scarfsshawls/pachakuti-figma-thumb2.png";
+import scarfPachakutiModel from "../../web/assets/women-subcategories/scarfsshawls/pachakuti-figma-model.png";
 import scarfQuri from "../../web/assets/women-subcategories/scarfsshawls/scarf-quri-grey-300x375.jpg.png";
 import scarfYachay from "../../web/assets/women-subcategories/scarfsshawls/scarf-yachay-coral-pink.png.png";
 import scarfTikayMain from "../../web/assets/women-subcategories/scarfsshawls/tikay-main.png";
@@ -22,12 +24,25 @@ const initialProducts: Product[] = [
     subcategory: "Shawls / Scarfs",
     group: "Accessories",
     section: "Scarfs",
-    images: [{ id: "seed-1-img-1", url: scarfPachakuti }],
+    images: [
+      { id: "seed-1-img-1", url: scarfPachakutiMain },
+      { id: "seed-1-img-2", url: scarfPachakutiThumb2 },
+      { id: "seed-1-img-3", url: scarfPachakutiModel },
+    ],
     price: "$140.00",
     stock: "145",
     sold: "512",
     revenue: "$18,450",
     status: "Active",
+    collection: "Baby Alpaca & Silk",
+    composition: "70% Baby Alpaca 30% Silk",
+    weight: "130 g",
+    dimensions: "180 x 30 cm",
+    origin: "Made in Peru",
+    fiber: "Alpaca",
+    colors: ["Fuchsia & Blue", "Coral & Red", "Stone Gray"],
+    description:
+      "PACHAKUTI takes its name from the Quechua word for transformation, a scarf woven to move easily between seasons and settings. Cut long and finished with a soft fringe, it drapes with the same easy elegance whether folded at the collar or wrapped as a wrap.",
   },
   {
     id: "seed-2",
@@ -218,7 +233,7 @@ const initialProducts: Product[] = [
     sku: "PL-001",
     category: "Women",
     subcategory: "Pullovers",
-    group: "Knitwears",
+    group: "Ready to Wear",
     price: "$210.00",
     stock: "80",
     sold: "220",
@@ -231,7 +246,7 @@ const initialProducts: Product[] = [
     sku: "CG-001",
     category: "Women",
     subcategory: "Cardigans",
-    group: "Knitwears",
+    group: "Ready to Wear",
     price: "$240.00",
     stock: "60",
     sold: "175",
@@ -244,7 +259,7 @@ const initialProducts: Product[] = [
     sku: "CT-001",
     category: "Women",
     subcategory: "Coats",
-    group: "Outerwear's",
+    group: "Ready to Wear",
     price: "$480.00",
     stock: "35",
     sold: "90",
@@ -257,7 +272,7 @@ const initialProducts: Product[] = [
     sku: "CP-001",
     category: "Women",
     subcategory: "Capes",
-    group: "Outerwear's",
+    group: "Ready to Wear",
     price: "$320.00",
     stock: "42",
     sold: "60",
@@ -308,6 +323,7 @@ const initialProducts: Product[] = [
 type ProductsContextValue = {
   products: Product[];
   addProduct: (product: Product) => void;
+  updateProduct: (product: Product) => void;
   removeProduct: (id: string) => void;
 };
 
@@ -320,6 +336,8 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     () => ({
       products,
       addProduct: (product: Product) => setProducts((prev) => [product, ...prev]),
+      updateProduct: (updated: Product) =>
+        setProducts((prev) => prev.map((product) => (product.id === updated.id ? updated : product))),
       removeProduct: (id: string) =>
         setProducts((prev) => prev.filter((product) => product.id !== id)),
     }),

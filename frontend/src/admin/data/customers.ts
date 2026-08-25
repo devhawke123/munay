@@ -1,35 +1,15 @@
-import { formatCurrency, parseCurrency } from "../lib/money";
-import type { CustomerDetail, CustomerOrderRow, CustomerRow } from "../types/customer";
+import type { CustomerRow } from "../types/customer";
 
-export const customers: CustomerRow[] = Array.from({ length: 7 }, (_, index) => ({
-  id: String(index + 1),
-  name: "Michael Brown",
-  email: "michael@example.com",
-  phone: "12345676762",
-  location: "abc street#03 karachi ,Pakistan",
-}));
-
-const sampleOrders: CustomerOrderRow[] = [
-  { id: "#12345", items: "Alpaca Silk Scarf", status: "Processing", amount: "$259.00", date: "24 May, 2025" },
-  { id: "#12345", items: "Alpaca Silk Scarf", status: "Cancelled", amount: "$259.00", date: "24 May, 2025" },
-  { id: "#12345", items: "Alpaca Silk Scarf", status: "Processing", amount: "$259.00", date: "24 May, 2025" },
-  { id: "#12345", items: "Alpaca Silk Scarf", status: "Delivered", amount: "$259.00", date: "24 May, 2025" },
-  { id: "#12345", items: "Alpaca Silk Scarf", status: "Shipped", amount: "$259.00", date: "24 May, 2025" },
+export const customers: CustomerRow[] = [
+  { id: "1", name: "Michael Brown", email: "michael@example.com", phone: "+1 202-555-0143", location: "Austin, TX, USA" },
+  { id: "2", name: "Sofia Mendez", email: "sofia.mendez@example.com", phone: "+1 415-555-0118", location: "San Francisco, CA, USA" },
+  { id: "3", name: "Marie Dupont", email: "marie.dupont@example.com", phone: "+33 1 42 68 53 00", location: "Paris, France" },
+  { id: "4", name: "Yuki Tanaka", email: "yuki.tanaka@example.com", phone: "+81 3-1234-5678", location: "Tokyo, Japan" },
+  { id: "5", name: "Clara Hoffmann", email: "clara.hoffmann@example.com", phone: "+49 30 12345678", location: "Berlin, Germany" },
+  { id: "6", name: "Amara Osei", email: "amara.osei@example.com", phone: "+233 24 123 4567", location: "Accra, Ghana" },
+  { id: "7", name: "Liam O'Connor", email: "liam.oconnor@example.com", phone: "+353 1 234 5678", location: "Dublin, Ireland" },
 ];
 
-export function getCustomerDetail(id: string): CustomerDetail {
-  const customer = customers.find((c) => c.id === id) ?? customers[0];
-
-  const totalOrders = sampleOrders.length;
-  const lifetimeValue = sampleOrders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
-  const avgOrder = totalOrders > 0 ? lifetimeValue / totalOrders : 0;
-
-  return {
-    ...customer,
-    lifetimeValue: formatCurrency(lifetimeValue),
-    totalOrders,
-    avgOrder: formatCurrency(avgOrder),
-    lastOrder: sampleOrders[0]?.date ?? "—",
-    orders: sampleOrders,
-  };
+export function getCustomer(id: string): CustomerRow {
+  return customers.find((c) => c.id === id) ?? customers[0];
 }

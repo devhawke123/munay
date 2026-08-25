@@ -65,12 +65,114 @@ function getStats(products: Product[]) {
   ];
 }
 
-function FilterButton({ label }: { label: string }) {
+const CATEGORY_FILTERS = ["All Categories", "Men", "Women"] as const;
+type CategoryFilter = (typeof CATEGORY_FILTERS)[number];
+
+function matchesCategoryFilter(product: Product, filter: CategoryFilter) {
+  if (filter === "All Categories") return true;
+  return product.category === filter;
+}
+
+function CategoryFilterButton({
+  value,
+  onChange,
+}: {
+  value: CategoryFilter;
+  onChange: (value: CategoryFilter) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <button className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-surface-muted px-4 text-xs text-text-primary">
-      <span>{label}</span>
-      <ChevronDown size={14} className="text-text-muted" />
-    </button>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-surface-muted px-4 text-xs text-text-primary"
+      >
+        <span>{value}</span>
+        <ChevronDown size={14} className="text-text-muted" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-20 mt-1.5 w-44 rounded-[12px] border border-brand-border bg-white p-1.5 shadow-card">
+            {CATEGORY_FILTERS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onChange(option);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center rounded-[8px] px-3 py-2 text-left text-sm hover:bg-brand-soft/60 ${
+                  option === value ? "font-semibold text-brand-dark" : "text-text-primary"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const STATUS_FILTERS = ["All Statuses", "Active", "Low Stock", "Out of Stock"] as const;
+type StatusFilter = (typeof STATUS_FILTERS)[number];
+
+function matchesStatusFilter(product: Product, filter: StatusFilter) {
+  if (filter === "All Statuses") return true;
+  const stock = Number(product.stock) || 0;
+  if (filter === "Active") return product.status === "Active";
+  if (filter === "Low Stock") return stock > 0 && stock < LOW_STOCK_THRESHOLD;
+  return stock === 0;
+}
+
+function StatusFilterButton({
+  value,
+  onChange,
+}: {
+  value: StatusFilter;
+  onChange: (value: StatusFilter) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex h-[34px] items-center gap-3 rounded-[10px] border border-brand/10 bg-surface-muted px-4 text-xs text-text-primary"
+      >
+        <span>{value}</span>
+        <ChevronDown size={14} className="text-text-muted" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-20 mt-1.5 w-44 rounded-[12px] border border-brand-border bg-white p-1.5 shadow-card">
+            {STATUS_FILTERS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onChange(option);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center rounded-[8px] px-3 py-2 text-left text-sm hover:bg-brand-soft/60 ${
+                  option === value ? "font-semibold text-brand-dark" : "text-text-primary"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -79,9 +181,13 @@ export function Products() {
   const navigate = useNavigate();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("All Statuses");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All Categories");
   const stats = getStats(products);
 
   const visibleProducts = products.filter((product) => {
+    if (!matchesStatusFilter(product, statusFilter)) return false;
+    if (!matchesCategoryFilter(product, categoryFilter)) return false;
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
     return (
@@ -131,8 +237,8 @@ export function Products() {
               placeholder="Search products..."
               className="w-[285px]"
             />
-            <FilterButton label="All Categories" />
-            <FilterButton label="All Statuses" />
+            <CategoryFilterButton value={categoryFilter} onChange={setCategoryFilter} />
+            <StatusFilterButton value={statusFilter} onChange={setStatusFilter} />
           </div>
 
           

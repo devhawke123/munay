@@ -1,6 +1,49 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Playfair+Display:wght@500&family=Inter:wght@300;400;500&display=swap");
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 300;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicLight.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 400;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicBook.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 500;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicMedium.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 600;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicDemi.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 700;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicBold.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 800;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicExtraBold.woff") format("woff");
+}
+@font-face {
+  font-family: "Futura PT";
+  font-weight: 900;
+  font-style: normal;
+  src: url("./assets/fonts/FuturaCyrillicHeavy.woff") format("woff");
+}
+
 @theme {
   --color-ink: #2c2a28;
   --color-cream: #efe9e1;
@@ -10,4 +53,5 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", ui-serif, serif;
   --font-serif-alt: "Playfair Display", ui-serif, serif;
+  --font-futura: "Futura PT", ui-sans-serif, system-ui, sans-serif;
 }

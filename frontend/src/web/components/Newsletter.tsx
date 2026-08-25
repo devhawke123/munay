@@ -1,8 +1,8 @@
 export function Newsletter() {
   return (
     <div className="flex flex-col items-center gap-4 bg-gold-deep/[0.06] px-4 py-16 text-center sm:gap-6 sm:py-24">
-      <h2 className="font-serif text-2xl text-ink sm:text-4xl">Subscribe to our Newsletter</h2>
-      <p className="max-w-[400px] text-sm text-ink/55">
+      <h2 className="font-futura text-2xl text-ink sm:text-4xl">Subscribe to our Newsletter</h2>
+      <p className="font-futura max-w-[400px] text-sm text-ink/55">
         Receive new collections and stories from the Peruvian highlands.
       </p>
       <form

@@ -6,3 +6,4 @@ export const ordersRouter = Router();
 ordersRouter.get("/", ordersController.list);
 ordersRouter.get("/:id", ordersController.getById);
 ordersRouter.patch("/:id/status", ordersController.updateStatus);
+ordersRouter.patch("/:id/shipping", ordersController.updateShipping);

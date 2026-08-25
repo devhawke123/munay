@@ -6,12 +6,7 @@ import { CategoryHero } from "../components/CategoryHero";
 import { Footer } from "../components/Footer";
 import { Newsletter } from "../components/Newsletter";
 import { PublicHeader } from "../components/PublicHeader";
-import {
-  findCategoryBySlug,
-  getGroups,
-  getSections,
-  getSubcategoriesByGroup,
-} from "../lib/catalog";
+import { findCategoryBySlug, getGroups, getSubcategoriesByGroup } from "../lib/catalog";
 import { slugify } from "../lib/slug";
 import { getWomenTileImage, WOMEN_HERO_IMAGE } from "../lib/womenCategoryImages";
 
@@ -21,19 +16,41 @@ type CategoryTile = {
   image?: string;
 };
 
-const WOMEN_GROUP_ORDER = ["Knitwears", "Outerwear's", "Accessories"];
+const WOMEN_GROUP_ORDER = ["Ready to Wear", "Accessories"];
 
 const WOMEN_TILE_ORDER = [
-  "Pullovers",
-  "Cardigans",
+  "Pullovers & Cardigans",
+  "Jackets & Cardigans",
+  "Capes & Ponchos",
   "Coats",
-  "Capes",
-  "Shawls",
-  "Headwears",
-  "Scarfs",
+  "Tops & T-Shirts",
+  "Dresses & Skirts",
+  "Pants & Shorts",
+  "Shirts & Blouses",
+  "Scarves & Shawls",
+  "Neck Warmers & Snoods",
+  "Beanies & Chapkas",
   "Gloves & Mittens",
-  "Snoods & Hoods",
+  "Hats & Caps",
 ];
+
+// The Figma tile label, keyed by real subcategory name, where it differs from
+// the subcategory itself (e.g. "Headwears" product data reads "Beanies & Chapkas" on the page).
+const WOMEN_LABEL_OVERRIDES: Record<string, string> = {
+  Pullovers: "Pullovers & Cardigans",
+  Cardigans: "Jackets & Cardigans",
+  Capes: "Capes & Ponchos",
+  "Shawls / Scarfs": "Scarves & Shawls",
+  Headwears: "Beanies & Chapkas",
+  "Snoods & Hoods": "Neck Warmers & Snoods",
+};
+
+// Categories shown in the Figma design that don't have product data yet.
+// Rendered as empty-image placeholder tiles until real products are added.
+const WOMEN_PLACEHOLDER_TILES: Record<string, string[]> = {
+  "Ready to Wear": ["Tops & T-Shirts", "Dresses & Skirts", "Pants & Shorts", "Shirts & Blouses"],
+  Accessories: ["Hats & Caps"],
+};
 
 function sortWomenGroups(groups: string[]): string[] {
   return [...groups].sort((a, b) => {
@@ -51,29 +68,19 @@ function getCategoryTiles(
   const tiles: CategoryTile[] = [];
 
   for (const subcategory of getSubcategoriesByGroup(products, category, group)) {
-    const sections = getSections(products, category, subcategory);
-
-    // Split sectioned subcategories (e.g. Shawls / Scarfs) into separate tiles
-    // so the women page matches the Figma layout.
-    if (category === "Women" && sections.length > 0) {
-      for (const section of sections) {
-        tiles.push({
-          label: section,
-          subcategory,
-          image: getWomenTileImage(subcategory, section),
-        });
-      }
-      continue;
-    }
-
     tiles.push({
-      label: subcategory,
+      label: category === "Women" ? (WOMEN_LABEL_OVERRIDES[subcategory] ?? subcategory) : subcategory,
       subcategory,
       image: category === "Women" ? getWomenTileImage(subcategory) : undefined,
     });
   }
 
   if (category !== "Women") return tiles;
+
+  for (const label of WOMEN_PLACEHOLDER_TILES[group] ?? []) {
+    if (tiles.some((tile) => tile.label === label)) continue;
+    tiles.push({ label, subcategory: label });
+  }
 
   return tiles.sort((a, b) => {
     const ai = WOMEN_TILE_ORDER.indexOf(a.label);
@@ -114,31 +121,33 @@ export function CategoryPage() {
       <div className="flex h-[100dvh] flex-col">
         <Announcement />
         <PublicHeader />
-        <CategoryHero title={category === "Women" ? "Womens wear" : category} image={heroImage} />
+        <CategoryHero title={category === "Women" ? "WOMEN" : category} image={heroImage} />
       </div>
 
       <div className="mx-auto flex max-w-[1304px] flex-col gap-24 px-4 py-16 sm:gap-32 sm:px-8 sm:py-24 lg:gap-40 lg:px-0">
         {groups.map((group) => (
           <div key={group} className="flex flex-col items-center">
-            <h2 className="font-serif text-4xl leading-none text-ink sm:text-5xl lg:text-[52px] lg:leading-[52px]">
+            <h2 className="font-futura text-4xl font-medium uppercase leading-none text-ink sm:text-5xl lg:text-[48px] lg:leading-[52px]">
               {group}
             </h2>
-            <div className="grid w-full grid-cols-1 gap-10 pt-14 sm:grid-cols-2 sm:gap-6">
+            <div className="grid w-full grid-cols-1 gap-x-7 gap-y-10 pt-14 sm:grid-cols-2 lg:grid-cols-4">
               {getCategoryTiles(products, category, group).map((tile) => (
                 <Link
                   key={`${tile.subcategory}-${tile.label}`}
                   to={`/category/${slugify(category)}/${slugify(tile.subcategory)}`}
                   className="group flex flex-col"
                 >
-                  <div className="aspect-[640/853] w-full overflow-hidden bg-cream">
-                    <img
-                      src={tile.image ?? placeholderImage}
-                      alt={tile.label}
-                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                  <div className="aspect-[320/480] w-full overflow-hidden bg-cream">
+                    {tile.image ? (
+                      <img
+                        src={tile.image}
+                        alt={tile.label}
+                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : null}
                   </div>
                   <div className="flex flex-col pt-5">
-                    <p className="text-[18px] uppercase leading-[19.5px] tracking-[2.5px] text-ink">
+                    <p className="font-futura text-base uppercase leading-[19.5px] tracking-[2.5px] text-ink">
                       {tile.label}
                     </p>
                     <div className="mt-2 h-[2px] w-16 bg-ink" />

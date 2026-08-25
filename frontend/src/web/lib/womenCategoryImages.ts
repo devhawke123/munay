@@ -4,7 +4,6 @@ import cardigans from "../assets/women-subcategories/women-knitwear-cardigans.pn
 import coats from "../assets/women-subcategories/women-outerwear-coats.png";
 import capes from "../assets/women-subcategories/women-outerwear-capes.png";
 import scarfs from "../assets/women-subcategories/women-accessories-scarfs.png";
-import shawls from "../assets/women-subcategories/women-accessories-shawls.png";
 import snoodsHoods from "../assets/women-subcategories/women-accessories-snoods-hoods.png";
 import headwears from "../assets/women-subcategories/women-accessories-headwears.png";
 import glovesMittens from "../assets/women-subcategories/women-accessories-gloves-mittens.png";
@@ -20,17 +19,9 @@ export const WOMEN_SUBCATEGORY_IMAGES: Record<string, string> = {
   Headwears: headwears,
   "Gloves & Mittens": glovesMittens,
   "Snoods & Hoods": snoodsHoods,
+  "Shawls / Scarfs": scarfs,
 };
 
-/** Section tile images (used when a subcategory is split, e.g. Shawls / Scarfs) */
-export const WOMEN_SECTION_IMAGES: Record<string, string> = {
-  Scarfs: scarfs,
-  Shawls: shawls,
-};
-
-export function getWomenTileImage(subcategory: string, section?: string): string | undefined {
-  if (section && WOMEN_SECTION_IMAGES[section]) {
-    return WOMEN_SECTION_IMAGES[section];
-  }
+export function getWomenTileImage(subcategory: string): string | undefined {
   return WOMEN_SUBCATEGORY_IMAGES[subcategory];
 }

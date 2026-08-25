@@ -2,8 +2,10 @@ import { ArrowLeft, SquarePen, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
+import { DeleteProductConfirm } from "../components/products/DeleteProductConfirm";
 import { OverviewTab } from "../components/products/OverviewTab";
 import { ProductTabs, type ProductTab } from "../components/products/ProductTabs";
+import { VariantsTab } from "../components/products/VariantsTab";
 import { useProducts } from "../context/ProductsContext";
 
 export function ProductDetail() {
@@ -11,6 +13,7 @@ export function ProductDetail() {
   const navigate = useNavigate();
   const { products, removeProduct } = useProducts();
   const [activeTab, setActiveTab] = useState<ProductTab>("Overview");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const product = products.find((p) => p.id === id);
 
@@ -27,12 +30,10 @@ export function ProductDetail() {
     );
   }
 
-  function handleDelete() {
+  function confirmDelete() {
     if (!product) return;
-    if (confirm(`Delete "${product.name}"? This can't be undone.`)) {
-      removeProduct(product.id);
-      navigate("/admin/products");
-    }
+    removeProduct(product.id);
+    navigate("/admin/products");
   }
 
   return (
@@ -55,13 +56,16 @@ export function ProductDetail() {
           </div>
 
           <div className="flex gap-2.5">
-            <button className="flex items-center gap-1.5 rounded-[10px] border border-brand-border bg-white px-4 py-2 text-sm font-medium text-text-primary">
+            <Link
+              to={`/admin/products/${product.id}/edit`}
+              className="flex items-center gap-1.5 rounded-[10px] border border-brand-border bg-white px-4 py-2 text-sm font-medium text-text-primary"
+            >
               <SquarePen size={14} />
               Edit
-            </button>
+            </Link>
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               className="flex items-center gap-1.5 rounded-[10px] border border-danger/20 bg-danger/10 px-4 py-2 text-sm font-medium text-danger"
             >
               <Trash2 size={14} />
@@ -72,14 +76,17 @@ export function ProductDetail() {
 
         <ProductTabs activeTab={activeTab} onChange={setActiveTab} />
 
-        {activeTab === "Overview" ? (
-          <OverviewTab product={product} />
-        ) : (
-          <div className="rounded-card border border-brand-border bg-white p-10 text-center text-sm text-text-muted shadow-card">
-            {activeTab} coming soon.
-          </div>
-        )}
+        {activeTab === "Overview" && <OverviewTab product={product} />}
+        {activeTab === "Variants" && <VariantsTab product={product} />}
       </div>
+
+      {showDeleteConfirm && (
+        <DeleteProductConfirm
+          product={product}
+          onCancel={() => setShowDeleteConfirm(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </AdminLayout>
   );
 }

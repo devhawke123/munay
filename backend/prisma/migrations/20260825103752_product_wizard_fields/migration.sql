@@ -1,0 +1,12 @@
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `barcode` VARCHAR(191) NULL,
+    ADD COLUMN `brand` VARCHAR(191) NULL,
+    ADD COLUMN `composition` VARCHAR(191) NULL,
+    ADD COLUMN `dimensions` VARCHAR(191) NULL,
+    ADD COLUMN `origin` VARCHAR(191) NULL,
+    ADD COLUMN `price` DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN `tags` JSON NULL,
+    ADD COLUMN `weight` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `ProductImage` ADD COLUMN `isMain` BOOLEAN NOT NULL DEFAULT false;

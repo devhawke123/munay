@@ -94,11 +94,73 @@ function EditOrderModal({
 const FILTER_LABELS = ["All", "Processing", "Shipped", "Delivered", "Pending", "Cancelled"] as const;
 type FilterLabel = (typeof FILTER_LABELS)[number];
 
+const SORT_OPTIONS = ["Date", "Status", "Amount"] as const;
+type SortOption = (typeof SORT_OPTIONS)[number];
+
+function sortOrders(orders: OrderRow[], sortBy: SortOption) {
+  const sorted = [...orders];
+  if (sortBy === "Date") {
+    sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } else if (sortBy === "Amount") {
+    sorted.sort((a, b) => parseCurrency(b.amount) - parseCurrency(a.amount));
+  } else {
+    sorted.sort((a, b) => a.status.localeCompare(b.status));
+  }
+  return sorted;
+}
+
+function SortButton({
+  value,
+  onChange,
+}: {
+  value: SortOption;
+  onChange: (value: SortOption) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex h-[37px] items-center gap-2 rounded-[10px] border border-brand/10 bg-white px-4 text-xs text-text-primary"
+      >
+        Sort: {value}
+        <ChevronDown size={14} className="text-text-muted" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-20 mt-1.5 w-40 rounded-[12px] border border-brand-border bg-white p-1.5 shadow-card">
+            {SORT_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onChange(option);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center rounded-[8px] px-3 py-2 text-left text-sm hover:bg-brand-soft/60 ${
+                  option === value ? "font-semibold text-brand-dark" : "text-text-primary"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Orders() {
   const { orders, updateOrder } = useOrders();
   const [editingOrder, setEditingOrder] = useState<OrderRow | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterLabel>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("Date");
 
   const monthlyRevenue = orders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
 
@@ -107,16 +169,19 @@ export function Orders() {
     count: label === "All" ? orders.length : orders.filter((o) => o.status === label).length,
   }));
 
-  const visibleOrders = orders.filter((order) => {
-    if (activeFilter !== "All" && order.status !== activeFilter) return false;
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return true;
-    return (
-      order.number.toLowerCase().includes(query) ||
-      order.customerName.toLowerCase().includes(query) ||
-      order.customerEmail.toLowerCase().includes(query)
-    );
-  });
+  const visibleOrders = sortOrders(
+    orders.filter((order) => {
+      if (activeFilter !== "All" && order.status !== activeFilter) return false;
+      const query = searchQuery.trim().toLowerCase();
+      if (!query) return true;
+      return (
+        order.number.toLowerCase().includes(query) ||
+        order.customerName.toLowerCase().includes(query) ||
+        order.customerEmail.toLowerCase().includes(query)
+      );
+    }),
+    sortBy,
+  );
 
   function saveOrder(updated: OrderRow) {
     updateOrder(updated);
@@ -168,10 +233,7 @@ export function Orders() {
               placeholder="Search by order ID or customer..."
               className="w-[320px] !bg-white"
             />
-            <button className="flex h-[37px] items-center gap-2 rounded-[10px] border border-brand/10 bg-white px-4 text-xs text-text-primary">
-              Sort: Date
-              <ChevronDown size={14} className="text-text-muted" />
-            </button>
+            <SortButton value={sortBy} onChange={setSortBy} />
           </div>
 
           <span className="text-[13px] text-text-muted">{visibleOrders.length} results</span>

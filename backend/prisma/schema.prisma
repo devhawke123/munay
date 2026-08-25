@@ -15,10 +15,10 @@ enum ProductStatus {
 
 enum OrderStatus {
   PENDING
-  PAID
-  FULFILLED
+  PROCESSING
+  SHIPPED
+  DELIVERED
   CANCELLED
-  REFUNDED
 }
 
 enum FulfillmentStatus {
@@ -27,25 +27,80 @@ enum FulfillmentStatus {
   CANCELLED
 }
 
+enum Carrier {
+  DHL
+  DPD
+  LA_POSTE
+}
+
 enum SalesChannel {
   ONLINE
   IN_STORE
 }
 
+// Fixed as part of the site's structure — not admin-manageable. Add a value
+// here (and to the storefront nav) only when the site itself grows a new
+// top-level section.
+enum MainCategory {
+  MEN
+  WOMEN
+  HOME
+}
+
+// Admin-manageable taxonomy node under a fixed MainCategory, e.g. "Shirts" under MEN.
+model Subcategory {
+  id           String       @id @default(cuid())
+  mainCategory MainCategory
+  name         String
+  // Optional heading that groups several subcategories together on the public
+  // category landing page, e.g. a "Knitwears" group containing the "Pullovers"
+  // and "Cardigans" subcategories. Falls back to "More" in the UI when unset.
+  group        String?
+  // Display order within its mainCategory on the storefront.
+  sortOrder    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  products Product[]
+
+  @@unique([mainCategory, name])
+  @@index([mainCategory])
+}
+
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  description String?
-  categoryId  String
-  status      ProductStatus @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  // Style-level SKU shared by all variants of this product, e.g. "W-SS-001".
+  // Distinct from ProductVariant.sku, which identifies one color/size combination.
+  sku           String        @unique
+  subcategoryId String
+  // Splits this subcategory's product listing page into headed sub-sections
+  // (e.g. the "Shawls / Scarfs" subcategory showing separate "Scarfs" and
+  // "Shawls" grids). Left unset, the listing page renders one flat grid.
+  section       String?
+  // Base retail price shown on the admin product list and copied onto each
+  // variant created for this product — the wizard collects one price per
+  // product, not per variant.
+  price         Decimal       @default(0) @db.Decimal(10, 2)
+  barcode       String?
+  brand         String?
+  composition   String?
+  weight        String?
+  dimensions    String?
+  origin        String?
+  // Free-text tags entered in the product wizard, e.g. ["linen", "sustainable"]
+  tags          Json?
+  status        ProductStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  variants   ProductVariant[]
-  orderItems OrderItem[]
-  images     ProductImage[]
+  subcategory Subcategory      @relation(fields: [subcategoryId], references: [id])
+  variants    ProductVariant[]
+  orderItems  OrderItem[]
+  images      ProductImage[]
 
-  @@index([categoryId])
+  @@index([subcategoryId])
 }
 
 model ProductImage {
@@ -53,6 +108,8 @@ model ProductImage {
   productId String
   // File path / storage key for the image, not the raw file itself
   path      String
+  // Marks the image shown as the product's primary thumbnail/preview
+  isMain    Boolean  @default(false)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
 
@@ -62,40 +119,53 @@ model ProductImage {
 }
 
 model ProductVariant {
-  id              String        @id @default(cuid())
-  productId       String
-  sku             String        @unique
-  // Plain-text description of this variant's distinguishing options, e.g. "Medium / Blue / Linen"
-  variantName     String
-  price           Decimal       @db.Decimal(10, 2)
-  compareAtPrice  Decimal?      @db.Decimal(10, 2)
-  status          ProductStatus @default(DRAFT)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  productId      String
+  // Variant-level SKU, unique per color/size combination, e.g. "W-SS-001-IVORY-S"
+  sku            String        @unique
+  color          String
+  size           String
+  price          Decimal       @db.Decimal(10, 2)
+  compareAtPrice Decimal?      @db.Decimal(10, 2)
+  status         ProductStatus @default(DRAFT)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  product    Product     @relation(fields: [productId], references: [id])
-  inventory  Inventory[]
-  orderItems OrderItem[]
+  product        Product         @relation(fields: [productId], references: [id])
+  inventory      Inventory[]
+  orderItems     OrderItem[]
+  stockMovements StockMovement[]
 
   @@index([productId])
 }
 
+enum WarehouseType {
+  // A physical location, stocked manually or via CSV import
+  PHYSICAL
+  // The single online fulfilment center backing the storefront — stock here is
+  // adjusted manually for restocks/corrections but otherwise auto-deducted per
+  // website order, never counted alongside PHYSICAL warehouses in rollups.
+  ONLINE
+}
+
 model Warehouse {
-  id       String  @id @default(cuid())
+  id       String        @id @default(cuid())
   name     String
+  type     WarehouseType @default(PHYSICAL)
   // Short display label shown under the warehouse name in the UI, e.g. "Lima, Peru" — distinct from `address`, which is the full shipping/fulfillment address
   location String?
   address  String?
-  isActive Boolean @default(true)
+  isActive Boolean       @default(true)
 
-  inventory  Inventory[]
-  orderItems OrderItem[]
-  imports    InventoryImport[]
+  inventory      Inventory[]
+  orderItems     OrderItem[]
+  imports        InventoryImport[]
+  stockMovements StockMovement[]
 }
 
 model Inventory {
-  variantId   String
-  warehouseId String
+  variantId        String
+  warehouseId      String
   // Physical stock actually in the warehouse
   quantityOnHand   Int      @default(0)
   // Held during checkout before payment confirms, so the same unit can't be sold twice while checkout is in flight
@@ -132,57 +202,123 @@ model InventoryImport {
   @@index([warehouseId])
 }
 
+enum StockMovementReason {
+  // Admin-driven "Adjust Stock" (single or bulk)
+  MANUAL_ADJUSTMENT
+  // Automatic deduction on the ONLINE warehouse when a website order is placed
+  ORDER_DEDUCTION
+  // Row updated by a warehouse CSV import
+  CSV_IMPORT
+}
+
+// Audit log backing the "Live Deductions" feed and giving every stock change a trail.
+model StockMovement {
+  id            String              @id @default(cuid())
+  variantId     String
+  warehouseId   String
+  // Positive = added, negative = removed
+  quantityDelta Int
+  reason        StockMovementReason
+  // Free-text context, e.g. an order number for an ORDER_DEDUCTION
+  reference     String?
+  occurredAt    DateTime            @default(now())
+
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  warehouse Warehouse      @relation(fields: [warehouseId], references: [id])
+
+  @@index([warehouseId])
+  @@index([variantId])
+}
+
 model Customer {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
   phone     String?
+  // Customer's own reusable location, distinct from any single order's shipping
+  // address snapshot (see Order's shipping fields, which are per-order only).
+  city      String?
+  state     String?
+  country   String?
   createdAt DateTime @default(now())
 
   orders Order[]
 }
 
 model Order {
-  id         String      @id @default(cuid())
+  id          String      @id @default(cuid())
+  // Human-facing order number shown throughout the admin UI (e.g. "#12340"),
+  // distinct from `id` which is only used for internal/API lookups.
+  orderNumber Int         @unique @default(autoincrement())
   // Nullable — in-store walk-in sales often have no account
-  customerId String?
-  status     OrderStatus @default(PENDING)
+  customerId  String?
+  status      OrderStatus @default(PENDING)
 
-  channel SalesChannel @default(ONLINE)
+  channel       SalesChannel @default(ONLINE)
   // Only set when channel = IN_STORE. Which physical store/exhibition made the sale.
   storeLocation String?
 
   subtotal     Decimal @db.Decimal(10, 2)
-  shippingCost Decimal @db.Decimal(10, 2)
+  shippingCost Decimal @default(0) @db.Decimal(10, 2)
+  tax          Decimal @default(0) @db.Decimal(10, 2)
   total        Decimal @db.Decimal(10, 2)
 
-  // Shipping address, captured at checkout — this order's address only, not a reusable saved address
-  shippingFullName   String
+  // How the sale was paid, e.g. "Cash", "Card" — mainly populated for IN_STORE orders,
+  // where there's no payment gateway to read this from.
+  paymentMethod    String?
+  // External POS transaction id, only set on IN_STORE orders imported via CSV.
+  // Used to detect and skip re-imports of the same transaction.
+  posTransactionId String? @unique
+
+  // Shipping address, captured at checkout — this order's address only, not a reusable
+  // saved address. Nullable: IN_STORE orders (walk-in or CSV-imported) never ship, so
+  // they never have one, same reasoning as customerId above.
+  shippingFullName   String?
   shippingPhone      String?
-  shippingLine1      String
+  shippingLine1      String?
   shippingLine2      String?
-  shippingCity       String
+  shippingCity       String?
   shippingState      String?
-  shippingPostalCode String
-  shippingCountry    String
+  shippingPostalCode String?
+  shippingCountry    String?
+
+  // Set by admin from the Shipping Card once the order ships. Shipping status shown in the
+  // UI is intentionally NOT stored — it's derived from `status` at query time, same reasoning
+  // as Inventory's stock status below.
+  carrier    Carrier?
+  trackingId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customer Customer?   @relation(fields: [customerId], references: [id])
-  items    OrderItem[]
+  customer     Customer?          @relation(fields: [customerId], references: [id])
+  items        OrderItem[]
+  statusEvents OrderStatusEvent[]
 
   @@index([customerId])
   @@index([channel])
   @@index([storeLocation])
 }
 
+// Audit log of order status transitions, powering the admin "Order Timeline" view.
+// "Order Placed" is derived from Order.createdAt rather than stored here.
+model OrderStatusEvent {
+  id         String      @id @default(cuid())
+  orderId    String
+  status     OrderStatus
+  occurredAt DateTime    @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
 model OrderItem {
-  id          String  @id @default(cuid())
-  orderId     String
+  id        String  @id @default(cuid())
+  orderId   String
   // Live reference for reporting/analytics joins only — never used to resolve display data, see snapshot fields below
-  variantId   String?
-  productId   String?
+  variantId String?
+  productId String?
 
   // --- Snapshot fields ---
   // These freeze product/variant details as they were at time of purchase, so historical
@@ -214,26 +350,61 @@ model OrderItem {
   @@index([warehouseId])
 }
 
+enum EventType {
+  FAIR_EXPO
+  IN_STORE
+  POP_UP
+  ONLINE
+}
+
+enum EventStatus {
+  PUBLISHED
+  SCHEDULED
+  DRAFT
+}
+
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  location    String?
-  startsAt    DateTime
-  endsAt      DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String      @id @default(cuid())
+  title         String
+  description   String?
+  location      String?
+  // Optional line shown under the title, e.g. "Munay Stand : D51"
+  standSubtitle String?
+  // Highlighted callout block on the public detail page, e.g. "Find us at Stand D51"
+  venueCallout  String?
+  // "What visitors can do" bullet list on the public detail page
+  bulletPoints  Json?
+  type          EventType   @default(FAIR_EXPO)
+  status        EventStatus @default(DRAFT)
+  startsAt      DateTime
+  endsAt        DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Display strings like "November 2025" and "7 – 10 November 2025" are intentionally NOT
+  // stored — they're derived from startsAt/endsAt at query time so they can never drift
+  // out of sync with the actual dates.
 
   images EventImage[]
 }
 
+enum EventImageRole {
+  // Grid card image on the public events listing — one per event
+  POSTER
+  // Larger image on the event's own detail page — one per event, falls back to POSTER when unset
+  HERO
+  // Additional thumbnails shown alongside the hero image — any number per event
+  GALLERY
+}
+
 model EventImage {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   eventId   String
   // File path / storage key for the image, not the raw file itself
   path      String
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
+  role      EventImageRole @default(GALLERY)
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
 
   event Event @relation(fields: [eventId], references: [id])
 

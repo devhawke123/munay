@@ -1,10 +1,21 @@
+import { EventStatus, EventType } from "@prisma/client";
 import type { NextFunction, Request, Response } from "express";
 import { HttpError } from "../shared/middleware/errorHandler.js";
 import * as eventsService from "./events.service.js";
 
-export async function list(_req: Request, res: Response, next: NextFunction) {
+function isEventType(value: unknown): value is EventType {
+  return typeof value === "string" && (Object.values(EventType) as string[]).includes(value);
+}
+
+function isEventStatus(value: unknown): value is EventStatus {
+  return typeof value === "string" && (Object.values(EventStatus) as string[]).includes(value);
+}
+
+export async function list(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json(await eventsService.listEvents());
+    const { status } = req.query;
+    if (status !== undefined && !isEventStatus(status)) throw new HttpError(400, "Invalid status");
+    res.json(await eventsService.listEvents({ status: status as EventStatus | undefined }));
   } catch (err) {
     next(err);
   }
@@ -20,19 +31,50 @@ export async function getById(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+function parseWritePayload(body: Record<string, unknown>) {
+  const {
+    title,
+    description,
+    location,
+    standSubtitle,
+    venueCallout,
+    bulletPoints,
+    type,
+    status,
+    startsAt,
+    endsAt,
+    posterImage,
+    heroImage,
+    galleryImages,
+  } = body;
+
+  if (type !== undefined && !isEventType(type)) throw new HttpError(400, "Invalid type");
+  if (status !== undefined && !isEventStatus(status)) throw new HttpError(400, "Invalid status");
+
+  return {
+    title,
+    description,
+    location,
+    standSubtitle,
+    venueCallout,
+    bulletPoints,
+    type: type as EventType | undefined,
+    status: status as EventStatus | undefined,
+    startsAt: startsAt !== undefined ? new Date(startsAt as string) : undefined,
+    endsAt: endsAt !== undefined ? (endsAt ? new Date(endsAt as string) : null) : undefined,
+    posterImage,
+    heroImage,
+    galleryImages,
+  } as eventsService.EventWriteInput;
+}
+
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, description, location, startsAt, endsAt } = req.body;
-    if (!title || !startsAt) throw new HttpError(400, "title and startsAt are required");
-    res.status(201).json(
-      await eventsService.createEvent({
-        title,
-        description,
-        location,
-        startsAt: new Date(startsAt),
-        endsAt: endsAt ? new Date(endsAt) : undefined,
-      }),
-    );
+    const data = parseWritePayload(req.body);
+    if (!data.title || !data.startsAt || Number.isNaN(data.startsAt.getTime())) {
+      throw new HttpError(400, "title and a valid startsAt are required");
+    }
+    res.status(201).json(await eventsService.createEvent(data));
   } catch (err) {
     next(err);
   }
@@ -40,16 +82,9 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, description, location, startsAt, endsAt } = req.body;
-    res.json(
-      await eventsService.updateEvent(req.params.id, {
-        title,
-        description,
-        location,
-        startsAt: startsAt ? new Date(startsAt) : undefined,
-        endsAt: endsAt ? new Date(endsAt) : undefined,
-      }),
-    );
+    const data = parseWritePayload(req.body);
+    if (data.startsAt && Number.isNaN(data.startsAt.getTime())) throw new HttpError(400, "Invalid startsAt");
+    res.json(await eventsService.updateEvent(req.params.id, data));
   } catch (err) {
     next(err);
   }
