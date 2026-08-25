@@ -54,7 +54,7 @@ export function ProductTypePage() {
         <Announcement />
         <PublicHeader />
         <CategoryHero
-          title={subcategory === "Shawls / Scarfs" ? "Shawls & Scarfs" : subcategory}
+          title={subcategory === "Shawls / Scarfs" ? "SCARVES & SHAWLS" : subcategory}
           image={subcategory === "Shawls / Scarfs" ? shawlsScarfsHero : heroImage}
         />
       </div>

@@ -17,7 +17,7 @@ export function Footer() {
           </div>
 
           <div className="flex w-1/2 shrink-0 flex-col gap-6 sm:w-[20%] lg:w-[140px]">
-            <h4 className="text-xs font-medium uppercase tracking-[2.4px] text-ink">Shop</h4>
+            <h4 className="font-futura text-xs font-medium uppercase tracking-[2.4px] text-ink">Shop</h4>
             <ul className="flex flex-col gap-4">
               {shopLinks.map((link) => (
                 <li key={link}>
@@ -30,7 +30,7 @@ export function Footer() {
           </div>
 
           <div className="flex w-1/2 shrink-0 flex-col gap-6 sm:w-[20%] lg:w-[140px]">
-            <h4 className="text-xs font-medium uppercase tracking-[2.4px] text-ink">
+            <h4 className="font-futura text-xs font-medium uppercase tracking-[2.4px] text-ink">
               Information
             </h4>
             <ul className="flex flex-col gap-4">
@@ -45,7 +45,7 @@ export function Footer() {
           </div>
 
           <div className="flex w-full shrink-0 flex-col gap-6 sm:w-full lg:w-[360px]">
-            <h4 className="text-xs font-medium uppercase tracking-[2.4px] text-ink">
+            <h4 className="font-futura text-xs font-medium uppercase tracking-[2.4px] text-ink">
               Newsletter
             </h4>
             <p className="text-sm font-light text-ink/60">

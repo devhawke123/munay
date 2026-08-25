@@ -61,7 +61,7 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
       <div className="grid grid-cols-2 gap-4">
         <FormField
           label="Category Page Group (optional)"
-          placeholder="e.g. Knitwears, Outerwear's, Accessories"
+          placeholder="e.g. Ready to Wear, Accessories"
           value={draft.group}
           onChange={(e) => onChange({ group: e.target.value })}
         />
