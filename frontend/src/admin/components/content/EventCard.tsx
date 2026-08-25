@@ -1,17 +1,21 @@
-import { CalendarDays, ChevronDown, SquarePen } from "lucide-react";
+import { CalendarDays, ChevronDown, SquarePen, Trash2 } from "lucide-react";
 import type { EventRow } from "../../types/event";
-import { EventStatusBadge, EventTypeBadge } from "./EventBadges";
+import { EventTypeBadge } from "./EventBadges";
 import { EventImagePlaceholder } from "./EventImagePlaceholder";
 
 type EventCardProps = {
   event: EventRow;
   onViewDetails: () => void;
   onEdit: () => void;
+  onDelete: () => void;
 };
 
-export function EventCard({ event, onViewDetails, onEdit }: EventCardProps) {
+export function EventCard({ event, onViewDetails, onEdit, onDelete }: EventCardProps) {
   return (
-    <div className="rounded-[10px] border border-brand/10 bg-white p-2">
+    <div
+      onClick={onViewDetails}
+      className="cursor-pointer rounded-[10px] border border-brand/10 bg-white p-2 transition-shadow hover:shadow-card"
+    >
       <div className="relative  w-full overflow-hidden rounded-[8px]">
         <EventImagePlaceholder
           src={event.posterImage}
@@ -22,10 +26,10 @@ export function EventCard({ event, onViewDetails, onEdit }: EventCardProps) {
         <div className="absolute left-2 top-2">
           <EventTypeBadge type={event.type} />
         </div>
-        <div className="absolute right-2 top-2">
-          <EventStatusBadge status={event.status} />
-        </div>
-        <button className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-text-primary">
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-text-primary transition-colors hover:bg-white"
+        >
           <ChevronDown size={13} />
         </button>
       </div>
@@ -37,15 +41,34 @@ export function EventCard({ event, onViewDetails, onEdit }: EventCardProps) {
 
         <div className="mt-2 flex items-center gap-3 pb-1 text-xs">
           <button
-            onClick={onViewDetails}
-            className="flex items-center gap-1 font-semibold text-brand-accent"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
+            className="flex items-center gap-1 font-semibold text-brand-accent transition-colors hover:text-brand-dark hover:underline"
           >
             <CalendarDays size={12} />
             View Event Details
           </button>
-          <button onClick={onEdit} className="flex items-center gap-1 text-text-muted">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="flex items-center gap-1 text-text-muted transition-colors hover:text-text-primary hover:underline"
+          >
             <SquarePen size={12} />
             Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="flex items-center gap-1 text-danger transition-colors hover:text-danger/70 hover:underline"
+          >
+            <Trash2 size={12} />
+            Delete
           </button>
         </div>
       </div>

@@ -1,33 +1,16 @@
 import { ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
+import { StatusBadge } from "../components/ui/StatusBadge";
+import { useOrders } from "../context/OrdersContext";
 import { getCustomerDetail } from "../data/customers";
-import type { OrderStatus } from "../types/customer";
-
-const statusStyles: Record<OrderStatus, { dot: string; text: string; bg: string; border: string }> = {
-  Processing: { dot: "bg-warning", text: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
-  Cancelled: { dot: "bg-danger", text: "text-danger", bg: "bg-danger/10", border: "border-danger/20" },
-  Delivered: { dot: "bg-success", text: "text-success", bg: "bg-success/10", border: "border-success/20" },
-  Shipped: { dot: "bg-info", text: "text-info", bg: "bg-info/10", border: "border-info/20" },
-};
-
-function StatusBadge({ status }: { status: OrderStatus }) {
-  const style = statusStyles[status];
-  return (
-    <div
-      className={`inline-flex h-[23.833px] w-fit items-center gap-[5px] whitespace-nowrap rounded-full border ${style.border} ${style.bg} px-[10px] py-[3px]`}
-    >
-      <span className={`h-[5px] w-[5px] rounded-[2.5px] ${style.dot}`} />
-      <span className={`text-[11px] font-display font-semibold tracking-[0.11px] ${style.text}`}>
-        {status}
-      </span>
-    </div>
-  );
-}
+import { orderStatusTone } from "../types/order";
 
 export function CustomerDetail() {
   const { customerId } = useParams<{ customerId: string }>();
   const customer = getCustomerDetail(customerId ?? "1");
+  const { orders } = useOrders();
+  const customerOrders = orders.filter((order) => order.customerEmail === customer.email);
 
   return (
     <AdminLayout>
@@ -89,23 +72,30 @@ export function CustomerDetail() {
             </div>
 
             <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
-              {customer.orders.map((order, index) => (
+              {customerOrders.map((order) => (
                 <div
-                  key={`${order.id}-${index}`}
+                  key={order.id}
                   className="grid grid-cols-[70px_1fr_140px_90px_100px_70px] items-center"
                 >
-                  <div className="text-[13px] font-medium text-brand">{order.id}</div>
-                  <div className="text-[13px] text-text-primary">{order.items}</div>
-                  <StatusBadge status={order.status} />
+                  <div className="text-[13px] font-medium text-brand">{order.number}</div>
+                  <div className="text-[13px] text-text-primary">{order.products}</div>
+                  <StatusBadge label={order.status} tone={orderStatusTone[order.status]} />
                   <div className="text-[13px] font-display font-bold text-text-primary">
                     {order.amount}
                   </div>
                   <div className="text-[13px] text-text-muted">{order.date}</div>
-                  <button className="inline-flex h-[26px] items-center gap-1 rounded-[6px] bg-surface-tan px-2 text-[11px] font-semibold text-text-primary">
+                  <Link
+                    to={`/admin/orders/${order.id}`}
+                    className="inline-flex h-[26px] items-center gap-1 rounded-[6px] bg-surface-tan px-2 text-[11px] font-semibold text-text-primary hover:bg-brand-soft/60"
+                  >
                     View →
-                  </button>
+                  </Link>
                 </div>
               ))}
+
+              {customerOrders.length === 0 && (
+                <p className="py-4 text-center text-sm text-text-muted">No orders found.</p>
+              )}
             </div>
           </div>
 

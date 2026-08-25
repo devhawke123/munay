@@ -1,4 +1,4 @@
-import { Box, Boxes, Clock, Globe, Hash, MapPin, PackageCheck, PackageMinus, PackageX, Store, Upload, Warehouse as WarehouseIcon, X } from "lucide-react";
+import { Boxes, Globe, PackageCheck, PackageMinus, PackageX, Store, Upload, Warehouse as WarehouseIcon, X } from "lucide-react";
 import { useState } from "react";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
@@ -9,7 +9,12 @@ import { ImportInventoryModal } from "../components/inventory/ImportInventoryMod
 import type { ImportRow } from "../components/inventory/importTypes";
 import { BulkAdjustStockModal } from "../components/inventory/BulkAdjustStockModal";
 import { ProductVariantDetail } from "../components/inventory/ProductVariantDetail";
+import { AdjustOnlineStockModal } from "../components/inventory/AdjustOnlineStockModal";
+import { OnlineInventoryView } from "../components/inventory/OnlineInventoryView";
+import { getColorSwatch } from "../components/inventory/colorSwatches";
 import { warehouses as initialWarehouses } from "../data/inventory";
+import { onlineInventoryItems as initialOnlineItems } from "../data/onlineInventory";
+import { initialLiveDeductions, type LiveDeduction } from "../data/liveDeductions";
 import { getInventoryStatus, type InventoryItem, type InventoryStatus, type Warehouse } from "../types/inventory";
 
 const STATUS_TONE: Record<InventoryStatus, StatusTone> = {
@@ -28,6 +33,7 @@ const FILTERS = ["All", "In Stock", "Low Stock", "Out of Stock"] as const;
 type Filter = (typeof FILTERS)[number];
 
 const STOCK_BAR_SCALE = 150;
+const VISIBLE_VARIANTS = 3;
 
 function AdjustStockModal({
   items,
@@ -127,9 +133,14 @@ export function Inventory() {
   const [showBulkAdjustModal, setShowBulkAdjustModal] = useState(false);
   const [inventoryMode, setInventoryMode] = useState<"offline" | "online">("offline");
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
+  const [onlineItems, setOnlineItems] = useState(initialOnlineItems);
+  const [showOnlineAdjustModal, setShowOnlineAdjustModal] = useState(false);
+  const [deductions, setDeductions] = useState<LiveDeduction[]>(initialLiveDeductions);
+  const [onlineViewingItemId, setOnlineViewingItemId] = useState<string | null>(null);
 
   const activeWarehouse = warehouses.find((w) => w.id === activeWarehouseId) ?? warehouses[0];
   const viewingItem = activeWarehouse.items.find((i) => i.id === viewingItemId) ?? null;
+  const onlineViewingItem = onlineItems.find((i) => i.id === onlineViewingItemId) ?? null;
 
   const inStockCount = activeWarehouse.items.filter((i) => getInventoryStatus(i) === "In Stock").length;
   const lowStockCount = activeWarehouse.items.filter((i) => getInventoryStatus(i) === "Low Stock").length;
@@ -137,7 +148,6 @@ export function Inventory() {
     (i) => getInventoryStatus(i) === "Out of Stock",
   ).length;
   const totalUnits = activeWarehouse.items.reduce((sum, i) => sum + i.totalStock, 0);
-  const totalSkus = activeWarehouse.items.length;
 
   const visibleItems = activeWarehouse.items.filter((item) => {
     if (activeFilter !== "All" && getInventoryStatus(item) !== activeFilter) return false;
@@ -181,6 +191,58 @@ export function Inventory() {
       ),
     );
     setShowBulkAdjustModal(false);
+  }
+
+  function saveOnlineAdjustedStock(updates: { id: string; totalStock: number }[]) {
+    const byId = new Map(updates.map((u) => [u.id, u.totalStock]));
+    setOnlineItems((prev) =>
+      prev.map((item) => {
+        const newStock = byId.get(item.id);
+        return newStock === undefined ? item : { ...item, totalStock: newStock };
+      }),
+    );
+    setShowOnlineAdjustModal(false);
+  }
+
+  function handleSimulateOrder() {
+    const inStockItems = onlineItems.filter((i) => i.totalStock > 0);
+    if (inStockItems.length === 0) return;
+    const item = inStockItems[Math.floor(Math.random() * inStockItems.length)];
+
+    const variantsWithStock = item.variants.filter((v) => v.qty > 0);
+    if (variantsWithStock.length === 0) return;
+    const variant = variantsWithStock[Math.floor(Math.random() * variantsWithStock.length)];
+
+    const amount = Math.min(variant.qty, 1 + Math.floor(Math.random() * 3));
+
+    setOnlineItems((prev) =>
+      prev.map((i) =>
+        i.id !== item.id
+          ? i
+          : {
+              ...i,
+              totalStock: i.totalStock - amount,
+              variants: i.variants.map((v) =>
+                v.color === variant.color && v.size === variant.size
+                  ? { ...v, qty: v.qty - amount }
+                  : v,
+              ),
+            },
+      ),
+    );
+
+    const orderNumber = `#MU-${4800 + Math.floor(Math.random() * 200)}`;
+    setDeductions((prev) => [
+      {
+        id: crypto.randomUUID(),
+        product: item.product,
+        variantLabel: `${variant.color} · ${variant.size}`,
+        orderNumber,
+        amount: -amount,
+        timestamp: Date.now(),
+      },
+      ...prev,
+    ]);
   }
 
   function applyImportedRows(rows: ImportRow[]) {
@@ -230,20 +292,24 @@ export function Inventory() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="inline-flex h-[38px] items-center gap-2 rounded-[8px] border border-brand/10 bg-white px-4 text-xs font-semibold text-text-primary"
-            >
-              <Upload size={13} />
-              Import CSV
-            </button>
-            <PrimaryButton
-              icon={<Boxes size={15} />}
-              className="!h-[38px] !py-0 !pl-4 !pr-4 text-xs"
-              onClick={() => setShowBulkAdjustModal(true)}
-            >
-              Adjust Stock
-            </PrimaryButton>
+            {inventoryMode === "offline" && (
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="inline-flex h-[38px] items-center gap-2 rounded-[8px] border border-brand/10 bg-white px-4 text-xs font-semibold text-text-primary"
+              >
+                <Upload size={13} />
+                Import CSV
+              </button>
+            )}
+            {inventoryMode === "offline" && (
+              <PrimaryButton
+                icon={<Boxes size={15} />}
+                className="!h-[38px] !py-0 !pl-4 !pr-4 text-xs"
+                onClick={() => setShowBulkAdjustModal(true)}
+              >
+                Adjust Stock
+              </PrimaryButton>
+            )}
           </div>
         </div>
 
@@ -284,17 +350,21 @@ export function Inventory() {
           </button>
         </div>
 
-        {inventoryMode === "online" && (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-[7px] border border-brand-border bg-white px-6 py-16 text-center">
-            <Globe size={28} className="text-brand" />
-            <p className="text-sm font-display font-bold text-text-primary">
-              Online inventory syncing isn't connected yet
-            </p>
-            <p className="max-w-sm text-xs text-text-muted">
-              Once your storefront is wired up, stock sold online will update here automatically.
-              For now, manage stock under Offline Inventory.
-            </p>
-          </div>
+        {inventoryMode === "online" && onlineViewingItem && (
+          <ProductVariantDetail
+            item={onlineViewingItem}
+            onBack={() => setOnlineViewingItemId(null)}
+          />
+        )}
+
+        {inventoryMode === "online" && !onlineViewingItem && (
+          <OnlineInventoryView
+            items={onlineItems}
+            deductions={deductions}
+            onOpenAdjust={() => setShowOnlineAdjustModal(true)}
+            onSimulateOrder={handleSimulateOrder}
+            onSelectItem={setOnlineViewingItemId}
+          />
         )}
 
         {inventoryMode === "offline" && viewingItem && (
@@ -306,7 +376,6 @@ export function Inventory() {
         <div className="flex w-fit items-center gap-2 rounded-panel bg-brand-bg p-1">
           {warehouses.map((warehouse) => {
             const isActive = warehouse.id === activeWarehouseId;
-            const hasOutOfStock = warehouse.items.some((i) => getInventoryStatus(i) === "Out of Stock");
             return (
               <button
                 key={warehouse.id}
@@ -323,49 +392,9 @@ export function Inventory() {
               >
                 <WarehouseIcon size={14} />
                 {warehouse.name}
-                {hasOutOfStock && <span className="h-1.5 w-1.5 rounded-full bg-danger" />}
               </button>
             );
           })}
-        </div>
-
-        <div className="flex items-center justify-between rounded-[7px] border border-brand-border bg-white px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
-              <WarehouseIcon size={16} className="text-brand" />
-            </div>
-            <div>
-              <p className="text-sm font-display font-bold text-text-primary">{activeWarehouse.name}</p>
-              <p className="flex items-center gap-1 text-xs text-text-muted">
-                <MapPin size={11} />
-                {activeWarehouse.location}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-8 text-xs text-text-muted">
-            <div>
-              <p className="mb-0.5 flex items-center gap-1">
-                <Clock size={11} />
-                Last Import
-              </p>
-              <p className="text-sm font-semibold text-text-primary">{activeWarehouse.lastImport}</p>
-            </div>
-            <div>
-              <p className="mb-0.5 flex items-center gap-1">
-                <Hash size={11} />
-                Total SKUs
-              </p>
-              <p className="text-sm font-semibold text-text-primary">{totalSkus}</p>
-            </div>
-            <div>
-              <p className="mb-0.5 flex items-center gap-1">
-                <Box size={11} />
-                Total Units
-              </p>
-              <p className="text-sm font-semibold text-text-primary">{totalUnits}</p>
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-4 gap-[10px]">
@@ -434,12 +463,12 @@ export function Inventory() {
           </div>
 
           <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
-            <div className="grid grid-cols-[minmax(180px,1.8fr)_90px_minmax(140px,1.2fr)_130px_100px_minmax(140px,1.4fr)_100px_90px] items-center gap-x-4 text-xs uppercase tracking-wide text-text-primary/70">
+            <div className="grid grid-cols-[minmax(160px,1fr)_90px_minmax(120px,1fr)_130px_100px_minmax(220px,2.2fr)_100px_90px] items-center gap-x-4 text-xs uppercase tracking-wide text-text-primary/70">
               <div>Product</div>
               <div>SKU</div>
               <div>Category</div>
               <div>Total Stock</div>
-              <div>Reorder Point</div>
+              <div className="pr-3 text-center">Reorder Point</div>
               <div>Variants</div>
               <div>Status</div>
               <div />
@@ -450,11 +479,14 @@ export function Inventory() {
             {visibleItems.map((item) => {
               const status = getInventoryStatus(item);
               const barWidth = Math.min(100, (item.totalStock / STOCK_BAR_SCALE) * 100);
+              const sortedVariants = [...item.variants].sort((a, b) => b.qty - a.qty);
+              const shownVariants = sortedVariants.slice(0, VISIBLE_VARIANTS);
+              const remainingVariants = sortedVariants.length - shownVariants.length;
               return (
                 <div
                   key={item.id}
                   onClick={() => setViewingItemId(item.id)}
-                  className="grid cursor-pointer grid-cols-[minmax(180px,1.8fr)_90px_minmax(140px,1.2fr)_130px_100px_minmax(140px,1.4fr)_100px_90px] items-center gap-x-4 border-b border-brand-border py-4 last:border-0 hover:bg-surface-muted/60"
+                  className="grid cursor-pointer grid-cols-[minmax(160px,1fr)_90px_minmax(120px,1fr)_130px_100px_minmax(220px,2.2fr)_100px_90px] items-center gap-x-4 border-b border-brand-border py-4 last:border-0 hover:bg-surface-muted/60"
                 >
                   <div className="text-sm font-display font-semibold text-text-primary">
                     {item.product}
@@ -484,17 +516,28 @@ export function Inventory() {
                     </div>
                   </div>
 
-                  <div className="text-[13px] text-text-primary">{item.reorderPoint}</div>
+                  <div className="pr-3 text-center text-[13px] text-text-primary">
+                    {item.reorderPoint}
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {item.variants.map((variant) => (
+                    {shownVariants.map((variant) => (
                       <span
                         key={`${variant.color}-${variant.size}`}
-                        className="flex h-[22px] items-center rounded-[6px] bg-surface-tan px-2 text-[11px] font-medium text-text-primary"
+                        className="flex items-center gap-1.5 rounded-full bg-surface-tan px-3 py-1.5 text-xs font-medium text-text-primary"
                       >
-                        {variant.color}/{variant.size}: {variant.qty}
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: getColorSwatch(variant.color) }}
+                        />
+                        {variant.color} {variant.qty}
                       </span>
                     ))}
+                    {remainingVariants > 0 && (
+                      <span className="rounded-full bg-surface-tan px-3 py-1.5 text-xs font-medium text-text-muted">
+                        +{remainingVariants}
+                      </span>
+                    )}
                   </div>
 
                   <StatusBadge label={status} tone={STATUS_TONE[status]} />
@@ -543,6 +586,15 @@ export function Inventory() {
           items={activeWarehouse.items}
           onCancel={() => setShowBulkAdjustModal(false)}
           onSave={saveBulkAdjustedStock}
+        />
+      )}
+
+      {showOnlineAdjustModal && (
+        <AdjustOnlineStockModal
+          warehouseName={activeWarehouse.name}
+          items={onlineItems}
+          onCancel={() => setShowOnlineAdjustModal(false)}
+          onSave={saveOnlineAdjustedStock}
         />
       )}
     </AdminLayout>

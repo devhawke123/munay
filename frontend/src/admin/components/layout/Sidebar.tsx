@@ -1,4 +1,4 @@
-import { LayoutGrid, Package, ShoppingCart, Users, BarChart2, Boxes, FileText, Star, Settings, LogOut, X } from "lucide-react";
+import { LayoutGrid, Package, ShoppingCart, Users, BarChart2, Boxes, FileText, Settings, LogOut, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import munayLogo from "../../assets/munay-logo.png";
 

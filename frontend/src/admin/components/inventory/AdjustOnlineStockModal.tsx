@@ -1,22 +1,21 @@
-import { Boxes, Minus, Plus, Save, X } from "lucide-react";
+import { Globe, Minus, Plus, Save, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PrimaryButton } from "../ui/PrimaryButton";
 import { SearchBar } from "../ui/SearchBar";
 import type { InventoryItem } from "../../types/inventory";
 
-type BulkAdjustStockModalProps = {
+type AdjustOnlineStockModalProps = {
   warehouseName: string;
   items: InventoryItem[];
   onCancel: () => void;
   onSave: (updates: { id: string; totalStock: number }[]) => void;
 };
 
-export function BulkAdjustStockModal({
+export function AdjustOnlineStockModal({
   warehouseName,
   items,
   onCancel,
   onSave,
-}: BulkAdjustStockModalProps) {
+}: AdjustOnlineStockModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [values, setValues] = useState<Record<string, number>>({});
 
@@ -50,11 +49,11 @@ export function BulkAdjustStockModal({
       <div className="flex max-h-[85vh] w-full max-w-[420px] flex-col rounded-[12px] bg-white shadow-card">
         <div className="flex items-start justify-between border-b border-brand-border px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-brand">
-              <Boxes size={16} className="text-brand" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-panel bg-tint-mint">
+              <Globe size={16} className="text-success" />
             </div>
             <div>
-              <h2 className="text-base font-display font-bold text-text-primary">Adjust Stock</h2>
+              <h2 className="text-base font-display font-bold text-text-primary">Adjust Online Stock</h2>
               <p className="text-xs text-text-muted">{warehouseName}</p>
             </div>
           </div>
@@ -131,15 +130,15 @@ export function BulkAdjustStockModal({
           >
             Cancel
           </button>
-          <PrimaryButton
+          <button
             type="button"
-            icon={<Save size={14} />}
             onClick={handleSave}
             disabled={!hasChanges}
-            className="!h-10 !py-0 !pl-5 !pr-5 text-sm"
+            className="inline-flex h-10 items-center gap-1.5 rounded-[10px] bg-success px-5 text-sm font-semibold text-white disabled:pointer-events-none disabled:opacity-40"
           >
+            <Save size={14} />
             Save Changes
-          </PrimaryButton>
+          </button>
         </div>
       </div>
     </div>
