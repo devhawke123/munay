@@ -1,4 +1,5 @@
 import { AlertTriangle, XCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useProducts } from "../../context/ProductsContext";
 
 const LOW_STOCK_THRESHOLD = 20;
@@ -16,9 +17,9 @@ export function InventoryAlert() {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Inventory Alert</h3>
-        <a href="#" className="text-[10px] font-display font-semibold text-brand-accent">
+        <Link to="/admin/inventory" className="text-[10px] font-display font-semibold text-brand-accent">
           View All →
-        </a>
+        </Link>
       </div>
 
       {/* Rows */}

@@ -42,11 +42,8 @@ export function Activity() {
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 min-h-[370px] shadow-card">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h3 className="text-sm font-display font-bold text-text-primary tracking-tight">Activity</h3>
-        <a href="#" className="text-xs font-display font-semibold text-brand-accent">
-          All →
-        </a>
       </div>
 
       {/* List */}

@@ -85,7 +85,43 @@ export function variantKey(color: string, size: string) {
   return `${color}|${size}`;
 }
 
-export function draftToProduct(draft: ProductDraft): Product {
+export function productToDraft(product: Product): ProductDraft {
+  const sizes = product.sizes ?? [];
+  const colors = product.colors ?? [];
+  const stockByVariant: Record<string, string> = {};
+  const perVariantStock = colors.length && sizes.length
+    ? String(Math.round((Number(product.stock) || 0) / (colors.length * sizes.length)))
+    : product.stock;
+  colors.forEach((color) => {
+    sizes.forEach((size) => {
+      stockByVariant[variantKey(color, size)] = perVariantStock;
+    });
+  });
+
+  return {
+    name: product.name,
+    description: product.description ?? "",
+    mainCategory: product.category,
+    subcategory: product.subcategory,
+    group: product.group ?? "",
+    section: product.section ?? "",
+    brand: product.collection ?? "",
+    composition: product.composition ?? "",
+    weight: product.weight ?? "",
+    dimensions: product.dimensions ?? "",
+    origin: product.origin ?? "",
+    tags: [],
+    images: product.images ?? [],
+    price: product.price.replace(/[^0-9.]/g, ""),
+    sku: product.sku,
+    barcode: "",
+    sizes,
+    colors,
+    stockByVariant,
+  };
+}
+
+export function draftToProduct(draft: ProductDraft, existing?: Product): Product {
   const totalStock = Object.values(draft.stockByVariant).reduce(
     (sum, qty) => sum + (Number(qty) || 0),
     0,
@@ -93,7 +129,7 @@ export function draftToProduct(draft: ProductDraft): Product {
   const price = Number(draft.price) || 0;
 
   return {
-    id: crypto.randomUUID(),
+    id: existing?.id ?? crypto.randomUUID(),
     name: draft.name,
     sku: draft.sku,
     category: draft.mainCategory,
@@ -102,9 +138,9 @@ export function draftToProduct(draft: ProductDraft): Product {
     section: draft.section || undefined,
     price: `$${price.toFixed(2)}`,
     stock: String(totalStock),
-    sold: "0",
-    revenue: "$0",
-    status: "Active",
+    sold: existing?.sold ?? "0",
+    revenue: existing?.revenue ?? "$0",
+    status: existing?.status ?? "Active",
     description: draft.description,
     images: draft.images,
     composition: draft.composition,
@@ -114,6 +150,6 @@ export function draftToProduct(draft: ProductDraft): Product {
     collection: draft.brand,
     colors: draft.colors,
     sizes: draft.sizes,
-    rating: 4.8,
+    rating: existing?.rating ?? 4.8,
   };
 }
