@@ -1,0 +1,20 @@
+-- AlterTable
+ALTER TABLE `Order` ADD COLUMN `carrier` ENUM('DHL', 'DPD', 'LA_POSTE') NULL,
+    ADD COLUMN `tax` DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN `trackingId` VARCHAR(191) NULL,
+    MODIFY `status` ENUM('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL DEFAULT 'PENDING';
+
+-- CreateTable
+CREATE TABLE `OrderStatusEvent` (
+    `id` VARCHAR(191) NOT NULL,
+    `orderId` VARCHAR(191) NOT NULL,
+    `status` ENUM('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL,
+    `occurredAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `OrderStatusEvent_orderId_idx`(`orderId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `OrderStatusEvent` ADD CONSTRAINT `OrderStatusEvent_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `Order`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
