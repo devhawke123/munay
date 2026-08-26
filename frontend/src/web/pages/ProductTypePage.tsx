@@ -30,12 +30,12 @@ export function ProductTypePage() {
 
   if (!category || !subcategory) {
     return (
-      <div className="bg-white">
+      <div className="overflow-x-hidden bg-white">
         <Announcement />
         <PublicHeader />
-        <div className="flex flex-col items-center gap-4 px-4 py-24 text-center">
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
           <p className="text-ink/60">This collection doesn&apos;t exist yet.</p>
-          <Link to="/" className="text-sm uppercase tracking-[1.2px] text-ink underline">
+          <Link to="/" className="text-btn uppercase text-ink underline">
             Back home
           </Link>
         </div>
@@ -49,8 +49,8 @@ export function ProductTypePage() {
   const unsectioned = items.filter((product) => !product.section);
 
   return (
-    <div className="bg-white">
-      <div className="flex h-[100dvh] flex-col">
+    <div className="overflow-x-hidden bg-white">
+      <div className="flex h-dvh flex-col">
         <Announcement />
         <PublicHeader />
         <CategoryHero
@@ -59,7 +59,7 @@ export function ProductTypePage() {
         />
       </div>
 
-      <div className="mx-auto flex max-w-[1304px] flex-col gap-24 px-4 py-16 sm:gap-32 sm:px-8 sm:py-24 lg:px-0">
+      <div className="mx-auto flex max-w-related flex-col gap-24 px-page-x py-section-y sm:gap-32 sm:py-section-y-lg">
         {items.length === 0 ? (
           <p className="text-center text-ink/60">No products in this collection yet.</p>
         ) : sections.length === 0 ? (
@@ -72,7 +72,7 @@ export function ProductTypePage() {
           <>
             {sections.map((section) => (
               <div key={section} className="flex flex-col items-center">
-                <h2 className="font-serif text-3xl uppercase leading-none tracking-[1px] text-ink sm:text-4xl lg:text-[44px] lg:leading-[44px]">
+                <h2 className="font-serif text-category-title uppercase tracking-[1px] text-ink">
                   {section}
                 </h2>
                 <div className="grid w-full grid-cols-2 gap-x-4 gap-y-10 pt-14 sm:gap-x-6 lg:grid-cols-4">

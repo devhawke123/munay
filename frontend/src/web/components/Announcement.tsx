@@ -1,7 +1,7 @@
 export function Announcement() {
   return (
-    <div className="bg-cream px-4 py-2 text-center">
-      <p className="font-futura text-[10px] uppercase tracking-[1px] text-ink sm:text-xs sm:tracking-[1.2px]">
+    <div className="bg-cream px-page-x py-1 text-center short:py-0.5 tall:py-2">
+      <p className="font-futura text-announcement uppercase text-ink tall:text-xs tall:tracking-[1.2px]">
         Complimentary worldwide shipping and returns
       </p>
     </div>

@@ -13,16 +13,16 @@ const products = [
 
 export function NewArrivals() {
   return (
-    <div className="flex flex-col items-center gap-8 px-4 py-10 sm:gap-16 sm:px-6 sm:py-16 lg:px-12">
-      <div className="flex w-full max-w-[1440px] flex-col gap-8 sm:gap-16">
+    <div className="flex flex-col items-center gap-8 px-page-x py-section-y sm:gap-16">
+      <div className="flex w-full max-w-shell flex-col gap-8 sm:gap-16">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-4">
-            <h2 className="font-serif text-3xl text-ink sm:text-4xl lg:text-5xl">New Arrivals</h2>
-            <p className="text-sm tracking-[0.35px] text-ink/60">
+            <h2 className="font-serif text-section-title text-ink">New Arrivals</h2>
+            <p className="text-body-sm tracking-[0.35px] text-ink/60">
               Discover the latest styles and fresh picks, newly added to our collection.
             </p>
           </div>
-          <a href="#" className="border-b border-ink pb-1 text-sm text-ink">
+          <a href="#" className="border-b border-ink pb-1 text-body-sm text-ink">
             Explore All New In
           </a>
         </div>
@@ -39,14 +39,14 @@ export function NewArrivals() {
                   <Heart size={20} />
                 </button>
                 <div className="absolute inset-x-0 bottom-0 p-4 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
-                  <button className="w-full bg-ink py-3 text-xs uppercase tracking-[1.2px] text-white">
+                  <button className="w-full bg-ink py-btn-y text-btn uppercase text-white">
                     Add to Bag
                   </button>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h3 className="font-serif-alt text-sm text-ink">{product.name}</h3>
-                <p className="text-sm text-ink/60">{product.price}</p>
+                <h3 className="font-serif-alt text-card-title text-ink">{product.name}</h3>
+                <p className="text-body-sm text-ink/60">{product.price}</p>
               </div>
             </div>
           ))}

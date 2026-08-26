@@ -54,15 +54,11 @@ export function Categories() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-8 bg-[#f3eee6] pt-16 sm:gap-16 sm:pt-32">
-      <div className="flex max-w-[600px] flex-col items-center gap-4 px-4 text-center sm:gap-6 sm:px-12">
-        <p className="text-xs font-medium uppercase tracking-[3.6px] text-ink">
-          Browse by category
-        </p>
-        <h2 className="font-serif text-3xl text-ink sm:text-4xl lg:text-5xl">
-          Find What You Love
-        </h2>
-        <p className="text-base font-light text-ink/60 sm:text-lg">
+    <div className="flex flex-col items-center gap-8 bg-sand pt-section-y-lg sm:gap-16">
+      <div className="flex max-w-prose flex-col items-center gap-4 px-page-x text-center sm:gap-6">
+        <p className="text-section-label font-medium uppercase text-ink">Browse by category</p>
+        <h2 className="font-serif text-section-title text-ink">Find What You Love</h2>
+        <p className="text-body font-light text-ink/60">
           Explore our collection by category and discover styles that fit your lifestyle and
           every occasion.
         </p>
@@ -80,8 +76,8 @@ export function Categories() {
           />
         ))}
 
-        <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-8 sm:py-0 lg:px-12 xl:px-24">
-          <div className="relative flex w-full max-w-[1440px] items-center">
+        <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-page-x py-8 sm:py-0">
+          <div className="relative flex w-full max-w-shell items-center">
             {categories.map((category, index) => (
               <div
                 key={category.name}
@@ -98,16 +94,14 @@ export function Categories() {
                     />
                   </div>
                 )}
-                <div className="flex w-full flex-col items-start gap-3 sm:gap-6 lg:w-1/2 lg:gap-8">
-                  <h3 className="font-serif text-3xl text-ink sm:text-5xl lg:text-7xl">
-                    {category.name}
-                  </h3>
-                  <p className="max-w-[448px] text-sm font-light text-ink/70 sm:text-base lg:text-lg">
+                <div className="flex w-full min-w-0 flex-col items-start gap-3 sm:gap-6 lg:w-1/2 lg:gap-8">
+                  <h3 className="font-serif text-display text-ink">{category.name}</h3>
+                  <p className="max-w-[448px] text-body font-light text-ink/70">
                     {category.description}
                   </p>
                   <a
                     href="#"
-                    className="flex items-center gap-4 border-b border-ink/30 pb-2 text-xs uppercase tracking-[1.2px] text-ink"
+                    className="flex items-center gap-4 border-b border-ink/30 pb-2 text-btn uppercase text-ink"
                   >
                     Discover {category.name}
                     <ArrowRight size={12} />

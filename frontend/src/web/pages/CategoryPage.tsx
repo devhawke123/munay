@@ -96,12 +96,12 @@ export function CategoryPage() {
 
   if (!category) {
     return (
-      <div className="bg-white">
+      <div className="overflow-x-hidden bg-white">
         <Announcement />
         <PublicHeader />
-        <div className="flex flex-col items-center gap-4 px-4 py-24 text-center">
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
           <p className="text-ink/60">This category doesn&apos;t exist yet.</p>
-          <Link to="/" className="text-sm uppercase tracking-[1.2px] text-ink underline">
+          <Link to="/" className="text-btn uppercase text-ink underline">
             Back home
           </Link>
         </div>
@@ -117,17 +117,17 @@ export function CategoryPage() {
   const heroImage = category === "Women" ? WOMEN_HERO_IMAGE : placeholderImage;
 
   return (
-    <div className="bg-white">
-      <div className="flex h-[100dvh] flex-col">
+    <div className="overflow-x-hidden bg-white">
+      <div className="flex h-dvh flex-col">
         <Announcement />
         <PublicHeader />
         <CategoryHero title={category === "Women" ? "WOMEN" : category} image={heroImage} />
       </div>
 
-      <div className="mx-auto flex max-w-[1304px] flex-col gap-24 px-4 py-16 sm:gap-32 sm:px-8 sm:py-24 lg:gap-40 lg:px-0">
+      <div className="mx-auto flex max-w-related flex-col gap-24 px-page-x py-section-y sm:gap-32 sm:py-section-y-lg">
         {groups.map((group) => (
           <div key={group} className="flex flex-col items-center">
-            <h2 className="font-futura text-4xl font-medium uppercase leading-none text-ink sm:text-5xl lg:text-[48px] lg:leading-[52px]">
+            <h2 className="font-futura text-category-title font-medium uppercase text-ink">
               {group}
             </h2>
             <div className="grid w-full grid-cols-1 gap-x-7 gap-y-10 pt-14 sm:grid-cols-2 lg:grid-cols-4">
@@ -147,9 +147,7 @@ export function CategoryPage() {
                     ) : null}
                   </div>
                   <div className="flex flex-col pt-5">
-                    <p className="font-futura text-base uppercase leading-[19.5px] tracking-[2.5px] text-ink">
-                      {tile.label}
-                    </p>
+                    <p className="font-futura text-tile-label uppercase text-ink">{tile.label}</p>
                     <div className="mt-2 h-[2px] w-16 bg-ink" />
                   </div>
                 </Link>

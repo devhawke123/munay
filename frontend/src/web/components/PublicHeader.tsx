@@ -16,45 +16,49 @@ export function PublicHeader() {
 
   return (
     <div className="relative">
-      <div className="flex items-center justify-between bg-white px-4 py-4 sm:px-6 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-8 lg:px-12 lg:py-5">
+      <div className="flex items-center justify-between bg-white px-header-x py-header-y lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-6 tall:lg:gap-8 tall:py-3">
         <button
           aria-label="Toggle menu"
           className="text-ink lg:hidden"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
 
-        <a
-          href="#"
+        <Link
+          to="/"
           className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:justify-self-start"
         >
-          <img src={logo} alt="Munay" className="h-12 w-20 object-contain lg:h-[73px] lg:w-32" />
-        </a>
+          <img
+            src={logo}
+            alt="Munay"
+            className="h-logo-h w-logo-w object-contain tall:lg:h-[73px] tall:lg:w-32"
+          />
+        </Link>
 
-        <nav className="hidden items-center justify-center gap-8 lg:flex">
+        <nav className="hidden items-center justify-center gap-5 lg:flex xl:gap-7 tall:gap-8">
           {primaryLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className="font-futura flex items-center gap-1 text-xl font-medium tracking-[0.35px] text-ink"
+              className="font-futura flex items-center gap-0.5 text-nav font-medium tracking-[0.35px] text-ink"
             >
               {link.label}
-              <ChevronDown size={16} />
+              <ChevronDown size={14} className="tall:size-4" />
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-4 lg:gap-6 lg:justify-self-end">
+        <div className="flex items-center gap-3 lg:gap-4 lg:justify-self-end tall:lg:gap-6">
           <button aria-label="Account" className="hidden text-ink lg:inline-flex">
-            <User size={18} />
+            <User size={16} className="tall:size-[18px]" />
           </button>
           <button aria-label="Wishlist" className="hidden text-ink lg:inline-flex">
-            <Heart size={18} />
+            <Heart size={16} className="tall:size-[18px]" />
           </button>
           <button aria-label="Bag" className="relative text-ink">
-            <ShoppingBag size={18} />
-            <span className="absolute -right-2 -top-1 flex size-4 items-center justify-center rounded-full bg-gold text-[10px] text-white">
+            <ShoppingBag size={16} className="tall:size-[18px]" />
+            <span className="absolute -right-2 -top-1 flex size-3.5 items-center justify-center rounded-full bg-gold text-[9px] text-white tall:size-4 tall:text-[10px]">
               0
             </span>
           </button>
@@ -62,12 +66,12 @@ export function PublicHeader() {
       </div>
 
       {menuOpen && (
-        <nav className="flex flex-col gap-1 border-t border-ink/10 bg-white px-4 py-4 lg:hidden">
+        <nav className="flex flex-col gap-1 border-t border-ink/10 bg-white px-header-x py-3 lg:hidden">
           {primaryLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className="font-futura py-2 text-sm font-medium tracking-[0.35px] text-ink"
+              className="font-futura py-2 text-body-sm font-medium tracking-[0.35px] text-ink"
               onClick={() => setMenuOpen(false)}
             >
               {link.label}
