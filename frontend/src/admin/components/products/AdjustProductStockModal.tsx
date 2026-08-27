@@ -7,10 +7,12 @@ export function AdjustProductStockModal({
   product,
   onCancel,
   onSave,
+  error,
 }: {
   product: Product;
   onCancel: () => void;
   onSave: (totalStock: number) => void;
+  error?: string | null;
 }) {
   const [value, setValue] = useState(String(product.stock));
 
@@ -44,6 +46,10 @@ export function AdjustProductStockModal({
               className="w-full rounded-[10px] border border-brand-border bg-white px-4 py-2.5 text-sm text-text-primary outline-none focus:border-brand/40"
             />
           </label>
+
+          {error && (
+            <p className="rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">{error}</p>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-brand-border px-6 py-4">

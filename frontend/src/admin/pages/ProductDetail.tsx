@@ -6,16 +6,26 @@ import { DeleteProductConfirm } from "../components/products/DeleteProductConfir
 import { OverviewTab } from "../components/products/OverviewTab";
 import { ProductTabs, type ProductTab } from "../components/products/ProductTabs";
 import { VariantsTab } from "../components/products/VariantsTab";
-import { useProducts } from "../context/ProductsContext";
+import { productsApi, useProductApi } from "../hooks/useProductsApi";
+import { apiProductToProduct } from "../types/product";
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, removeProduct } = useProducts();
+  const { data, loading, error, refetch } = useProductApi(id ?? null);
   const [activeTab, setActiveTab] = useState<ProductTab>("Overview");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const product = products.find((p) => p.id === id);
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
+
+  const product = data ? apiProductToProduct(data) : undefined;
 
   if (!product) {
     return (
@@ -30,10 +40,15 @@ export function ProductDetail() {
     );
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!product) return;
-    removeProduct(product.id);
-    navigate("/admin/products");
+    setDeleteError(null);
+    try {
+      await productsApi.remove(product.id);
+      navigate("/admin/products");
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete product.");
+    }
   }
 
   return (
@@ -76,8 +91,8 @@ export function ProductDetail() {
 
         <ProductTabs activeTab={activeTab} onChange={setActiveTab} />
 
-        {activeTab === "Overview" && <OverviewTab product={product} />}
-        {activeTab === "Variants" && <VariantsTab product={product} />}
+        {activeTab === "Overview" && <OverviewTab product={product} onChanged={refetch} />}
+        {activeTab === "Variants" && <VariantsTab product={product} onChanged={refetch} />}
       </div>
 
       {showDeleteConfirm && (
@@ -85,6 +100,7 @@ export function ProductDetail() {
           product={product}
           onCancel={() => setShowDeleteConfirm(false)}
           onConfirm={confirmDelete}
+          error={deleteError}
         />
       )}
     </AdminLayout>

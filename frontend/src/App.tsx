@@ -1,7 +1,6 @@
 import { type ComponentType, lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ProductsProvider } from "./admin/context/ProductsContext";
-import { OrdersProvider } from "./admin/context/OrdersContext";
 
 // Every public page loads through this so web/theme.css (Tailwind config for
 // the storefront) is guaranteed to load first — add new public pages here
@@ -93,25 +92,23 @@ function AdminRoutes() {
 export function App() {
   return (
     <ProductsProvider>
-      <OrdersProvider>
-        <Suspense fallback={null}>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/category/:categorySlug" element={<CategoryPage />} />
-            <Route
-              path="/category/:categorySlug/:subcategorySlug"
-              element={<ProductTypePage />}
-            />
-            <Route
-              path="/category/:categorySlug/:subcategorySlug/:productId"
-              element={<ProductPageRoute />}
-            />
-            <Route path="/admin/*" element={<AdminRoutes />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </OrdersProvider>
+      <Suspense fallback={null}>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/category/:categorySlug" element={<CategoryPage />} />
+          <Route
+            path="/category/:categorySlug/:subcategorySlug"
+            element={<ProductTypePage />}
+          />
+          <Route
+            path="/category/:categorySlug/:subcategorySlug/:productId"
+            element={<ProductPageRoute />}
+          />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </ProductsProvider>
   );
 }

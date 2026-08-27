@@ -2,21 +2,28 @@ import { ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { StatusBadge } from "../components/ui/StatusBadge";
-import { useOrders } from "../context/OrdersContext";
-import { getCustomer } from "../data/customers";
+import { useCustomerApi } from "../hooks/useCustomersApi";
 import { orderStatusTone } from "../types/order";
-import { formatCurrency, parseCurrency } from "../lib/money";
+import { formatCurrency } from "../lib/money";
 
 export function CustomerDetail() {
   const { customerId } = useParams<{ customerId: string }>();
-  const customer = getCustomer(customerId ?? "1");
-  const { orders } = useOrders();
-  const customerOrders = orders.filter((order) => order.customerEmail === customer.email);
+  const { data: customer, loading, error } = useCustomerApi(customerId ?? null);
 
-  const totalOrders = customerOrders.length;
-  const lifetimeValue = customerOrders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
-  const avgOrder = totalOrders > 0 ? lifetimeValue / totalOrders : 0;
-  const lastOrder = customerOrders[0]?.date ?? "—";
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
+  if (!customer) return null;
+
+  const customerOrders = customer.orders;
+  const totalOrders = customer.totalOrders;
+  const lifetimeValue = customer.lifetimeValue;
+  const avgOrder = customer.avgOrder;
+  const lastOrder = customer.lastOrderAt ? new Date(customer.lastOrderAt).toLocaleDateString() : "—";
 
   return (
     <AdminLayout>
@@ -81,26 +88,31 @@ export function CustomerDetail() {
             </div>
 
             <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
-              {customerOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="grid grid-cols-[70px_1fr_140px_90px_100px_70px] items-center"
-                >
-                  <div className="text-[13px] font-medium text-brand">{order.number}</div>
-                  <div className="text-[13px] text-text-primary">{order.products}</div>
-                  <StatusBadge label={order.status} tone={orderStatusTone[order.status]} />
-                  <div className="text-[13px] font-display font-bold text-text-primary">
-                    {order.amount}
-                  </div>
-                  <div className="text-[13px] text-text-muted">{order.date}</div>
-                  <Link
-                    to={`/admin/orders/${order.id}`}
-                    className="inline-flex h-[26px] items-center gap-1 rounded-[6px] bg-surface-tan px-2 text-[11px] font-semibold text-text-primary hover:bg-brand-soft/60"
+              {customerOrders.map((order) => {
+                const statusLabel = (order.status.charAt(0) + order.status.slice(1).toLowerCase()) as keyof typeof orderStatusTone;
+                return (
+                  <div
+                    key={order.id}
+                    className="grid grid-cols-[70px_1fr_140px_90px_100px_70px] items-center"
                   >
-                    View →
-                  </Link>
-                </div>
-              ))}
+                    <div className="text-[13px] font-medium text-brand">#{order.orderNumber}</div>
+                    <div className="text-[13px] text-text-primary">{order.products}</div>
+                    <StatusBadge label={statusLabel} tone={orderStatusTone[statusLabel]} />
+                    <div className="text-[13px] font-display font-bold text-text-primary">
+                      {formatCurrency(Number(order.total))}
+                    </div>
+                    <div className="text-[13px] text-text-muted">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </div>
+                    <Link
+                      to={`/admin/orders/${order.id}`}
+                      className="inline-flex h-[26px] items-center gap-1 rounded-[6px] bg-surface-tan px-2 text-[11px] font-semibold text-text-primary hover:bg-brand-soft/60"
+                    >
+                      View →
+                    </Link>
+                  </div>
+                );
+              })}
 
               {customerOrders.length === 0 && (
                 <p className="py-4 text-center text-sm text-text-muted">No orders found.</p>
@@ -121,13 +133,13 @@ export function CustomerDetail() {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-[#3B82F61A]">
                   <Phone size={14} className="text-[#3B82F6]" />
                 </div>
-                <span className="text-[13px] text-text-primary">{customer.phone}</span>
+                <span className="text-[13px] text-text-primary">{customer.phone ?? "—"}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-panel bg-[#EF44441A]">
                   <MapPin size={14} className="text-[#EF4444]" />
                 </div>
-                <span className="text-[13px] text-text-primary">{customer.location}</span>
+                <span className="text-[13px] text-text-primary">{customer.location ?? "—"}</span>
               </div>
             </div>
           </div>

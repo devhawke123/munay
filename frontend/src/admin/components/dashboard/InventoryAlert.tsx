@@ -1,16 +1,12 @@
 import { AlertTriangle, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useProducts } from "../../context/ProductsContext";
-
-const LOW_STOCK_THRESHOLD = 20;
+import { useProductsApi } from "../../hooks/useProductsApi";
 
 export function InventoryAlert() {
-  const { products } = useProducts();
-  const lowStockCount = products.filter((p) => {
-    const stock = Number(p.stock) || 0;
-    return stock > 0 && stock < LOW_STOCK_THRESHOLD;
-  }).length;
-  const outOfStockCount = products.filter((p) => (Number(p.stock) || 0) === 0).length;
+  const { data } = useProductsApi();
+  const products = data ?? [];
+  const lowStockCount = products.filter((p) => p.stockStatus === "LOW_STOCK").length;
+  const outOfStockCount = products.filter((p) => p.stockStatus === "OUT_OF_STOCK").length;
 
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-4 shadow-card">

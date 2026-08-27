@@ -16,8 +16,8 @@ import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
-import { useProducts } from "../context/ProductsContext";
-import type { Product } from "../types/product";
+import { productsApi, useProductsApi } from "../hooks/useProductsApi";
+import { apiProductToProduct, type Product } from "../types/product";
 
 const LOW_STOCK_THRESHOLD = 20;
 
@@ -177,13 +177,35 @@ function StatusFilterButton({
 }
 
 export function Products() {
-  const { products, removeProduct } = useProducts();
+  const { data, loading, error, refetch } = useProductsApi();
+  const products = (data ?? []).map(apiProductToProduct);
   const navigate = useNavigate();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All Statuses");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All Categories");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
+
   const stats = getStats(products);
+
+  async function handleDelete(product: Product) {
+    if (!window.confirm(`Delete ${product.name}? This cannot be undone.`)) return;
+    setDeleteError(null);
+    try {
+      await productsApi.remove(product.id);
+      await refetch();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete product.");
+    }
+  }
 
   const visibleProducts = products.filter((product) => {
     if (!matchesStatusFilter(product, statusFilter)) return false;
@@ -213,6 +235,10 @@ export function Products() {
             <PrimaryButton className="w-[162px]">+ Add Product</PrimaryButton>
           </Link>
         </div>
+
+        {deleteError && (
+          <p className="rounded-[6px] bg-danger/10 px-4 py-2 text-sm font-medium text-danger">{deleteError}</p>
+        )}
 
         <div className="grid grid-cols-5 gap-[10px]">
           {stats.map((stat) => (
@@ -352,7 +378,7 @@ export function Products() {
                     type="button"
                     onClick={() => {
                       setOpenMenuId(null);
-                      removeProduct(product.id);
+                      handleDelete(product);
                     }}
                     className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-sm text-danger hover:bg-danger/10"
                   >

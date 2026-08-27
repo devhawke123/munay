@@ -1,4 +1,5 @@
-import { useOrders } from "../../context/OrdersContext";
+import { useOrdersApi } from "../../hooks/useOrdersApi";
+import { formatCurrency } from "../../lib/money";
 
 const statusStyles: Record<string, string> = {
   Processing: "bg-warning/10 border border-warning/20 text-warning",
@@ -9,15 +10,19 @@ const statusStyles: Record<string, string> = {
 };
 
 export function RecentOrders() {
-  const { orders } = useOrders();
-  const recentOrders = orders.slice(0, 5).map((order) => ({
-    id: order.number,
-    customer: order.customerName,
+  const { data, loading, error } = useOrdersApi();
+  const recentOrders = (data ?? []).slice(0, 5).map((order) => ({
+    id: `#${order.orderNumber}`,
+    customer: order.customer?.name ?? "—",
     items: order.products,
-    status: order.status,
-    amount: order.amount,
-    date: order.date,
+    status: order.status.charAt(0) + order.status.slice(1).toLowerCase(),
+    amount: formatCurrency(Number(order.total)),
+    date: new Date(order.createdAt).toLocaleDateString(),
   }));
+
+  if (loading) return <p className="p-6 text-xs text-text-muted">Loading…</p>;
+  if (error)
+    return <p className="p-6 rounded-[6px] bg-danger/10 text-xs font-medium text-danger">{error.message}</p>;
 
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">

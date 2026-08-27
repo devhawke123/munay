@@ -1,7 +1,7 @@
 import { Boxes, ImageIcon, SquarePen } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useProducts } from "../../context/ProductsContext";
+import { inventoryApi, useWarehousesApi } from "../../hooks/useInventoryApi";
 import type { Product } from "../../types/product";
 import { AdjustProductStockModal } from "./AdjustProductStockModal";
 
@@ -27,13 +27,30 @@ function buildVariantRows(product: Product) {
   );
 }
 
-export function VariantsTab({ product }: { product: Product }) {
-  const { updateProduct } = useProducts();
+export function VariantsTab({ product, onChanged }: { product: Product; onChanged: () => void }) {
+  const { data: warehouses } = useWarehousesApi("PHYSICAL");
   const images = product.images ?? [];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const mainImage = images[selectedIndex];
   const [showAdjustStock, setShowAdjustStock] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
   const rows = buildVariantRows(product);
+
+  async function saveStock(totalStock: number) {
+    const warehouseId = warehouses?.[0]?.id;
+    if (!warehouseId) {
+      setStockError("No warehouse available to adjust stock in.");
+      return;
+    }
+    setStockError(null);
+    try {
+      await inventoryApi.adjustProductStock(warehouseId, product.id, totalStock);
+      onChanged();
+      setShowAdjustStock(false);
+    } catch (err) {
+      setStockError(err instanceof Error ? err.message : "Failed to adjust stock.");
+    }
+  }
 
   return (
     <div className="grid grid-cols-[550px_1fr_350px] items-start gap-5">
@@ -153,10 +170,8 @@ export function VariantsTab({ product }: { product: Product }) {
         <AdjustProductStockModal
           product={product}
           onCancel={() => setShowAdjustStock(false)}
-          onSave={(totalStock) => {
-            updateProduct({ ...product, stock: String(totalStock) });
-            setShowAdjustStock(false);
-          }}
+          onSave={saveStock}
+          error={stockError}
         />
       )}
     </div>

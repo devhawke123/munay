@@ -1,12 +1,14 @@
 import { ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useProducts } from "../../context/ProductsContext";
+import { useProductsApi } from "../../hooks/useProductsApi";
+import { apiProductToProduct } from "../../types/product";
 
 export function BestSellers() {
-  const { products: allProducts } = useProducts();
-  const topProducts = [...allProducts]
-    .sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0))
-    .slice(0, 3);
+  const { data } = useProductsApi();
+  const topProducts = [...(data ?? [])]
+    .sort((a, b) => b.sold - a.sold)
+    .slice(0, 3)
+    .map(apiProductToProduct);
 
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
