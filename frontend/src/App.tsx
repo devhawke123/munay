@@ -12,6 +12,24 @@ function lazyWebPage(loader: () => Promise<{ default: ComponentType<any> }>) {
 }
 
 const Home = lazyWebPage(() => import("./web/pages/Home").then((m) => ({ default: m.Home })));
+const OurStory = lazyWebPage(() =>
+  import("./web/pages/OurStory").then((m) => ({ default: m.OurStory })),
+);
+const Heritage = lazyWebPage(() =>
+  import("./web/pages/Heritage").then((m) => ({ default: m.Heritage })),
+);
+const CareGuide = lazyWebPage(() =>
+  import("./web/pages/CareGuide").then((m) => ({ default: m.CareGuide })),
+);
+const BabyAlpacaFiber = lazyWebPage(() =>
+  import("./web/pages/BabyAlpacaFiber").then((m) => ({ default: m.BabyAlpacaFiber })),
+);
+const PimaCotton = lazyWebPage(() =>
+  import("./web/pages/PimaCotton").then((m) => ({ default: m.PimaCotton })),
+);
+const VicunaFiber = lazyWebPage(() =>
+  import("./web/pages/VicunaFiber").then((m) => ({ default: m.VicunaFiber })),
+);
 const CategoryPage = lazyWebPage(() =>
   import("./web/pages/CategoryPage").then((m) => ({ default: m.CategoryPage })),
 );
@@ -98,6 +116,12 @@ export function App() {
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/our-story" element={<OurStory />} />
+            <Route path="/heritage" element={<Heritage />} />
+            <Route path="/care-guide" element={<CareGuide />} />
+            <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
+            <Route path="/pima-cotton" element={<PimaCotton />} />
+            <Route path="/vicuna" element={<VicunaFiber />} />
             <Route path="/category/:categorySlug" element={<CategoryPage />} />
             <Route
               path="/category/:categorySlug/:subcategorySlug"

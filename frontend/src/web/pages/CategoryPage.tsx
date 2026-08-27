@@ -157,7 +157,9 @@ export function CategoryPage() {
         ))}
       </div>
 
+      <div className="py-13">
       <Newsletter />
+     </div>
       <Footer />
     </div>
   );

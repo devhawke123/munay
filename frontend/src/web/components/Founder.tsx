@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import founder from "../assets/founder.png";
 
 export function Founder() {
@@ -29,13 +30,13 @@ export function Founder() {
             </p>
           </div>
           <p className="font-serif text-signature italic text-ink">Stella Enriquez</p>
-          <a
-            href="#"
+          <Link
+            to="/our-story"
             className="flex items-center gap-2 border-b border-ink pb-1 text-btn font-medium uppercase text-ink"
           >
             Read Our Story
             <ArrowRight size={12} />
-          </a>
+          </Link>
         </div>
       </div>
     </div>
