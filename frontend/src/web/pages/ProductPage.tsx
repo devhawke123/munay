@@ -117,7 +117,7 @@ export function ProductPage() {
         <Announcement />
         <PublicHeader />
 
-        <div className="mx-auto flex w-full min-w-0 max-w-page flex-1 flex-col gap-6 overflow-x-hidden short:gap-4 md:gap-8 lg:flex-row lg:items-center lg:gap-pdp-gap">
+        <div className="mx-auto md:px-10 md:pt-10 flex w-full min-w-0 max-w-page flex-1 flex-col gap-6 overflow-x-hidden short:gap-4 md:gap-8 lg:flex-row lg:items-center lg:gap-pdp-gap">
           {/* Gallery */}
           <div className="flex w-full min-w-0 flex-col gap-2.5 short:gap-2 sm:gap-3 lg:w-[min(52%,var(--max-width-gallery))] lg:shrink-0">
             <div
@@ -167,7 +167,7 @@ export function ProductPage() {
           </div>
 
           {/* Buy box — min-w-0 + overflow-x-hidden so long copy can't force a horizontal scrollbar */}
-          <div className="flex min-w-0 -mt-10 flex-1 flex-col gap-4 overflow-x-hidden short:gap-3 lg:max-h-[calc(100dvh-12rem)] lg:overflow-x-hidden lg:overflow-y-auto short:lg:max-h-[calc(100dvh-10rem)] tall:gap-5 tall:lg:max-h-none">
+          <div className="flex min-w-0  flex-1 flex-col gap-4 overflow-x-hidden short:gap-3 lg:max-h-[calc(100dvh-12rem)] lg:overflow-x-hidden lg:overflow-y-auto  short:lg:max-h-[calc(100dvh-10rem)] tall:gap-5 tall:lg:max-h-none">
             <div className="flex min-w-0 flex-col gap-1 short:gap-0.5 sm:gap-1.5">
               <p className="font-futura text-pdp-eyebrow font-medium uppercase text-gold-deep">
                 {product.collection || product.composition || product.category}
