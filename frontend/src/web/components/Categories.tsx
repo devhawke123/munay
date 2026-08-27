@@ -19,6 +19,7 @@ const categories = [
       "Refined silhouettes and soft textures crafted from the finest baby alpaca. A timeless approach to modern elegance.",
     image: men,
     imageSide: "left" as const,
+    imagePosition: "top" as const,
   },
   {
     name: "Home Essentials",
@@ -90,7 +91,9 @@ export function Categories() {
                     <img
                       src={category.image}
                       alt={category.name}
-                      className="size-full object-cover"
+                      className={`size-full object-cover ${
+                        category.imagePosition === "top" ? "object-top" : "object-center"
+                      }`}
                     />
                   </div>
                 )}

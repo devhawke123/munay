@@ -10,7 +10,7 @@ import { PublicHeader } from "../components/PublicHeader";
 
 export function Home() {
   return (
-    <div className="overflow-x-hidden bg-white">
+    <div className="bg-white">
       <div className="flex h-dvh flex-col">
         <Announcement />
         <PublicHeader />
