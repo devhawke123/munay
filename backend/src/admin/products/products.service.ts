@@ -21,10 +21,13 @@ type ProductWithComputeds = Prisma.ProductGetPayload<{ include: typeof PRODUCT_L
 
 export type StockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 
+// A variant is "low stock" once it drops below this many units on hand (not tied to reorderPoint).
+export const LOW_STOCK_THRESHOLD = 2;
+
 function toSummary(product: ProductWithComputeds) {
   const inventory = product.variants.flatMap((variant) => variant.inventory);
   const stock = inventory.reduce((sum, row) => sum + row.quantityOnHand, 0);
-  const isLowStock = inventory.some((row) => row.quantityOnHand > 0 && row.quantityOnHand <= row.reorderPoint);
+  const isLowStock = inventory.some((row) => row.quantityOnHand > 0 && row.quantityOnHand < LOW_STOCK_THRESHOLD);
   const stockStatus: StockStatus = stock === 0 ? "OUT_OF_STOCK" : isLowStock ? "LOW_STOCK" : "IN_STOCK";
 
   const sold = product.orderItems.reduce((sum, item) => sum + item.quantity, 0);

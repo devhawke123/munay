@@ -4,6 +4,7 @@ type SuccessResultProps = {
   variant: "success";
   warehouseName: string;
   rowsAdded: number;
+  skipped?: number;
   onViewInventory: () => void;
 };
 
@@ -28,6 +29,11 @@ export function ImportResultStep(props: ImportResultStepProps) {
         <p className="max-w-xs text-xs text-text-muted">
           Your inventory data has been imported successfully into {props.warehouseName}.
         </p>
+        {!!props.skipped && (
+          <p className="text-xs font-medium text-warning">
+            {props.skipped} row{props.skipped === 1 ? "" : "s"} skipped — SKU not found.
+          </p>
+        )}
         <button
           onClick={props.onViewInventory}
           className="mt-2 inline-flex h-[38px] items-center rounded-[8px] bg-brand-dark px-5 text-xs font-semibold text-white"

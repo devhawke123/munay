@@ -1,11 +1,12 @@
 import { ArrowRight, Check, Upload, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { autoMapColumns, buildSummary, extractImportRows, validateRows } from "./inventoryCsvUtils";
+import { inventoryApi } from "../../hooks/useInventoryApi";
+import { autoMapColumns, buildCanonicalCsv, buildSummary, validateRows } from "./inventoryCsvUtils";
 import { ImportMappingStep } from "./steps/ImportMappingStep";
 import { ImportResultStep } from "./steps/ImportResultStep";
 import { ImportReviewStep } from "./steps/ImportReviewStep";
 import { ImportUploadStep } from "./steps/ImportUploadStep";
-import { type ColumnMapping, type ImportRow, type ImportStep, type ParsedCsv } from "./importTypes";
+import { type ColumnMapping, type ImportStep, type ParsedCsv } from "./importTypes";
 
 const STEPS: { key: ImportStep; label: string }[] = [
   { key: "upload", label: "Upload File" },
@@ -14,17 +15,22 @@ const STEPS: { key: ImportStep; label: string }[] = [
 ];
 
 type ImportInventoryModalProps = {
+  warehouseId: string;
   warehouseName: string;
   onClose: () => void;
-  onImport: (rows: ImportRow[]) => void;
+  onImported: () => void;
 };
 
-export function ImportInventoryModal({ warehouseName, onClose, onImport }: ImportInventoryModalProps) {
+export function ImportInventoryModal({ warehouseId, warehouseName, onClose, onImported }: ImportInventoryModalProps) {
   const [step, setStep] = useState<ImportStep>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [csv, setCsv] = useState<ParsedCsv | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [mapping, setMapping] = useState<ColumnMapping>({});
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [rowsImported, setRowsImported] = useState(0);
+  const [skippedCount, setSkippedCount] = useState(0);
 
   const validations = useMemo(() => (csv ? validateRows(csv, mapping) : []), [csv, mapping]);
   const summary = useMemo(() => (csv ? buildSummary(csv, validations) : null), [csv, validations]);
@@ -43,14 +49,28 @@ export function ImportInventoryModal({ warehouseName, onClose, onImport }: Impor
     setMapping({});
   }
 
-  function handleConfirmImport() {
-    if (!csv || !summary) return;
+  async function handleConfirmImport() {
+    if (!csv || !summary || !file) return;
     if (summary.invalidRows > 0) {
       setStep("error");
       return;
     }
-    onImport(extractImportRows(csv, mapping, validations));
-    setStep("success");
+    setImporting(true);
+    setImportError(null);
+    try {
+      const response = await inventoryApi.importCsv({
+        warehouseId,
+        csv: buildCanonicalCsv(csv, mapping),
+        fileName: file.name,
+      });
+      setRowsImported(response.imported);
+      setSkippedCount(response.skipped.length);
+      setStep(response.status === "failed" ? "error" : "success");
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to import CSV.");
+    } finally {
+      setImporting(false);
+    }
   }
 
   const stepIndex = STEPS.findIndex((s) => s.key === step);
@@ -138,22 +158,29 @@ export function ImportInventoryModal({ warehouseName, onClose, onImport }: Impor
             />
           )}
 
-          {step === "success" && summary && (
+          {step === "success" && (
             <ImportResultStep
               variant="success"
               warehouseName={warehouseName}
-              rowsAdded={summary.validRows}
-              onViewInventory={onClose}
+              rowsAdded={rowsImported}
+              skipped={skippedCount}
+              onViewInventory={onImported}
             />
           )}
 
           {step === "error" && summary && (
             <ImportResultStep
               variant="error"
-              invalidRows={summary.invalidRows}
+              invalidRows={summary.invalidRows > 0 ? summary.invalidRows : skippedCount}
               onCancelImport={onClose}
               onReviewFlaggedRows={() => setStep("review")}
             />
+          )}
+
+          {importError && (
+            <div className="mt-3 rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
+              {importError}
+            </div>
           )}
         </div>
 
@@ -190,11 +217,12 @@ export function ImportInventoryModal({ warehouseName, onClose, onImport }: Impor
 
             {step === "review" && (
               <button
+                disabled={importing}
                 onClick={handleConfirmImport}
-                className="inline-flex h-[38px] items-center gap-1.5 rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white"
+                className="inline-flex h-[38px] items-center gap-1.5 rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white disabled:opacity-60"
               >
                 <Upload size={13} />
-                Import Data
+                {importing ? "Importing…" : "Import Data"}
               </button>
             )}
           </div>

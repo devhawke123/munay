@@ -6,16 +6,13 @@ import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
 import { StatusBadge, type StatusTone } from "../components/ui/StatusBadge";
 import { ImportInventoryModal } from "../components/inventory/ImportInventoryModal";
-import type { ImportRow } from "../components/inventory/importTypes";
 import { BulkAdjustStockModal } from "../components/inventory/BulkAdjustStockModal";
 import { ProductVariantDetail } from "../components/inventory/ProductVariantDetail";
 import { AdjustOnlineStockModal } from "../components/inventory/AdjustOnlineStockModal";
 import { OnlineInventoryView } from "../components/inventory/OnlineInventoryView";
 import { getColorSwatch } from "../components/inventory/colorSwatches";
-import { warehouses as initialWarehouses } from "../data/inventory";
-import { onlineInventoryItems as initialOnlineItems } from "../data/onlineInventory";
-import { initialLiveDeductions, type LiveDeduction } from "../data/liveDeductions";
-import { getInventoryStatus, type InventoryItem, type InventoryStatus, type Warehouse } from "../types/inventory";
+import { inventoryApi, useOnlineDeductionsApi, useOnlineInventoryApi, useWarehousesApi } from "../hooks/useInventoryApi";
+import { getInventoryStatus, type InventoryItem, type InventoryStatus } from "../types/inventory";
 
 const STATUS_TONE: Record<InventoryStatus, StatusTone> = {
   "In Stock": "success",
@@ -124,19 +121,40 @@ function AdjustStockModal({
 }
 
 export function Inventory() {
-  const [warehouses, setWarehouses] = useState<Warehouse[]>(initialWarehouses);
-  const [activeWarehouseId, setActiveWarehouseId] = useState(warehouses[0].id);
+  const { data: warehousesData, loading, error, refetch: refetchWarehouses } = useWarehousesApi("PHYSICAL");
+  const { data: onlineWarehouse, refetch: refetchOnline } = useOnlineInventoryApi();
+  const { data: deductionsData, refetch: refetchDeductions } = useOnlineDeductionsApi(20);
+
+  const warehouses = warehousesData ?? [];
+  const onlineItems = onlineWarehouse?.items ?? [];
+  const deductions = deductionsData ?? [];
+
+  const [activeWarehouseId, setActiveWarehouseId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [adjustingItemId, setAdjustingItemId] = useState<string | null>(null);
+  const [adjustError, setAdjustError] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBulkAdjustModal, setShowBulkAdjustModal] = useState(false);
   const [inventoryMode, setInventoryMode] = useState<"offline" | "online">("offline");
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
-  const [onlineItems, setOnlineItems] = useState(initialOnlineItems);
   const [showOnlineAdjustModal, setShowOnlineAdjustModal] = useState(false);
-  const [deductions, setDeductions] = useState<LiveDeduction[]>(initialLiveDeductions);
   const [onlineViewingItemId, setOnlineViewingItemId] = useState<string | null>(null);
+  const [simulating, setSimulating] = useState(false);
+
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
+  if (warehouses.length === 0)
+    return (
+      <AdminLayout>
+        <p className="p-6 text-sm text-text-muted">No warehouses yet.</p>
+      </AdminLayout>
+    );
 
   const activeWarehouse = warehouses.find((w) => w.id === activeWarehouseId) ?? warehouses[0];
   const viewingItem = activeWarehouse.items.find((i) => i.id === viewingItemId) ?? null;
@@ -161,123 +179,57 @@ export function Inventory() {
     );
   });
 
-  function saveAdjustedStock(itemId: string, totalStock: number) {
-    setWarehouses((prev) =>
-      prev.map((w) =>
-        w.id !== activeWarehouse.id
-          ? w
-          : {
-              ...w,
-              items: w.items.map((i) => (i.id === itemId ? { ...i, totalStock } : i)),
-            },
-      ),
-    );
-    setAdjustingItemId(null);
+  async function saveAdjustedStock(itemId: string, totalStock: number) {
+    setAdjustError(null);
+    try {
+      await inventoryApi.adjustProductStock(activeWarehouse.id, itemId, totalStock);
+      await refetchWarehouses();
+      setAdjustingItemId(null);
+    } catch (err) {
+      setAdjustError(err instanceof Error ? err.message : "Failed to adjust stock.");
+    }
   }
 
-  function saveBulkAdjustedStock(updates: { id: string; totalStock: number }[]) {
-    const byId = new Map(updates.map((u) => [u.id, u.totalStock]));
-    setWarehouses((prev) =>
-      prev.map((w) =>
-        w.id !== activeWarehouse.id
-          ? w
-          : {
-              ...w,
-              items: w.items.map((i) => {
-                const newStock = byId.get(i.id);
-                return newStock === undefined ? i : { ...i, totalStock: newStock };
-              }),
-            },
-      ),
-    );
-    setShowBulkAdjustModal(false);
+  async function saveBulkAdjustedStock(updates: { id: string; totalStock: number }[]) {
+    setAdjustError(null);
+    try {
+      await inventoryApi.bulkAdjustStock(
+        activeWarehouse.id,
+        updates.map((u) => ({ productId: u.id, totalStock: u.totalStock })),
+      );
+      await refetchWarehouses();
+      setShowBulkAdjustModal(false);
+    } catch (err) {
+      setAdjustError(err instanceof Error ? err.message : "Failed to adjust stock.");
+    }
   }
 
-  function saveOnlineAdjustedStock(updates: { id: string; totalStock: number }[]) {
-    const byId = new Map(updates.map((u) => [u.id, u.totalStock]));
-    setOnlineItems((prev) =>
-      prev.map((item) => {
-        const newStock = byId.get(item.id);
-        return newStock === undefined ? item : { ...item, totalStock: newStock };
-      }),
-    );
-    setShowOnlineAdjustModal(false);
+  async function saveOnlineAdjustedStock(updates: { id: string; totalStock: number }[]) {
+    if (!onlineWarehouse) return;
+    setAdjustError(null);
+    try {
+      await inventoryApi.bulkAdjustStock(
+        onlineWarehouse.id,
+        updates.map((u) => ({ productId: u.id, totalStock: u.totalStock })),
+      );
+      await refetchOnline();
+      setShowOnlineAdjustModal(false);
+    } catch (err) {
+      setAdjustError(err instanceof Error ? err.message : "Failed to adjust stock.");
+    }
   }
 
-  function handleSimulateOrder() {
-    const inStockItems = onlineItems.filter((i) => i.totalStock > 0);
-    if (inStockItems.length === 0) return;
-    const item = inStockItems[Math.floor(Math.random() * inStockItems.length)];
-
-    const variantsWithStock = item.variants.filter((v) => v.qty > 0);
-    if (variantsWithStock.length === 0) return;
-    const variant = variantsWithStock[Math.floor(Math.random() * variantsWithStock.length)];
-
-    const amount = Math.min(variant.qty, 1 + Math.floor(Math.random() * 3));
-
-    setOnlineItems((prev) =>
-      prev.map((i) =>
-        i.id !== item.id
-          ? i
-          : {
-              ...i,
-              totalStock: i.totalStock - amount,
-              variants: i.variants.map((v) =>
-                v.color === variant.color && v.size === variant.size
-                  ? { ...v, qty: v.qty - amount }
-                  : v,
-              ),
-            },
-      ),
-    );
-
-    const orderNumber = `#MU-${4800 + Math.floor(Math.random() * 200)}`;
-    setDeductions((prev) => [
-      {
-        id: crypto.randomUUID(),
-        product: item.product,
-        variantLabel: `${variant.color} · ${variant.size}`,
-        orderNumber,
-        amount: -amount,
-        timestamp: Date.now(),
-      },
-      ...prev,
-    ]);
-  }
-
-  function applyImportedRows(rows: ImportRow[]) {
-    setWarehouses((prev) =>
-      prev.map((w) => {
-        if (w.id !== activeWarehouse.id) return w;
-
-        const items = [...w.items];
-        rows.forEach((row) => {
-          const existingIndex = items.findIndex((i) => i.sku.toLowerCase() === row.sku.toLowerCase());
-          if (existingIndex !== -1) {
-            items[existingIndex] = {
-              ...items[existingIndex],
-              product: row.product,
-              category: row.category,
-              totalStock: row.totalStock,
-              reorderPoint: row.reorderPoint,
-            };
-          } else {
-            items.push({
-              id: `${w.id}-${row.sku}-${crypto.randomUUID()}`,
-              product: row.product,
-              sku: row.sku,
-              category: row.category,
-              subcategory: "",
-              totalStock: row.totalStock,
-              reorderPoint: row.reorderPoint,
-              variants: [{ color: "Default", size: "OS", qty: row.totalStock }],
-            });
-          }
-        });
-
-        return { ...w, items };
-      }),
-    );
+  async function handleSimulateOrder() {
+    setSimulating(true);
+    setAdjustError(null);
+    try {
+      await inventoryApi.simulateOnlineOrder();
+      await Promise.all([refetchOnline(), refetchDeductions()]);
+    } catch (err) {
+      setAdjustError(err instanceof Error ? err.message : "Failed to simulate order.");
+    } finally {
+      setSimulating(false);
+    }
   }
 
   return (
@@ -364,7 +316,12 @@ export function Inventory() {
             onOpenAdjust={() => setShowOnlineAdjustModal(true)}
             onSimulateOrder={handleSimulateOrder}
             onSelectItem={setOnlineViewingItemId}
+            simulating={simulating}
           />
+        )}
+
+        {adjustError && (
+          <p className="rounded-[6px] bg-danger/10 px-4 py-2 text-sm font-medium text-danger">{adjustError}</p>
         )}
 
         {inventoryMode === "offline" && viewingItem && (
@@ -574,9 +531,13 @@ export function Inventory() {
 
       {showImportModal && (
         <ImportInventoryModal
+          warehouseId={activeWarehouse.id}
           warehouseName={activeWarehouse.name}
           onClose={() => setShowImportModal(false)}
-          onImport={applyImportedRows}
+          onImported={() => {
+            setShowImportModal(false);
+            refetchWarehouses();
+          }}
         />
       )}
 

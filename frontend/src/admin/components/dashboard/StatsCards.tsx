@@ -3,16 +3,18 @@ import { StatCard } from "../ui/StatCard";
 import { useProductsApi } from "../../hooks/useProductsApi";
 import { useOrdersApi } from "../../hooks/useOrdersApi";
 import { useCustomersApi } from "../../hooks/useCustomersApi";
-import { revenueByDay } from "../../data/salesAnalytics";
+import { useRevenueOverviewApi, useSalesSummaryApi } from "../../hooks/useSalesApi";
 import { formatCurrency } from "../../lib/money";
 
 export function StatsCards() {
   const { data: products } = useProductsApi();
   const { data: orders } = useOrdersApi();
   const { data: customers } = useCustomersApi();
+  const { data: summary } = useSalesSummaryApi();
+  const { data: dailyRevenue } = useRevenueOverviewApi({ granularity: "daily" });
 
-  const totalRevenue = revenueByDay.reduce((sum, d) => sum + d.revenue, 0);
-  const todaysSales = revenueByDay[revenueByDay.length - 1]?.revenue ?? 0;
+  const totalRevenue = summary?.revenue ?? 0;
+  const todaysSales = dailyRevenue?.[dailyRevenue.length - 1]?.revenue ?? 0;
   const activeProducts = (products ?? []).filter((p) => p.status === "ACTIVE").length;
 
   const stats = [

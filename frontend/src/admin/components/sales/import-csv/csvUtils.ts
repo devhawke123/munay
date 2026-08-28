@@ -194,3 +194,18 @@ export function buildSummary(
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
+
+function csvField(value: string): string {
+  return /[,"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+// Re-serializes the uploaded CSV under the canonical TARGET_FIELDS headers the
+// backend expects, applying the user's column mapping (source headers may differ).
+export function buildCanonicalCsv(csv: ParsedCsv, mapping: ColumnMapping): string {
+  const indices = TARGET_FIELDS.map((field) => columnIndexFor(csv.headers, mapping, field));
+  const lines = [TARGET_FIELDS.map(csvField).join(",")];
+  csv.rows.forEach((row) => {
+    lines.push(indices.map((idx) => csvField(idx !== -1 ? (row[idx] ?? "") : "")).join(","));
+  });
+  return lines.join("\n");
+}

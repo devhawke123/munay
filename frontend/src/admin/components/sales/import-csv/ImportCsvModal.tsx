@@ -1,6 +1,7 @@
 import { Check, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { autoMapColumns, buildSummary, mappedFieldCount, validateRows } from "./csvUtils";
+import { salesApi } from "../../../hooks/useSalesApi";
+import { autoMapColumns, buildCanonicalCsv, buildSummary, mappedFieldCount, validateRows } from "./csvUtils";
 import { MappingStep } from "./MappingStep";
 import { ResultStep } from "./ResultStep";
 import { ReviewStep } from "./ReviewStep";
@@ -31,12 +32,30 @@ export function ImportCsvModal({ onClose, onImported }: ImportCsvModalProps) {
   const [fileError, setFileError] = useState<string | null>(null);
   const [mapping, setMapping] = useState<ColumnMapping>({});
   const [storeEventType, setStoreEventType] = useState<StoreEventType>("Store");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ validRows: number; invalidRows: number } | null>(null);
 
   const validations = useMemo(() => (csv ? validateRows(csv, mapping) : []), [csv, mapping]);
   const summary = useMemo(
     () => (csv ? buildSummary(csv, mapping, validations) : null),
     [csv, mapping, validations],
   );
+
+  async function handleImport() {
+    if (!csv) return;
+    setImporting(true);
+    setImportError(null);
+    try {
+      const response = await salesApi.importInStoreSales(buildCanonicalCsv(csv, mapping));
+      setResult({ validRows: response.validRows, invalidRows: response.invalidRows });
+      setStep(response.invalidRows > 0 ? "error" : "success");
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to import CSV.");
+    } finally {
+      setImporting(false);
+    }
+  }
 
   function handleFileParsed(nextFile: File, nextCsv: ParsedCsv) {
     setFile(nextFile);
@@ -131,14 +150,14 @@ export function ImportCsvModal({ onClose, onImported }: ImportCsvModalProps) {
             <ReviewStep csv={csv} mapping={mapping} validations={validations} summary={summary} />
           )}
 
-          {step === "success" && summary && (
-            <ResultStep variant="success" rowsAdded={summary.validRows} onViewData={onImported} />
+          {step === "success" && result && (
+            <ResultStep variant="success" rowsAdded={result.validRows} onViewData={onImported} />
           )}
 
-          {step === "error" && summary && (
+          {step === "error" && result && (
             <ResultStep
               variant="error"
-              invalidRows={summary.invalidRows}
+              invalidRows={result.invalidRows}
               onCancelImport={onClose}
               onReviewFlaggedRows={() => setStep("review")}
             />
@@ -176,12 +195,19 @@ export function ImportCsvModal({ onClose, onImported }: ImportCsvModalProps) {
 
             {step === "review" && (
               <button
-                onClick={() => setStep(summary && summary.invalidRows > 0 ? "error" : "success")}
-                className="inline-flex h-[38px] items-center rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white"
+                disabled={importing}
+                onClick={handleImport}
+                className="inline-flex h-[38px] items-center rounded-[8px] bg-brand-dark px-4 text-xs font-semibold text-white disabled:opacity-60"
               >
-                Import Data
+                {importing ? "Importing…" : "Import Data"}
               </button>
             )}
+          </div>
+        )}
+
+        {importError && (
+          <div className="mx-6 mb-4 rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
+            {importError}
           </div>
         )}
       </div>

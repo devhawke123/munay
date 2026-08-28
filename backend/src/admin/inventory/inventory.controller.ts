@@ -104,9 +104,9 @@ export async function listImports(req: Request, res: Response, next: NextFunctio
 
 export async function importCsv(req: Request, res: Response, next: NextFunction) {
   try {
-    const { warehouseId, filePath, importedBy } = req.body;
-    if (!warehouseId || !filePath) throw new HttpError(400, "warehouseId and filePath are required");
-    res.json(await inventoryService.importInventoryFromCsv(warehouseId, filePath, importedBy));
+    const { warehouseId, csv, fileName, importedBy } = req.body;
+    if (!warehouseId || !csv) throw new HttpError(400, "warehouseId and csv are required");
+    res.json(await inventoryService.importInventoryFromCsv(warehouseId, csv, fileName, importedBy));
   } catch (err) {
     next(err);
   }

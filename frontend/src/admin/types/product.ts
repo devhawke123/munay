@@ -64,6 +64,7 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
     section: api.section ?? undefined,
     price: `$${Number(api.price).toFixed(2)}`,
     stock: String(api.stock),
+    stockStatus: api.stockStatus,
     sold: String(api.sold),
     revenue: `$${Math.round(api.revenue).toLocaleString("en-US")}`,
     status: PRODUCT_STATUS_LABEL[api.status] ?? api.status,
@@ -95,6 +96,8 @@ export type Product = {
   section?: string;
   price: string;
   stock: string;
+  // Server-computed; unset for storefront mock rows that don't carry warehouse inventory.
+  stockStatus?: import("../hooks/useProductsApi").ApiStockStatus;
   sold: string;
   revenue: string;
   status: string;
