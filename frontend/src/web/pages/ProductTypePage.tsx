@@ -95,7 +95,9 @@ export function ProductTypePage() {
         )}
       </div>
 
+      <div className="py-13">
       <Newsletter />
+     </div>
       <Footer />
     </div>
   );
