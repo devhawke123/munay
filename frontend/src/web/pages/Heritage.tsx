@@ -1,6 +1,7 @@
 import { Announcement } from "../components/Announcement";
 import { Footer } from "../components/Footer";
 import { Newsletter } from "../components/Newsletter";
+import { PageHero } from "../components/PageHero";
 import { PublicHeader } from "../components/PublicHeader";
 import heritage from "../assets/heritage.jpg";
 import whyMunayWasCreated from "../assets/why-munay-was-created.png";
@@ -77,18 +78,14 @@ export function Heritage() {
       <Announcement />
       <PublicHeader />
 
-      <div className="relative flex h-[70vh] min-h-[420px] items-center justify-center overflow-hidden">
-        <img src={heritage} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative flex flex-col items-center gap-3 px-page-x text-center">
-          <p className="font-futura text-section-label uppercase tracking-[0.3em] text-white">
-            Our Heritage
-          </p>
-          <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
-            Heritage
-          </h1>
-        </div>
-      </div>
+      <PageHero image={heritage} overlayClassName="bg-black/30">
+        <p className="font-futura text-section-label uppercase tracking-[0.3em] text-white">
+          Our Heritage
+        </p>
+        <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
+          Heritage
+        </h1>
+      </PageHero>
 
       <div className="flex flex-col items-center gap-6 bg-sand px-page-x py-section-y text-center sm:py-section-y-lg">
         <div className="flex items-center gap-4">

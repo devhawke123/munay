@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Announcement } from "../components/Announcement";
 import { Footer } from "../components/Footer";
+import { PageHero } from "../components/PageHero";
 import { PublicHeader } from "../components/PublicHeader";
 import vicuna from "../assets/vicuna.jpg";
 import women from "../assets/women.png";
@@ -13,42 +14,38 @@ export function VicunaFiber() {
       <Announcement />
       <PublicHeader />
 
-      <div className="relative flex h-[70vh] min-h-[420px] items-center justify-center overflow-hidden">
-        <img src={vicuna} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative flex flex-col items-center gap-3 px-page-x text-center">
-          <span
-            className="rounded-full px-4 py-1.5 font-sans text-[12px] font-normal uppercase leading-[18px] tracking-[4px] text-white"
-            style={{
-              background:
-                "linear-gradient(90deg, #996300, #A06900, #A76F00, #AE7500, #B57B00, #BC8100, #C48700, #CB8D00, #D29300, #DA9900, #E1A000, #E8A600, #F0AC00, #F7B300, #FFB900)",
-            }}
-          >
-            Vicu&ntilde;a Collection
-          </span>
-          <h1 className="mt-2 font-serif text-display uppercase tracking-[0.05em] text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
-            Vicu&ntilde;a
-          </h1>
-          <p className="font-futura text-[12px] uppercase tracking-[0.3em] text-white/85">
-            The World&rsquo;s Rarest &amp; Finest Fiber
-          </p>
+      <PageHero image={vicuna}>
+        <span
+          className="rounded-full px-4 py-1.5 font-sans text-[12px] font-normal uppercase leading-[18px] tracking-[4px] text-white"
+          style={{
+            background:
+              "linear-gradient(90deg, #996300, #A06900, #A76F00, #AE7500, #B57B00, #BC8100, #C48700, #CB8D00, #D29300, #DA9900, #E1A000, #E8A600, #F0AC00, #F7B300, #FFB900)",
+          }}
+        >
+          Vicu&ntilde;a Collection
+        </span>
+        <h1 className="mt-2 font-serif text-display uppercase tracking-[0.05em] text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
+          Vicu&ntilde;a
+        </h1>
+        <p className="font-futura text-[12px] uppercase tracking-[0.3em] text-white/85">
+          The World&rsquo;s Rarest &amp; Finest Fiber
+        </p>
 
-          <div className="mt-4 flex items-center gap-6">
-            <Link
-              to="/category/women"
-              className="border-b border-white pb-1 font-sans text-[18px] font-light leading-[27px] tracking-[-0.4px] text-white"
-            >
-              Explore the Collection
-            </Link>
-            <Link
-              to="/heritage"
-              className="border-b border-white pb-1 font-sans text-[18px] font-light leading-[27px] tracking-[-0.4px] text-white"
-            >
-              The Story of Vicu&ntilde;a
-            </Link>
-          </div>
+        <div className="mt-4 flex items-center gap-6">
+          <Link
+            to="/category/women"
+            className="border-b border-white pb-1 font-sans text-[18px] font-light leading-[27px] tracking-[-0.4px] text-white"
+          >
+            Explore the Collection
+          </Link>
+          <Link
+            to="/heritage"
+            className="border-b border-white pb-1 font-sans text-[18px] font-light leading-[27px] tracking-[-0.4px] text-white"
+          >
+            The Story of Vicu&ntilde;a
+          </Link>
         </div>
-      </div>
+      </PageHero>
 
       <div className="flex flex-col items-center gap-4 bg-sand px-page-x py-section-y text-center sm:py-section-y-lg">
         <div className="flex items-center gap-4">
@@ -72,7 +69,7 @@ export function VicunaFiber() {
 
         <div className="mt-16 flex w-full max-w-shell flex-col items-center gap-8 sm:mt-20 lg:ml-24 lg:flex-row lg:items-center lg:gap-24">
           <div className="relative aspect-square w-full max-w-[600px] shrink-0">
-            <img src={women} alt="Model wearing a Vicu&ntilde;a wrap" className="absolute inset-0 size-full object-cover" />
+            <img src={women} alt="Model wearing a Vicu&ntilde;a wrap" className="absolute inset-0 object-cover" />
             <span
               className="absolute right-4 top-4 rounded-full px-4 py-1.5 font-sans text-[12px] font-normal uppercase leading-[18px] tracking-[4px] text-white"
               style={{
@@ -105,7 +102,7 @@ export function VicunaFiber() {
 
         <div className="mt-16 flex w-full max-w-shell flex-col items-center gap-8 sm:mt-20 lg:mr-24 lg:flex-row-reverse lg:items-center lg:gap-24">
           <div className="relative aspect-square w-full max-w-[600px] shrink-0">
-            <img src={men} alt="Model wearing a Vicu&ntilde;a scarf" className="absolute inset-0 size-full object-cover" />
+            <img src={men} alt="Model wearing a Vicu&ntilde;a scarf" className="absolute inset-0 object-cover" />
           </div>
           <div className="flex w-full max-w-[420px] flex-col items-start gap-4 text-left">
             <div className="flex items-center gap-4">

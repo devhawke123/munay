@@ -1,6 +1,7 @@
 import { Heart } from "lucide-react";
 import { Announcement } from "../components/Announcement";
 import { Footer } from "../components/Footer";
+import { PageHero } from "../components/PageHero";
 import { PublicHeader } from "../components/PublicHeader";
 import careGuide from "../assets/care-guide.png";
 
@@ -78,20 +79,16 @@ export function CareGuide() {
       <Announcement />
       <PublicHeader />
 
-      <div className="relative flex h-[70vh] min-h-[420px] items-center justify-center overflow-hidden">
-        <img src={careGuide} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative flex flex-col items-center gap-3 px-page-x text-center">
-          <p className="max-w-[581px] font-sans text-[16px] font-light leading-[24px] tracking-[0.5px] text-[#FEF3C6]">
-            Preserving Your Baby Alpaca, Pima Cotton, and Vicu&ntilde;a
-          </p>
-          <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
-            Take Care of
-            <br />
-            Your Garments
-          </h1>
-        </div>
-      </div>
+      <PageHero image={careGuide} overlayClassName="bg-black/30">
+        <p className="max-w-[581px] font-sans text-[16px] font-light leading-[24px] tracking-[0.5px] text-[#FEF3C6]">
+          Preserving Your Baby Alpaca, Pima Cotton, and Vicu&ntilde;a
+        </p>
+        <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
+          Take Care of
+          <br />
+          Your Garments
+        </h1>
+      </PageHero>
 
       <div className="flex flex-col items-center gap-6 bg-sand px-page-x py-section-y text-center sm:py-section-y-lg">
         <div className="flex items-center gap-4">
