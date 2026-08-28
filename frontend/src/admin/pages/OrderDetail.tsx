@@ -15,11 +15,38 @@ import {
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
-import { buildOrderDetail, TAX_RATE_LABEL } from "../data/orders";
-import { useOrders } from "../context/OrdersContext";
-import type { OrderTimelineTone } from "../types/order";
+import { ordersApi, useOrderApi, type ApiCarrier, type ApiOrderStatus } from "../hooks/useOrdersApi";
+import { formatCurrency } from "../lib/money";
 
-const CARRIER_OPTIONS = ["DHL", "DPD", "La Poste"];
+const TAX_RATE_LABEL = "8%";
+const CARRIER_OPTIONS = ["DHL", "DPD", "La Poste"] as const;
+
+function toApiCarrier(label: string): ApiCarrier {
+  return label === "La Poste" ? "LA_POSTE" : (label as ApiCarrier);
+}
+
+function toCarrierLabel(carrier: ApiCarrier | null): string {
+  if (carrier === "LA_POSTE") return "La Poste";
+  return carrier ?? "DHL";
+}
+
+const shippingStatusByOrderStatus: Record<ApiOrderStatus, string> = {
+  PENDING: "Awaiting Fulfillment",
+  PROCESSING: "Preparing to Ship",
+  SHIPPED: "In Transit",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
+const timelineToneByStatus: Record<ApiOrderStatus, OrderTimelineToneKey> = {
+  PENDING: "neutral",
+  PROCESSING: "warning",
+  SHIPPED: "neutral",
+  DELIVERED: "neutral",
+  CANCELLED: "danger",
+};
+
+type OrderTimelineToneKey = "brand" | "info" | "warning" | "neutral" | "danger";
 
 function CarrierLogo({ carrier, className = "" }: { carrier: string; className?: string }) {
   if (carrier === "DHL") {
@@ -108,7 +135,7 @@ const timelineIcons: Record<string, LucideIcon> = {
   Cancelled: XCircle,
 };
 
-const timelineTone: Record<OrderTimelineTone, { bg: string; border: string; text: string }> = {
+const timelineTone: Record<OrderTimelineToneKey, { bg: string; border: string; text: string }> = {
   brand: { bg: "bg-tint-brand", border: "border-brand/10", text: "text-brand" },
   info: { bg: "bg-info/10", border: "border-info/20", text: "text-info" },
   warning: { bg: "bg-warning/10", border: "border-warning/20", text: "text-warning" },
@@ -118,17 +145,45 @@ const timelineTone: Record<OrderTimelineTone, { bg: string; border: string; text
 
 export function OrderDetail() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { orders } = useOrders();
-  const orderRow = orders.find((o) => o.id === orderId) ?? orders[0];
-  const order = buildOrderDetail(orderRow);
+  const { data: order, loading, error, refetch } = useOrderApi(orderId ?? null);
 
-  const [carrier, setCarrier] = useState(order.shippingCarrier);
-  const [trackingId, setTrackingId] = useState(order.trackingId);
-  const [isSaved, setIsSaved] = useState(true);
-  const [lastChecked, setLastChecked] = useState(order.shippingStatusUpdatedAt);
+  const [carrier, setCarrier] = useState<string | null>(null);
+  const [trackingId, setTrackingId] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
 
-  function handleSave() {
-    setIsSaved(true);
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
+  if (!order) return null;
+
+  const carrierValue = carrier ?? toCarrierLabel(order.carrier);
+  const trackingValue = trackingId ?? order.trackingId ?? "";
+  const shippingAddress = [order.shippingLine1, order.shippingCity, order.shippingCountry]
+    .filter(Boolean)
+    .join(", ") || "—";
+
+  async function handleSave() {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await ordersApi.updateShipping(orderId!, {
+        carrier: toApiCarrier(carrierValue),
+        trackingId: trackingValue,
+      });
+      await refetch();
+      setIsDirty(false);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save shipping details.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleTrackShipment() {
@@ -149,8 +204,8 @@ export function OrderDetail() {
         </div>
 
         <div className="rounded-[7px] bg-brand-panel px-6 py-5">
-          <h1 className="text-2xl font-bold text-ink">{order.number}</h1>
-          <p className="mt-1 text-[13px] text-text-muted">{order.date}</p>
+          <h1 className="text-2xl font-bold text-ink">#{order.orderNumber}</h1>
+          <p className="mt-1 text-[13px] text-text-muted">{new Date(order.createdAt).toLocaleDateString()}</p>
         </div>
 
         <div className="grid grid-cols-[1fr_280px] items-start gap-[18px]">
@@ -161,11 +216,12 @@ export function OrderDetail() {
 
                 <div className="relative flex flex-col gap-6 pl-1">
                   <div className="absolute bottom-4 left-[17px] top-4 w-px bg-brand-border" />
-                  {order.timeline.map((step) => {
+                  {order.timeline.map((step, index) => {
                     const Icon = timelineIcons[step.label] ?? Clock;
-                    const tone = timelineTone[step.tone];
+                    const toneKey = index === 0 ? "brand" : timelineToneByStatus[step.status];
+                    const tone = timelineTone[toneKey];
                     return (
-                      <div key={step.label} className="relative z-10 flex items-start gap-3">
+                      <div key={`${step.label}-${index}`} className="relative z-10 flex items-start gap-3">
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${tone.border} ${tone.bg}`}
                         >
@@ -173,7 +229,9 @@ export function OrderDetail() {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-text-primary">{step.label}</p>
-                          <p className="text-xs text-text-muted">{step.timestamp}</p>
+                          <p className="text-xs text-text-muted">
+                            {new Date(step.occurredAt).toLocaleString()}
+                          </p>
                         </div>
                       </div>
                     );
@@ -189,10 +247,10 @@ export function OrderDetail() {
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-medium text-text-muted">Carrier</span>
                   <CarrierSelect
-                    value={carrier}
+                    value={carrierValue}
                     onChange={(value) => {
                       setCarrier(value);
-                      setIsSaved(false);
+                      setIsDirty(true);
                     }}
                   />
                 </label>
@@ -200,10 +258,10 @@ export function OrderDetail() {
                 <label className="mt-3 flex flex-col gap-1.5">
                   <span className="text-xs font-medium text-text-muted">Tracking ID</span>
                   <input
-                    value={trackingId}
+                    value={trackingValue}
                     onChange={(e) => {
                       setTrackingId(e.target.value);
-                      setIsSaved(false);
+                      setIsDirty(true);
                     }}
                     className="h-9 w-full rounded-[8px] border border-brand/10 bg-surface-muted px-3 text-sm text-text-primary outline-none focus:border-brand/40"
                   />
@@ -212,11 +270,18 @@ export function OrderDetail() {
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-[8px] bg-brand-dark text-xs font-semibold text-white"
+                  disabled={saving}
+                  className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-[8px] bg-brand-dark text-xs font-semibold text-white disabled:opacity-60"
                 >
                   <Save size={13} />
-                  {isSaved ? "Saved" : "Save"}
+                  {saving ? "Saving…" : isDirty ? "Save" : "Saved"}
                 </button>
+
+                {saveError && (
+                  <p className="mt-2 rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
+                    {saveError}
+                  </p>
+                )}
 
                 <button
                   type="button"
@@ -229,12 +294,11 @@ export function OrderDetail() {
 
                 <div className="mt-3 rounded-[6px] bg-success/10 px-3 py-2">
                   <p className="text-xs font-semibold text-success">
-                    Status: {order.shippingStatus}
+                    Status: {shippingStatusByOrderStatus[order.status]}
                   </p>
-                  <p className="text-[11px] text-text-muted">Last checked: {lastChecked}</p>
-                  <p className="mt-0.5 text-[10px] text-text-muted/70">
-                    (Updated automatically in Phase 2)
-                  </p>
+                  {lastChecked && (
+                    <p className="text-[11px] text-text-muted">Last checked: {lastChecked}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -253,9 +317,9 @@ export function OrderDetail() {
               </div>
 
               <div className="mt-4 flex flex-col gap-4">
-                {order.items.map((item, index) => (
+                {order.items.map((item) => (
                   <div
-                    key={`${item.sku}-${index}`}
+                    key={item.id}
                     className="grid grid-cols-[1fr_70px_50px_90px_90px] items-center"
                   >
                     <div className="flex items-center gap-3">
@@ -263,16 +327,18 @@ export function OrderDetail() {
                         <PackageSearch size={16} className="text-text-muted" />
                       </div>
                       <div>
-                        <p className="text-[13px] font-semibold text-text-primary">{item.name}</p>
-                        <p className="text-xs text-text-muted">{item.variant}</p>
+                        <p className="text-[13px] font-semibold text-text-primary">{item.productName}</p>
+                        <p className="text-xs text-text-muted">{item.variantLabel ?? "—"}</p>
                       </div>
                     </div>
                     <div className="flex h-[23px] w-fit items-center justify-center rounded-[6px] bg-surface-tan px-2 font-mono text-[11px] font-medium text-brand">
                       {item.sku}
                     </div>
-                    <div className="text-[13px] text-text-primary">{item.qty}</div>
-                    <div className="text-[13px] text-text-primary">{item.unitPrice}</div>
-                    <div className="text-[13px] font-semibold text-text-primary">{item.total}</div>
+                    <div className="text-[13px] text-text-primary">{item.quantity}</div>
+                    <div className="text-[13px] text-text-primary">{formatCurrency(Number(item.unitPrice))}</div>
+                    <div className="text-[13px] font-semibold text-text-primary">
+                      {formatCurrency(Number(item.lineTotal))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -280,19 +346,19 @@ export function OrderDetail() {
               <div className="mt-6 flex flex-col gap-2 border-t border-brand-border pt-4">
                 <div className="flex justify-between text-[13px] text-text-muted">
                   <span>Subtotal</span>
-                  <span className="text-text-primary">{order.subtotal}</span>
+                  <span className="text-text-primary">{formatCurrency(Number(order.subtotal))}</span>
                 </div>
                 <div className="flex justify-between text-[13px] text-text-muted">
                   <span>Shipping</span>
-                  <span className="text-text-primary">{order.shippingCost}</span>
+                  <span className="text-text-primary">{formatCurrency(Number(order.shippingCost))}</span>
                 </div>
                 <div className="flex justify-between text-[13px] text-text-muted">
                   <span>Tax ({TAX_RATE_LABEL})</span>
-                  <span className="text-text-primary">{order.tax}</span>
+                  <span className="text-text-primary">{formatCurrency(Number(order.tax))}</span>
                 </div>
                 <div className="mt-1 flex justify-between text-base font-bold text-text-primary">
                   <span>Total</span>
-                  <span className="text-brand-dark">{order.total}</span>
+                  <span className="text-brand-dark">{formatCurrency(Number(order.total))}</span>
                 </div>
               </div>
             </div>
@@ -303,24 +369,26 @@ export function OrderDetail() {
               <h2 className="mb-4 text-sm font-bold text-text-primary">Customer</h2>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tint-brand text-sm font-semibold text-brand">
-                  {order.customerName
+                  {(order.customer?.name ?? "—")
                     .split(" ")
                     .map((part) => part[0])
                     .join("")}
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-text-primary">
-                    {order.customerName}
+                    {order.customer?.name ?? "—"}
                   </p>
-                  <p className="text-xs text-text-muted">{order.customerEmail}</p>
+                  <p className="text-xs text-text-muted">{order.customer?.email ?? "—"}</p>
                 </div>
               </div>
-              <Link
-                to={`/admin/customers/${order.customerId}`}
-                className="mt-4 flex h-[30px] items-center justify-center rounded-[6px] border border-brand/10 text-xs font-semibold text-text-primary"
-              >
-                View Profile
-              </Link>
+              {order.customer && (
+                <Link
+                  to={`/admin/customers/${order.customer.id}`}
+                  className="mt-4 flex h-[30px] items-center justify-center rounded-[6px] border border-brand/10 text-xs font-semibold text-text-primary"
+                >
+                  View Profile
+                </Link>
+              )}
             </div>
 
             <div className="rounded-[7px] bg-white p-5">
@@ -331,9 +399,9 @@ export function OrderDetail() {
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-text-primary">
-                    {order.customerName}
+                    {order.shippingFullName ?? order.customer?.name ?? "—"}
                   </p>
-                  <p className="text-xs text-text-muted">{order.shippingAddress}</p>
+                  <p className="text-xs text-text-muted">{shippingAddress}</p>
                 </div>
               </div>
             </div>

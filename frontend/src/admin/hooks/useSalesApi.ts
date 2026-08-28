@@ -101,6 +101,6 @@ export interface ApiInStoreImportSummary {
 }
 
 export const salesApi = {
-  importInStoreSales: (filePath: string) =>
-    api.post<ApiInStoreImportSummary>("/sales/in-store/import", { filePath }),
+  importInStoreSales: (csv: string) =>
+    api.post<ApiInStoreImportSummary>("/sales/in-store/import", { csv }),
 };

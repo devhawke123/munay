@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import type { Prisma, SalesChannel } from "@prisma/client";
 import { parse } from "csv-parse/sync";
 import { prisma } from "../../db.js";
@@ -207,9 +206,8 @@ function parseAmount(value: string | undefined): number | null {
   return Number(cleaned);
 }
 
-export async function importInStoreSalesFromCsv(filePath: string): Promise<ImportSummary> {
-  const raw = await readFile(filePath, "utf-8");
-  const rows: InStoreSalesCsvRow[] = parse(raw, { columns: true, skip_empty_lines: true, trim: true });
+export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSummary> {
+  const rows: InStoreSalesCsvRow[] = parse(csv, { columns: true, skip_empty_lines: true, trim: true });
 
   const seenInFile = new Set<string>();
   const existingTxnIds = new Set(

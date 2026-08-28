@@ -2,7 +2,7 @@ import { ImageIcon, SquarePen, Boxes } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { useProducts } from "../../context/ProductsContext";
+import { inventoryApi, useWarehousesApi } from "../../hooks/useInventoryApi";
 import type { Product } from "../../types/product";
 import { AdjustProductStockModal } from "./AdjustProductStockModal";
 
@@ -48,13 +48,30 @@ const statTiles = (product: Product) => [
   { label: "Revenue", value: product.revenue, bg: "bg-tint-peach", labelColor: "text-label-slate", valueColor: "text-accent-orange" },
 ];
 
-export function OverviewTab({ product }: { product: Product }) {
-  const { updateProduct } = useProducts();
+export function OverviewTab({ product, onChanged }: { product: Product; onChanged: () => void }) {
+  const { data: warehouses } = useWarehousesApi("PHYSICAL");
   const images = product.images ?? [];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const mainImage = images[selectedIndex];
   const [showAdjustStock, setShowAdjustStock] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
   const monthlySales = buildMonthlySales(product);
+
+  async function saveStock(totalStock: number) {
+    const warehouseId = warehouses?.[0]?.id;
+    if (!warehouseId) {
+      setStockError("No warehouse available to adjust stock in.");
+      return;
+    }
+    setStockError(null);
+    try {
+      await inventoryApi.adjustProductStock(warehouseId, product.id, totalStock);
+      onChanged();
+      setShowAdjustStock(false);
+    } catch (err) {
+      setStockError(err instanceof Error ? err.message : "Failed to adjust stock.");
+    }
+  }
 
   return (
     <div className="grid grid-cols-[420px_1fr_300px] gap-5 items-start">
@@ -192,10 +209,8 @@ export function OverviewTab({ product }: { product: Product }) {
         <AdjustProductStockModal
           product={product}
           onCancel={() => setShowAdjustStock(false)}
-          onSave={(totalStock) => {
-            updateProduct({ ...product, stock: String(totalStock) });
-            setShowAdjustStock(false);
-          }}
+          onSave={saveStock}
+          error={stockError}
         />
       )}
     </div>

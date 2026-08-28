@@ -20,38 +20,3 @@ export type OrderRow = {
   amount: string;
   date: string;
 };
-
-export type OrderTimelineTone = "brand" | "info" | "warning" | "neutral" | "danger";
-
-export type OrderTimelineStep = {
-  label: string;
-  timestamp: string;
-  tone: OrderTimelineTone;
-};
-
-export type OrderItemRow = {
-  name: string;
-  variant: string;
-  sku: string;
-  qty: number;
-  unitPrice: string;
-  total: string;
-};
-
-export type OrderDetail = OrderRow & {
-  customerId: string;
-  paymentMethod: string;
-  paymentLast4: string;
-  paymentConfirmedDate: string;
-  shippingAddress: string;
-  shippingCarrier: string;
-  trackingId: string;
-  shippingStatus: string;
-  shippingStatusUpdatedAt: string;
-  timeline: OrderTimelineStep[];
-  items: OrderItemRow[];
-  subtotal: string;
-  shippingCost: string;
-  tax: string;
-  total: string;
-};

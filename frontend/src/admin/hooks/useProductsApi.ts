@@ -13,6 +13,14 @@ export interface ApiProductImage {
   sortOrder: number;
 }
 
+export interface ApiProductVariantInventory {
+  variantId: string;
+  warehouseId: string;
+  quantityOnHand: number;
+  quantityReserved: number;
+  reorderPoint: number;
+}
+
 export interface ApiProductVariant {
   id: string;
   sku: string;
@@ -21,14 +29,32 @@ export interface ApiProductVariant {
   price: string;
   compareAtPrice: string | null;
   status: ApiProductStatus;
+  inventory: ApiProductVariantInventory[];
+}
+
+export interface ApiSubcategory {
+  id: string;
+  mainCategory: ApiMainCategory;
+  name: string;
+  group: string | null;
 }
 
 export interface ApiProductSummary {
   id: string;
   name: string;
   sku: string;
-  category: string;
+  description: string | null;
+  subcategoryId: string;
+  section: string | null;
   price: string;
+  barcode: string | null;
+  brand: string | null;
+  composition: string | null;
+  weight: string | null;
+  dimensions: string | null;
+  origin: string | null;
+  tags: string[] | null;
+  category: string;
   stock: number;
   stockStatus: ApiStockStatus;
   sold: number;
@@ -36,6 +62,7 @@ export interface ApiProductSummary {
   status: ApiProductStatus;
   images: ApiProductImage[];
   variants: ApiProductVariant[];
+  subcategory: ApiSubcategory;
 }
 
 export interface ProductListFilters {

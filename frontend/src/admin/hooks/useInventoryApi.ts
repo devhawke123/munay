@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { useApiResource } from "./useApiResource";
 
 export type ApiWarehouseType = "PHYSICAL" | "ONLINE";
+export type ApiStockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 
 export interface ApiInventoryVariant {
   id: string;
@@ -19,6 +20,7 @@ export interface ApiInventoryItem {
   subcategory: string;
   totalStock: number;
   reorderPoint: number;
+  status: ApiStockStatus;
   variants: ApiInventoryVariant[];
 }
 
@@ -75,7 +77,7 @@ export const inventoryApi = {
   simulateOnlineOrder: () => api.post<ApiLiveDeduction>("/inventory/online/simulate-order"),
   createWarehouse: (data: { name: string; type?: ApiWarehouseType; location?: string; address?: string }) =>
     api.post<ApiWarehouse>("/inventory/warehouses", data),
-  importCsv: (data: { warehouseId: string; filePath: string; importedBy?: string }) =>
+  importCsv: (data: { warehouseId: string; csv: string; fileName?: string; importedBy?: string }) =>
     api.post<{ imported: number; skipped: string[]; status: "completed" | "partial" | "failed" }>(
       "/inventory/import",
       data,

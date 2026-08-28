@@ -1,8 +1,10 @@
-import { readFile } from "node:fs/promises";
 import type { Prisma, WarehouseType } from "@prisma/client";
 import { parse } from "csv-parse/sync";
 import { prisma } from "../../db.js";
 import { HttpError } from "../shared/middleware/errorHandler.js";
+import { LOW_STOCK_THRESHOLD } from "../products/products.service.js";
+
+type StockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 
 export function listWarehouses(type?: WarehouseType) {
   return prisma.warehouse.findMany({ where: type ? { type } : undefined, orderBy: { name: "asc" } });
@@ -36,14 +38,19 @@ function toItem(product: ProductForItem) {
     qty: v.inventory[0].quantityOnHand,
   }));
 
+  const totalStock = variants.reduce((sum, v) => sum + v.qty, 0);
+  const isLowStock = variants.some((v) => v.qty > 0 && v.qty < LOW_STOCK_THRESHOLD);
+  const status: StockStatus = totalStock === 0 ? "OUT_OF_STOCK" : isLowStock ? "LOW_STOCK" : "IN_STOCK";
+
   return {
     id: product.id,
     product: product.name,
     sku: product.sku,
     category: product.subcategory.mainCategory,
     subcategory: product.subcategory.name,
-    totalStock: variants.reduce((sum, v) => sum + v.qty, 0),
+    totalStock,
     reorderPoint: Math.max(0, ...stockedVariants.map((v) => v.inventory[0].reorderPoint)),
+    status,
     variants,
   };
 }
@@ -250,11 +257,11 @@ interface ImportSummary {
 
 export async function importInventoryFromCsv(
   warehouseId: string,
-  filePath: string,
+  csv: string,
+  fileName = "import.csv",
   importedBy?: string,
 ): Promise<ImportSummary> {
-  const raw = await readFile(filePath, "utf-8");
-  const rows: InventoryCsvRow[] = parse(raw, {
+  const rows: InventoryCsvRow[] = parse(csv, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
@@ -308,7 +315,7 @@ export async function importInventoryFromCsv(
               warehouseId,
               quantityDelta: delta,
               reason: "CSV_IMPORT",
-              reference: filePath,
+              reference: fileName,
             },
           });
         }
@@ -321,7 +328,7 @@ export async function importInventoryFromCsv(
       await tx.inventoryImport.create({
         data: {
           warehouseId,
-          fileName: filePath,
+          fileName,
           rowCount: rows.length,
           status,
           importedBy,
@@ -340,7 +347,7 @@ export async function importInventoryFromCsv(
     await prisma.inventoryImport.create({
       data: {
         warehouseId,
-        fileName: filePath,
+        fileName,
         rowCount: rows.length,
         status: "failed",
         importedBy,

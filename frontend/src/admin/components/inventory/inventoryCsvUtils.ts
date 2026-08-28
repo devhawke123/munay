@@ -133,6 +133,28 @@ export function buildSummary(csv: ParsedCsv, validations: RowValidation[]): Impo
   return { totalRows: csv.rows.length, validRows: validRows.length, invalidRows: invalidRows.length };
 }
 
+function csvField(value: string): string {
+  return /[,"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+// Re-serializes the uploaded CSV under the sku/quantityOnHand/reorderPoint headers the
+// backend expects, applying the user's column mapping (source headers may differ).
+export function buildCanonicalCsv(csv: ParsedCsv, mapping: ColumnMapping): string {
+  const skuIdx = columnIndexFor(csv.headers, mapping, "Product SKU");
+  const stockIdx = columnIndexFor(csv.headers, mapping, "Total Stock");
+  const reorderIdx = columnIndexFor(csv.headers, mapping, "Reorder Point");
+
+  const lines = ["sku,quantityOnHand,reorderPoint"];
+  csv.rows.forEach((row) => {
+    lines.push(
+      [skuIdx, stockIdx, reorderIdx]
+        .map((idx) => csvField(idx !== -1 ? (row[idx] ?? "") : ""))
+        .join(","),
+    );
+  });
+  return lines.join("\n");
+}
+
 export function extractImportRows(
   csv: ParsedCsv,
   mapping: ColumnMapping,

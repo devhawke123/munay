@@ -9,11 +9,30 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { revenueByDay as data } from "../../data/salesAnalytics";
+import { useRevenueOverviewApi, type ApiGranularity } from "../../hooks/useSalesApi";
+
+const tabs: { label: string; value: ApiGranularity }[] = [
+  { label: "Daily", value: "daily" },
+  { label: "Weekly", value: "weekly" },
+  { label: "Monthly", value: "monthly" },
+  { label: "Yearly", value: "yearly" },
+];
+
+function formatPeriodLabel(periodStart: string, granularity: ApiGranularity) {
+  const date = new Date(periodStart);
+  if (granularity === "yearly") return date.toLocaleDateString("en-US", { year: "numeric" });
+  if (granularity === "monthly") return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 export function SalesOverview() {
-  const [activeTab, setActiveTab] = useState("Weekly");
-  const tabs = ["Daily", "Weekly", "Monthly", "Yearly"];
+  const [activeTab, setActiveTab] = useState<ApiGranularity>("weekly");
+  const { data: revenue } = useRevenueOverviewApi({ granularity: activeTab });
+  const data = (revenue ?? []).map((point) => ({
+    day: formatPeriodLabel(point.periodStart, activeTab),
+    revenue: point.revenue,
+    orders: point.orders,
+  }));
 
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
@@ -38,15 +57,15 @@ export function SalesOverview() {
       <div className="flex items-center gap-1 bg-brand-bg rounded-panel p-1 w-fit m-4">
         {tabs.map((tab) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
             className={`px-3 py-1.5 rounded-md text-xs font-display font-medium transition-colors ${
-              activeTab === tab
+              activeTab === tab.value
                 ? "bg-white text-text-primary shadow-card"
                 : "text-text-muted"
             }`}
           >
-            {tab}
+            {tab.label}
           </button>
         ))}
       </div>

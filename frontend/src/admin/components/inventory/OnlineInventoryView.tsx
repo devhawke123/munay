@@ -3,8 +3,19 @@ import { useState } from "react";
 import { getColorSwatch } from "./colorSwatches";
 import { SearchBar } from "../ui/SearchBar";
 import { StatusBadge, type StatusTone } from "../ui/StatusBadge";
-import { formatTimeAgo, type LiveDeduction } from "../../data/liveDeductions";
+import type { ApiLiveDeduction } from "../../hooks/useInventoryApi";
 import { getInventoryStatus, type InventoryItem, type InventoryStatus } from "../../types/inventory";
+
+function formatTimeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
 
 const STATUS_TONE: Record<InventoryStatus, StatusTone> = {
   "In Stock": "success",
@@ -44,10 +55,11 @@ const STEPS = [
 
 type OnlineInventoryViewProps = {
   items: InventoryItem[];
-  deductions: LiveDeduction[];
+  deductions: ApiLiveDeduction[];
   onOpenAdjust: () => void;
   onSimulateOrder: () => void;
   onSelectItem: (itemId: string) => void;
+  simulating?: boolean;
 };
 
 export function OnlineInventoryView({
@@ -56,6 +68,7 @@ export function OnlineInventoryView({
   onOpenAdjust,
   onSimulateOrder,
   onSelectItem,
+  simulating,
 }: OnlineInventoryViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
@@ -112,10 +125,11 @@ export function OnlineInventoryView({
           <button
             type="button"
             onClick={onSimulateOrder}
-            className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-success px-4 text-xs font-semibold text-white"
+            disabled={simulating}
+            className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-success px-4 text-xs font-semibold text-white disabled:opacity-60"
           >
             <ShoppingCart size={13} />
-            Simulate website order
+            {simulating ? "Simulating…" : "Simulate website order"}
           </button>
         </div>
       </div>
@@ -307,13 +321,13 @@ export function OnlineInventoryView({
                   <div>
                     <p className="text-[13px] font-semibold text-text-primary">{deduction.product}</p>
                     <p className="text-[11px] text-text-muted">
-                      {deduction.variantLabel} · {deduction.orderNumber}
+                      {deduction.variantLabel} · {deduction.orderNumber ?? "—"}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold text-danger">{deduction.amount}</p>
-                  <p className="text-[10px] text-text-muted">{formatTimeAgo(deduction.timestamp)}</p>
+                  <p className="text-[10px] text-text-muted">{formatTimeAgo(deduction.occurredAt)}</p>
                 </div>
               </div>
             ))}

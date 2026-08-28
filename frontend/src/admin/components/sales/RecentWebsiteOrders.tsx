@@ -1,7 +1,12 @@
-import { websiteOrders } from "../../data/salesAnalytics";
+import type { ApiOrderSummary } from "../../hooks/useOrdersApi";
+import { formatCurrency } from "../../lib/money";
 import { SalesStatusBadge } from "./SalesStatusBadge";
 
-export function RecentWebsiteOrders() {
+function statusLabel(status: string) {
+  return status.charAt(0) + status.slice(1).toLowerCase();
+}
+
+export function RecentWebsiteOrders({ orders }: { orders: ApiOrderSummary[] }) {
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -18,19 +23,23 @@ export function RecentWebsiteOrders() {
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {websiteOrders.map((order) => (
+        {orders.map((order) => (
           <div
-            key={order.orderId}
+            key={order.id}
             className="grid grid-cols-[90px_1fr_60px_90px_110px_70px] items-center px-1"
           >
-            <div className="text-[13px] font-medium text-brand">{order.orderId}</div>
-            <div className="text-[13px] font-semibold text-text-primary">{order.customer}</div>
-            <div className="text-[13px] text-text-primary">{order.items}</div>
-            <div className="text-[13px] font-display font-bold text-text-primary">
-              {order.total}
+            <div className="text-[13px] font-medium text-brand">#{order.orderNumber}</div>
+            <div className="text-[13px] font-semibold text-text-primary">
+              {order.customer?.name ?? "—"}
             </div>
-            <SalesStatusBadge status={order.status} />
-            <div className="text-[13px] text-text-muted">{order.date}</div>
+            <div className="text-[13px] text-text-primary">{order.items.length}</div>
+            <div className="text-[13px] font-display font-bold text-text-primary">
+              {formatCurrency(Number(order.total))}
+            </div>
+            <SalesStatusBadge status={statusLabel(order.status)} />
+            <div className="text-[13px] text-text-muted">
+              {new Date(order.createdAt).toLocaleDateString()}
+            </div>
           </div>
         ))}
       </div>

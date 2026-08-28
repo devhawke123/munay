@@ -1,8 +1,15 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { extractImportRows } from "../inventoryCsvUtils";
-import { getInventoryStatus, type InventoryStatus } from "../../../types/inventory";
+import type { InventoryStatus } from "../../../types/inventory";
 import type { ColumnMapping, ImportSummary, ParsedCsv, RowValidation } from "../importTypes";
 import { ImportSummaryStats } from "./ImportSummaryStats";
+
+// Preview-only estimate before the real import runs — matches the backend's <2 low-stock rule.
+function previewStatus(row: { totalStock: number }): InventoryStatus {
+  if (row.totalStock === 0) return "Out of Stock";
+  if (row.totalStock < 2) return "Low Stock";
+  return "In Stock";
+}
 
 type ImportReviewStepProps = {
   warehouseName: string;
@@ -54,7 +61,7 @@ export function ImportReviewStep({
 
         <div className="flex flex-col">
           {previewRows.map((row, index) => {
-            const status = getInventoryStatus(row);
+            const status = previewStatus(row);
             return (
               <div
                 key={`${row.sku}-${index}`}

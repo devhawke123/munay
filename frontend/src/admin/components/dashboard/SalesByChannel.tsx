@@ -1,16 +1,18 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Link } from "react-router-dom";
-import { salesByChannel } from "../../data/salesAnalytics";
+import { useChannelBreakdownApi } from "../../hooks/useSalesApi";
 
 const CHANNEL_COLORS = ["#8b5e2b", "#c9973a", "#d4b896"];
-
-const data = salesByChannel.map((channel, index) => ({
-  name: channel.label.replace(" Sales", ""),
-  value: channel.percent,
-  color: CHANNEL_COLORS[index % CHANNEL_COLORS.length],
-}));
+const CHANNEL_LABEL: Record<string, string> = { ONLINE: "Website", IN_STORE: "In-Store" };
 
 export function SalesByChannel() {
+  const { data: channels } = useChannelBreakdownApi();
+  const data = (channels ?? []).map((channel, index) => ({
+    name: CHANNEL_LABEL[channel.channel] ?? channel.channel,
+    value: channel.percent,
+    color: CHANNEL_COLORS[index % CHANNEL_COLORS.length],
+  }));
+
   return (
     <div className="bg-white border border-brand-border rounded-[14px] p-6 shadow-card">
       {/* Header */}
@@ -54,7 +56,7 @@ export function SalesByChannel() {
                 style={{ backgroundColor: entry.color }}
               ></span>
               <span className="text-text-muted">{entry.name}</span>
-              <span className="font-display font-bold text-text-primary">{entry.value}%</span>
+              <span className="font-display font-bold text-text-primary">{Math.round(entry.value)}%</span>
             </div>
           ))}
         </div>

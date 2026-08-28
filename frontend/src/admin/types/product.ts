@@ -47,6 +47,39 @@ export const emptyProductDraft: ProductDraft = {
   stockByVariant: {},
 };
 
+const MAIN_CATEGORY_LABEL: Record<string, string> = { MEN: "Men", WOMEN: "Women", HOME: "Home" };
+const PRODUCT_STATUS_LABEL: Record<string, string> = { ACTIVE: "Active", DRAFT: "Draft", ARCHIVED: "Archived" };
+
+export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiProductSummary): Product {
+  const colors = [...new Set(api.variants.map((v) => v.color).filter((c) => c !== "Default"))];
+  const sizes = [...new Set(api.variants.map((v) => v.size).filter((s) => s !== "One Size"))];
+
+  return {
+    id: api.id,
+    name: api.name,
+    sku: api.sku,
+    category: MAIN_CATEGORY_LABEL[api.subcategory.mainCategory] ?? api.subcategory.mainCategory,
+    subcategory: api.subcategory.name,
+    group: api.subcategory.group ?? undefined,
+    section: api.section ?? undefined,
+    price: `$${Number(api.price).toFixed(2)}`,
+    stock: String(api.stock),
+    stockStatus: api.stockStatus,
+    sold: String(api.sold),
+    revenue: `$${Math.round(api.revenue).toLocaleString("en-US")}`,
+    status: PRODUCT_STATUS_LABEL[api.status] ?? api.status,
+    description: api.description ?? undefined,
+    images: api.images.map((img) => ({ id: img.id, url: img.path })),
+    composition: api.composition ?? undefined,
+    weight: api.weight ?? undefined,
+    dimensions: api.dimensions ?? undefined,
+    origin: api.origin ?? undefined,
+    collection: api.brand ?? undefined,
+    colors,
+    sizes,
+  };
+}
+
 export type Product = {
   id: string;
   name: string;
@@ -63,6 +96,8 @@ export type Product = {
   section?: string;
   price: string;
   stock: string;
+  // Server-computed; unset for storefront mock rows that don't carry warehouse inventory.
+  stockStatus?: import("../hooks/useProductsApi").ApiStockStatus;
   sold: string;
   revenue: string;
   status: string;
@@ -118,38 +153,5 @@ export function productToDraft(product: Product): ProductDraft {
     sizes,
     colors,
     stockByVariant,
-  };
-}
-
-export function draftToProduct(draft: ProductDraft, existing?: Product): Product {
-  const totalStock = Object.values(draft.stockByVariant).reduce(
-    (sum, qty) => sum + (Number(qty) || 0),
-    0,
-  );
-  const price = Number(draft.price) || 0;
-
-  return {
-    id: existing?.id ?? crypto.randomUUID(),
-    name: draft.name,
-    sku: draft.sku,
-    category: draft.mainCategory,
-    subcategory: draft.subcategory,
-    group: draft.group || undefined,
-    section: draft.section || undefined,
-    price: `$${price.toFixed(2)}`,
-    stock: String(totalStock),
-    sold: existing?.sold ?? "0",
-    revenue: existing?.revenue ?? "$0",
-    status: existing?.status ?? "Active",
-    description: draft.description,
-    images: draft.images,
-    composition: draft.composition,
-    weight: draft.weight,
-    dimensions: draft.dimensions,
-    origin: draft.origin,
-    collection: draft.brand,
-    colors: draft.colors,
-    sizes: draft.sizes,
-    rating: existing?.rating ?? 4.8,
   };
 }

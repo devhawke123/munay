@@ -4,10 +4,12 @@ import { Link } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
-import { customers } from "../data/customers";
+import { useCustomersApi } from "../hooks/useCustomersApi";
 
 export function Customers() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { data, loading, error } = useCustomersApi();
+  const customers = data ?? [];
   const uniqueLocations = new Set(customers.map((c) => c.location)).size;
 
   const visibleCustomers = customers.filter((customer) => {
@@ -16,10 +18,18 @@ export function Customers() {
     return (
       customer.name.toLowerCase().includes(query) ||
       customer.email.toLowerCase().includes(query) ||
-      customer.phone.toLowerCase().includes(query) ||
-      customer.location.toLowerCase().includes(query)
+      (customer.phone ?? "").toLowerCase().includes(query) ||
+      (customer.location ?? "").toLowerCase().includes(query)
     );
   });
+
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
 
   const stats = [
     {
@@ -95,8 +105,8 @@ export function Customers() {
                   {customer.name}
                 </div>
                 <div className="text-[13px] text-text-primary">{customer.email}</div>
-                <div className="text-[13px] text-text-primary">{customer.phone}</div>
-                <div className="text-[13px] text-text-primary">{customer.location}</div>
+                <div className="text-[13px] text-text-primary">{customer.phone ?? "—"}</div>
+                <div className="text-[13px] text-text-primary">{customer.location ?? "—"}</div>
                 <div className="flex h-8 w-8 items-center justify-center text-text-primary">
                   <Eye size={18} />
                 </div>

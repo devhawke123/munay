@@ -1,6 +1,7 @@
-import { topPerformingProducts } from "../../data/salesAnalytics";
+import type { ApiTopProductRow } from "../../hooks/useSalesApi";
+import { formatCurrency } from "../../lib/money";
 
-export function TopPerformingProducts() {
+export function TopPerformingProducts({ products }: { products: ApiTopProductRow[] }) {
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -15,7 +16,7 @@ export function TopPerformingProducts() {
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {topPerformingProducts.map((product) => (
+        {products.map((product) => (
           <div
             key={product.rank}
             className="grid grid-cols-[50px_1fr_90px_60px] items-center px-1"
@@ -23,7 +24,7 @@ export function TopPerformingProducts() {
             <div className="text-[13px] font-semibold text-brand">#{product.rank}</div>
             <div className="text-[13px] font-semibold text-text-primary">{product.name}</div>
             <div className="text-[13px] font-display font-bold text-text-primary">
-              {product.revenue}
+              {formatCurrency(product.revenue)}
             </div>
             <div className="text-[13px] text-text-primary">{product.units}</div>
           </div>

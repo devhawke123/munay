@@ -1,6 +1,7 @@
-import { storeSales } from "../../data/salesAnalytics";
+import type { ApiStoreSalesRow } from "../../hooks/useSalesApi";
+import { formatCurrency } from "../../lib/money";
 
-export function SalesByStoreTable() {
+export function SalesByStoreTable({ stores }: { stores: ApiStoreSalesRow[] }) {
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -16,7 +17,7 @@ export function SalesByStoreTable() {
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {storeSales.map((row) => (
+        {stores.map((row) => (
           <div
             key={row.store}
             className="grid grid-cols-[1fr_110px_90px_110px_90px] items-center px-1"
@@ -24,9 +25,9 @@ export function SalesByStoreTable() {
             <div className="text-[13px] font-semibold text-text-primary">{row.store}</div>
             <div className="text-[13px] text-text-primary">{row.transactions}</div>
             <div className="text-[13px] font-display font-bold text-text-primary">
-              {row.revenue}
+              {formatCurrency(row.revenue)}
             </div>
-            <div className="text-[13px] text-text-primary">{row.avgOrderValue}</div>
+            <div className="text-[13px] text-text-primary">{formatCurrency(row.avgOrderValue)}</div>
             <div className="flex items-center gap-2">
               <div className="h-1.5 w-10 overflow-hidden rounded-full bg-surface-muted">
                 <div

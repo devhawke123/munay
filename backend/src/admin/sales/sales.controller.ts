@@ -80,9 +80,9 @@ export async function getSalesByStore(req: Request, res: Response, next: NextFun
 
 export async function importInStoreSales(req: Request, res: Response, next: NextFunction) {
   try {
-    const { filePath } = req.body;
-    if (!filePath) throw new HttpError(400, "filePath is required");
-    res.json(await salesService.importInStoreSalesFromCsv(filePath));
+    const { csv } = req.body;
+    if (!csv) throw new HttpError(400, "csv is required");
+    res.json(await salesService.importInStoreSalesFromCsv(csv));
   } catch (err) {
     next(err);
   }

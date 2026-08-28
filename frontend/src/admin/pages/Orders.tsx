@@ -5,11 +5,25 @@ import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { SearchBar } from "../components/ui/SearchBar";
-import { useOrders } from "../context/OrdersContext";
+import { ordersApi, useOrdersApi, type ApiOrderStatus, type ApiOrderSummary } from "../hooks/useOrdersApi";
 import { orderStatusTone, type OrderRow, type OrderStatus } from "../types/order";
 import { formatCurrency, parseCurrency } from "../lib/money";
 
 const ORDER_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+
+function toOrderRow(order: ApiOrderSummary): OrderRow {
+  const status = (order.status.charAt(0) + order.status.slice(1).toLowerCase()) as OrderStatus;
+  return {
+    id: order.id,
+    number: `#${order.orderNumber}`,
+    customerName: order.customer?.name ?? "—",
+    customerEmail: order.customer?.email ?? "—",
+    products: order.products,
+    status,
+    amount: formatCurrency(Number(order.total)),
+    date: new Date(order.createdAt).toLocaleDateString(),
+  };
+}
 
 function StaticField({ label, value }: { label: string; value: string }) {
   return (
@@ -26,10 +40,14 @@ function EditOrderModal({
   order,
   onCancel,
   onSave,
+  saving,
+  saveError,
 }: {
   order: OrderRow;
   onCancel: () => void;
   onSave: (order: OrderRow) => void;
+  saving: boolean;
+  saveError: string | null;
 }) {
   const [status, setStatus] = useState<OrderStatus>(order.status);
 
@@ -68,6 +86,12 @@ function EditOrderModal({
               </select>
             </label>
           </div>
+
+          {saveError && (
+            <p className="rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
+              {saveError}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-brand-border px-6 py-4">
@@ -81,9 +105,10 @@ function EditOrderModal({
           <PrimaryButton
             type="button"
             onClick={() => onSave({ ...order, status })}
+            disabled={saving}
             className="!h-10 !py-0 !pl-5 !pr-5 text-sm"
           >
-            Save Changes
+            {saving ? "Saving…" : "Save Changes"}
           </PrimaryButton>
         </div>
       </div>
@@ -156,11 +181,22 @@ function SortButton({
 }
 
 export function Orders() {
-  const { orders, updateOrder } = useOrders();
+  const { data, loading, error, refetch } = useOrdersApi();
+  const orders = (data ?? []).map(toOrderRow);
   const [editingOrder, setEditingOrder] = useState<OrderRow | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterLabel>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("Date");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
+  if (error)
+    return (
+      <AdminLayout>
+        <p className="p-6 rounded-[6px] bg-danger/10 text-sm font-medium text-danger">{error.message}</p>
+      </AdminLayout>
+    );
 
   const monthlyRevenue = orders.reduce((sum, order) => sum + parseCurrency(order.amount), 0);
 
@@ -183,9 +219,18 @@ export function Orders() {
     sortBy,
   );
 
-  function saveOrder(updated: OrderRow) {
-    updateOrder(updated);
-    setEditingOrder(null);
+  async function saveOrder(updated: OrderRow) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await ordersApi.updateStatus(updated.id, updated.status.toUpperCase() as ApiOrderStatus);
+      await refetch();
+      setEditingOrder(null);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save order.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -315,6 +360,8 @@ export function Orders() {
           order={editingOrder}
           onCancel={() => setEditingOrder(null)}
           onSave={saveOrder}
+          saving={saving}
+          saveError={saveError}
         />
       )}
     </AdminLayout>

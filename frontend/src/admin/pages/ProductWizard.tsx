@@ -9,8 +9,26 @@ import { MediaStep } from "../components/products/steps/MediaStep";
 import { PricingStep } from "../components/products/steps/PricingStep";
 import { VariantsStep } from "../components/products/steps/VariantsStep";
 import { ReviewStep } from "../components/products/steps/ReviewStep";
-import { useProducts } from "../context/ProductsContext";
-import { emptyProductDraft, draftToProduct, productToDraft, type ProductDraft } from "../types/product";
+import { api } from "../lib/api";
+import { productsApi, useProductApi, type ApiMainCategory, type ProductVariantStockInput } from "../hooks/useProductsApi";
+import { useWarehousesApi } from "../hooks/useInventoryApi";
+import { apiProductToProduct, emptyProductDraft, productToDraft, variantKey, type ProductDraft } from "../types/product";
+
+const MAIN_CATEGORIES: ApiMainCategory[] = ["MEN", "WOMEN", "HOME"];
+
+interface ApiSubcategoryRow {
+  id: string;
+  mainCategory: ApiMainCategory;
+  name: string;
+}
+
+async function resolveSubcategoryId(mainCategory: ApiMainCategory, name: string): Promise<string> {
+  const existing = await api.get<ApiSubcategoryRow[]>(`/categories?mainCategory=${mainCategory}`);
+  const match = existing.find((s) => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+  if (match) return match.id;
+  const created = await api.post<ApiSubcategoryRow>("/categories", { mainCategory, name: name.trim() });
+  return created.id;
+}
 
 function isStepValid(index: number, draft: ProductDraft) {
   switch (index) {
@@ -30,14 +48,21 @@ function isStepValid(index: number, draft: ProductDraft) {
 export function ProductWizard() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { products, addProduct, updateProduct } = useProducts();
-  const editingProduct = id ? products.find((p) => p.id === id) : undefined;
-  const isEditing = Boolean(editingProduct);
+  const { data: editingApiProduct } = useProductApi(id ?? null);
+  const { data: warehouses } = useWarehousesApi("PHYSICAL");
+  const editingProduct = editingApiProduct ? apiProductToProduct(editingApiProduct) : undefined;
+  const isEditing = Boolean(id);
 
-  const [draft, setDraft] = useState<ProductDraft>(
-    editingProduct ? productToDraft(editingProduct) : emptyProductDraft,
-  );
+  const [draft, setDraft] = useState<ProductDraft>(emptyProductDraft);
+  const [draftLoadedFor, setDraftLoadedFor] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+
+  if (editingProduct && draftLoadedFor !== editingProduct.id) {
+    setDraft(productToDraft(editingProduct));
+    setDraftLoadedFor(editingProduct.id);
+  }
 
   const completedSteps = [0, 1, 2, 3].map((index) => isStepValid(index, draft));
   const isLastStep = currentStep === 4;
@@ -54,13 +79,56 @@ export function ProductWizard() {
     setCurrentStep((step) => Math.max(step - 1, 0));
   }
 
-  function handlePublish() {
-    if (isEditing && editingProduct) {
-      updateProduct(draftToProduct(draft, editingProduct));
-      navigate(`/admin/products/${editingProduct.id}`);
-    } else {
-      addProduct(draftToProduct(draft));
-      navigate("/admin/products");
+  async function handlePublish() {
+    const mainCategory = draft.mainCategory.trim().toUpperCase() as ApiMainCategory;
+    if (!MAIN_CATEGORIES.includes(mainCategory)) {
+      setPublishError(`Main Category must be one of: ${MAIN_CATEGORIES.join(", ")}`);
+      return;
+    }
+
+    setPublishing(true);
+    setPublishError(null);
+    try {
+      const subcategoryId = await resolveSubcategoryId(mainCategory, draft.subcategory);
+
+      const stock: ProductVariantStockInput[] = draft.colors.flatMap((color) =>
+        draft.sizes.map((size) => ({
+          color,
+          size,
+          quantityOnHand: Number(draft.stockByVariant[variantKey(color, size)]) || 0,
+        })),
+      );
+      const warehouseId = warehouses?.[0]?.id;
+
+      const input = {
+        name: draft.name,
+        description: draft.description || undefined,
+        subcategoryId,
+        section: draft.section || undefined,
+        price: Number(draft.price) || 0,
+        sku: draft.sku,
+        barcode: draft.barcode || undefined,
+        brand: draft.brand || undefined,
+        composition: draft.composition || undefined,
+        weight: draft.weight || undefined,
+        dimensions: draft.dimensions || undefined,
+        origin: draft.origin || undefined,
+        tags: draft.tags,
+        stock: stock.length > 0 ? stock : undefined,
+        warehouseId: stock.length > 0 ? warehouseId : undefined,
+      };
+
+      if (isEditing && id) {
+        await productsApi.update(id, input);
+        navigate(`/admin/products/${id}`);
+      } else {
+        const created = await productsApi.create(input);
+        navigate(`/admin/products/${created.id}`);
+      }
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : "Failed to publish product.");
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -129,23 +197,30 @@ export function ProductWizard() {
               )}
 
               {isLastStep ? (
-                <div className="flex gap-3">
-                  {!isEditing && (
-                    <button
-                      type="button"
-                      onClick={() => navigate("/admin/products")}
-                      className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
-                    >
-                      Save Draft
-                    </button>
+                <div className="flex flex-col items-end gap-2">
+                  {publishError && (
+                    <p className="rounded-[6px] bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
+                      {publishError}
+                    </p>
                   )}
-                  <PrimaryButton
-                    type="button"
-                    onClick={handlePublish}
-                    disabled={!completedSteps.every(Boolean)}
-                  >
-                    {isEditing ? "Save Changes" : "Publish Product"}
-                  </PrimaryButton>
+                  <div className="flex gap-3">
+                    {!isEditing && (
+                      <button
+                        type="button"
+                        onClick={() => navigate("/admin/products")}
+                        className="rounded-[10px] border border-brand-border bg-white px-5 py-2.5 text-sm font-medium text-text-primary"
+                      >
+                        Save Draft
+                      </button>
+                    )}
+                    <PrimaryButton
+                      type="button"
+                      onClick={handlePublish}
+                      disabled={!completedSteps.every(Boolean) || publishing}
+                    >
+                      {publishing ? "Saving…" : isEditing ? "Save Changes" : "Publish Product"}
+                    </PrimaryButton>
+                  </div>
                 </div>
               ) : (
                 <PrimaryButton type="button" onClick={goNext}>
