@@ -1,7 +1,11 @@
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const shopLinks = ["Women", "Men", "Home", "Accessories"];
 const infoLinks = ["Shipping", "Returns", "Care Guide", "Contact"];
+const infoLinkHrefs: Record<string, string> = {
+  "Care Guide": "/care-guide",
+};
 
 export function Footer() {
   return (
@@ -34,13 +38,21 @@ export function Footer() {
               Information
             </h4>
             <ul className="flex flex-col gap-4">
-              {infoLinks.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-footer-link font-light text-ink/60">
-                    {link}
-                  </a>
-                </li>
-              ))}
+              {infoLinks.map((link) =>
+                infoLinkHrefs[link] ? (
+                  <li key={link}>
+                    <Link to={infoLinkHrefs[link]} className="text-footer-link font-light text-ink/60">
+                      {link}
+                    </Link>
+                  </li>
+                ) : (
+                  <li key={link}>
+                    <a href="#" className="text-footer-link font-light text-ink/60">
+                      {link}
+                    </a>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
 

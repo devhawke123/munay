@@ -8,7 +8,7 @@ const primaryLinks = [
   { label: "Men", href: "/category/men" },
   { label: "Home", href: "/category/home-essentials" },
   { label: "The Brands", href: "#" },
-  { label: "Our World", href: "#" },
+  { label: "Our World", href: "/our-story" },
 ];
 
 export function PublicHeader() {
