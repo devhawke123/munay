@@ -85,9 +85,9 @@ export function Footer() {
             <a href="#" className="text-section-label font-light text-ink/60">
               Terms
             </a>
-            <a href="#" className="text-section-label font-light text-ink/60">
+            <Link to="/privacy-policy" className="text-section-label font-light text-ink/60">
               Privacy
-            </a>
+            </Link>
           </div>
         </div>
       </div>
