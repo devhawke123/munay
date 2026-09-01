@@ -15,6 +15,8 @@ export type ProductDraft = {
   weight: string;
   dimensions: string;
   origin: string;
+  fiber: string;
+  careInstructions: string;
   tags: string[];
   images: ProductImage[];
   price: string;
@@ -37,6 +39,8 @@ export const emptyProductDraft: ProductDraft = {
   weight: "",
   dimensions: "",
   origin: "",
+  fiber: "",
+  careInstructions: "",
   tags: [],
   images: [],
   price: "",
@@ -74,6 +78,8 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
     weight: api.weight ?? undefined,
     dimensions: api.dimensions ?? undefined,
     origin: api.origin ?? undefined,
+    fiber: api.fiber ?? undefined,
+    careInstructions: api.careInstructions ?? undefined,
     collection: api.brand ?? undefined,
     colors,
     sizes,
@@ -110,6 +116,7 @@ export type Product = {
   dimensions?: string;
   origin?: string;
   fiber?: string;
+  careInstructions?: string;
   collection?: string;
   colors?: string[];
   sizes?: string[];
@@ -145,6 +152,8 @@ export function productToDraft(product: Product): ProductDraft {
     weight: product.weight ?? "",
     dimensions: product.dimensions ?? "",
     origin: product.origin ?? "",
+    fiber: product.fiber ?? "",
+    careInstructions: product.careInstructions ?? "",
     tags: [],
     images: product.images ?? [],
     price: product.price.replace(/[^0-9.]/g, ""),

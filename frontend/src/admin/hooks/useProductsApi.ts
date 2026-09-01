@@ -53,6 +53,8 @@ export interface ApiProductSummary {
   weight: string | null;
   dimensions: string | null;
   origin: string | null;
+  fiber: string | null;
+  careInstructions: string | null;
   tags: string[] | null;
   category: string;
   stock: number;
@@ -119,6 +121,8 @@ export interface ProductWriteInput {
   weight?: string;
   dimensions?: string;
   origin?: string;
+  fiber?: string;
+  careInstructions?: string;
   tags?: string[];
   status?: ApiProductStatus;
   images?: ProductImageInput[];
