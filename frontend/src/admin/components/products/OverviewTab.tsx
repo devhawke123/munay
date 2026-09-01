@@ -38,6 +38,8 @@ const detailRows = (product: Product) => [
   { label: "Weight", value: product.weight },
   { label: "Dimensions", value: product.dimensions },
   { label: "Origin", value: product.origin },
+  { label: "Fiber", value: product.fiber },
+  { label: "Care Instructions", value: product.careInstructions },
   { label: "Collection", value: product.collection },
 ];
 
