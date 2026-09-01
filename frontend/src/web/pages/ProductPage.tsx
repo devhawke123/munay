@@ -244,7 +244,8 @@ export function ProductPage() {
                     <p className="font-futura mt-2.5 break-words whitespace-pre-wrap text-pdp-body font-light text-ink/70 short:mt-2 tall:mt-3">
                       {section === "description"
                         ? product.description || "No description yet."
-                        : "Hand wash cold with a gentle detergent. Lay flat to dry, away from direct sunlight."}
+                        : product.careInstructions ||
+                          "Hand wash cold with a gentle detergent. Lay flat to dry, away from direct sunlight."}
                     </p>
                   )}
                 </div>
