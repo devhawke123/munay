@@ -179,9 +179,7 @@ export function OverviewTab({ product, onChanged }: { product: Product; onChange
             </div>
             <div className="flex items-center justify-between">
               <span className="text-text-muted">Category</span>
-              <span className="font-medium text-text-primary">
-                {product.category} / {product.subcategory}
-              </span>
+              <span className="font-medium text-text-primary">{product.categorySummary}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-text-muted">SKU</span>

@@ -61,10 +61,24 @@ model Subcategory {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  products Product[]
+  products ProductSubcategory[]
 
   @@unique([mainCategory, name])
   @@index([mainCategory])
+}
+
+// Join table: a Product can belong to more than one Subcategory (e.g. a
+// unisex item listed under both Women/Pullovers and Men/Pullovers). There is
+// no "primary" membership — all of a product's memberships are equal peers.
+model ProductSubcategory {
+  productId     String
+  subcategoryId String
+
+  product     Product     @relation(fields: [productId], references: [id])
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+
+  @@id([productId, subcategoryId])
+  @@index([subcategoryId])
 }
 
 model Product {
@@ -78,7 +92,6 @@ model Product {
   // below). Required for inventory tracking, but intentionally NOT unique —
   // uniqueness lives on `name` instead.
   sku           String
-  subcategoryId String
   // Splits this subcategory's product listing page into headed sub-sections
   // (e.g. the "Shawls / Scarfs" subcategory showing separate "Scarfs" and
   // "Shawls" grids). Left unset, the listing page renders one flat grid.
@@ -101,12 +114,10 @@ model Product {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  subcategory Subcategory      @relation(fields: [subcategoryId], references: [id])
-  variants    ProductVariant[]
-  orderItems  OrderItem[]
-  images      ProductImage[]
-
-  @@index([subcategoryId])
+  subcategories ProductSubcategory[]
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+  images        ProductImage[]
 }
 
 model ProductImage {

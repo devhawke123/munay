@@ -9,6 +9,7 @@ import { Newsletter } from "../components/Newsletter";
 import { ProductCard } from "../components/ProductCard";
 import { PublicHeader } from "../components/PublicHeader";
 import {
+  belongsToSubcategory,
   findCategoryBySlug,
   findSubcategoryBySlug,
   getProduct,
@@ -83,8 +84,7 @@ export function ProductPage() {
     !category ||
     !subcategory ||
     !product ||
-    product.category !== category ||
-    product.subcategory !== subcategory
+    !belongsToSubcategory(product, category, subcategory)
   ) {
     return (
       <div className="overflow-x-hidden bg-white">

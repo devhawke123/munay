@@ -65,7 +65,7 @@ type CategoryFilter = (typeof CATEGORY_FILTERS)[number];
 
 function matchesCategoryFilter(product: Product, filter: CategoryFilter) {
   if (filter === "All Categories") return true;
-  return product.category === filter;
+  return product.categories.some((c) => c.mainCategory === filter);
 }
 
 function CategoryFilterButton({
@@ -209,8 +209,7 @@ export function Products() {
     return (
       product.name.toLowerCase().includes(query) ||
       product.sku.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query) ||
-      product.subcategory.toLowerCase().includes(query)
+      product.categorySummary.toLowerCase().includes(query)
     );
   });
 
@@ -306,12 +305,8 @@ export function Products() {
                   {product.sku}
                 </div>
 
-                <div className="flex items-center gap-1 text-xs leading-[18px]">
-                  <span className="font-display font-semibold text-text-primary">
-                    {product.category}
-                  </span>
-                  <span className="text-brand/30">/</span>
-                  <span className="text-text-muted">{product.subcategory}</span>
+                <div className="text-xs leading-[18px] text-text-primary">
+                  {product.categorySummary}
                 </div>
 
                 <div className="text-sm font-display font-bold text-text-primary">

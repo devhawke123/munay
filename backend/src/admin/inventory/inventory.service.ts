@@ -23,7 +23,7 @@ export function createWarehouse(data: CreateWarehouseInput) {
 
 const ITEM_INCLUDE = (warehouseId: string) =>
   ({
-    subcategory: true,
+    subcategories: { include: { subcategory: true } },
     variants: { include: { inventory: { where: { warehouseId } } } },
   }) satisfies Prisma.ProductInclude;
 
@@ -42,12 +42,15 @@ function toItem(product: ProductForItem) {
   const isLowStock = variants.some((v) => v.qty > 0 && v.qty < LOW_STOCK_THRESHOLD);
   const status: StockStatus = totalStock === 0 ? "OUT_OF_STOCK" : isLowStock ? "LOW_STOCK" : "IN_STOCK";
 
+  // No membership is "primary" — the first one is just a representative pick for this list view.
+  const subcategory = product.subcategories[0]?.subcategory;
+
   return {
     id: product.id,
     product: product.name,
     sku: product.sku,
-    category: product.subcategory.mainCategory,
-    subcategory: product.subcategory.name,
+    category: subcategory?.mainCategory ?? "WOMEN",
+    subcategory: subcategory?.name ?? "",
     totalStock,
     reorderPoint: Math.max(0, ...stockedVariants.map((v) => v.inventory[0].reorderPoint)),
     status,

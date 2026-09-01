@@ -15,7 +15,11 @@ import shawlQuni from "../../web/assets/women-subcategories/scarfsshawls/shawl-q
 import shawlSinchi from "../../web/assets/women-subcategories/scarfsshawls/shawl-sinchi-fuchsia-300x375.jpg.png";
 import shawlSumaq from "../../web/assets/women-subcategories/scarfsshawls/shawl-sumaq-lilac-300x375.jpg.png";
 
-const initialProducts: Product[] = [
+// This mock list predates `categories`/`categorySummary` (each item only ever had one
+// category), so those two fields are derived below rather than repeated on every entry.
+type LegacyProductSeed = Omit<Product, "categories" | "categorySummary">;
+
+const rawInitialProducts: LegacyProductSeed[] = [
   {
     id: "seed-1",
     name: "Pachakuti Scarf",
@@ -29,10 +33,10 @@ const initialProducts: Product[] = [
       { id: "seed-1-img-2", url: scarfPachakutiThumb2 },
       { id: "seed-1-img-3", url: scarfPachakutiModel },
     ],
-    price: "$140.00",
+    price: "CHF 140.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
     collection: "Baby Alpaca & Silk",
     composition: "70% Baby Alpaca 30% Silk",
@@ -53,10 +57,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Scarfs",
     images: [{ id: "seed-2-img-1", url: scarfQuri }],
-    price: "$130.00",
+    price: "CHF 130.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -68,10 +72,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Scarfs",
     images: [{ id: "seed-3-img-1", url: scarfYachay }],
-    price: "$210.00",
+    price: "CHF 210.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -88,10 +92,10 @@ const initialProducts: Product[] = [
       { id: "seed-3b-img-3", url: scarfTikayDraped },
       { id: "seed-3b-img-4", url: scarfTikayDraped },
     ],
-    price: "$190.00",
+    price: "CHF 190.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
     collection: "Baby Alpaca & Silk",
     composition: "70% Baby Alpaca 30% Silk",
@@ -118,10 +122,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Scarfs",
     images: [{ id: "seed-3c-img-1", url: scarfLianpu }],
-    price: "$130.00",
+    price: "CHF 130.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -133,10 +137,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Scarfs",
     images: [{ id: "seed-3d-img-1", url: scarfTinkuy }],
-    price: "$149.00",
+    price: "CHF 149.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -148,10 +152,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Scarfs",
     images: [{ id: "seed-3e-img-1", url: scarfTawa }],
-    price: "$190.00",
+    price: "CHF 190.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -162,10 +166,10 @@ const initialProducts: Product[] = [
     subcategory: "Shawls / Scarfs",
     group: "Accessories",
     section: "Scarfs",
-    price: "$500.00",
+    price: "CHF 500.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -177,10 +181,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Shawls",
     images: [{ id: "seed-4-img-1", url: shawlQuni }],
-    price: "$190.00",
+    price: "CHF 190.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -192,10 +196,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Shawls",
     images: [{ id: "seed-5-img-1", url: shawlSinchi }],
-    price: "$190.00",
+    price: "CHF 190.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -207,10 +211,10 @@ const initialProducts: Product[] = [
     group: "Accessories",
     section: "Shawls",
     images: [{ id: "seed-5b-img-1", url: shawlSumaq }],
-    price: "$170.00",
+    price: "CHF 170.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -221,10 +225,10 @@ const initialProducts: Product[] = [
     subcategory: "Shawls / Scarfs",
     group: "Accessories",
     section: "Shawls",
-    price: "$160.00",
+    price: "CHF 160.00",
     stock: "145",
     sold: "512",
-    revenue: "$18,450",
+    revenue: "CHF 18,450",
     status: "Active",
   },
   {
@@ -234,10 +238,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Pullovers",
     group: "Ready to Wear",
-    price: "$210.00",
+    price: "CHF 210.00",
     stock: "80",
     sold: "220",
-    revenue: "$46,200",
+    revenue: "CHF 46,200",
     status: "Active",
   },
   {
@@ -247,10 +251,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Cardigans",
     group: "Ready to Wear",
-    price: "$240.00",
+    price: "CHF 240.00",
     stock: "60",
     sold: "175",
-    revenue: "$42,000",
+    revenue: "CHF 42,000",
     status: "Active",
   },
   {
@@ -260,10 +264,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Coats",
     group: "Ready to Wear",
-    price: "$480.00",
+    price: "CHF 480.00",
     stock: "35",
     sold: "90",
-    revenue: "$43,200",
+    revenue: "CHF 43,200",
     status: "Active",
   },
   {
@@ -273,10 +277,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Capes",
     group: "Ready to Wear",
-    price: "$320.00",
+    price: "CHF 320.00",
     stock: "42",
     sold: "60",
-    revenue: "$19,200",
+    revenue: "CHF 19,200",
     status: "Active",
   },
   {
@@ -286,10 +290,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Headwears",
     group: "Accessories",
-    price: "$95.00",
+    price: "CHF 95.00",
     stock: "120",
     sold: "310",
-    revenue: "$29,450",
+    revenue: "CHF 29,450",
     status: "Active",
   },
   {
@@ -299,10 +303,10 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Gloves & Mittens",
     group: "Accessories",
-    price: "$70.00",
+    price: "CHF 70.00",
     stock: "150",
     sold: "260",
-    revenue: "$18,200",
+    revenue: "CHF 18,200",
     status: "Active",
   },
   {
@@ -312,13 +316,19 @@ const initialProducts: Product[] = [
     category: "Women",
     subcategory: "Snoods & Hoods",
     group: "Accessories",
-    price: "$110.00",
+    price: "CHF 110.00",
     stock: "70",
     sold: "140",
-    revenue: "$15,400",
+    revenue: "CHF 15,400",
     status: "Active",
   },
 ];
+
+const initialProducts: Product[] = rawInitialProducts.map((p) => ({
+  ...p,
+  categories: [{ mainCategory: p.category, subcategory: p.subcategory, group: p.group }],
+  categorySummary: `${p.category} / ${p.subcategory}`,
+}));
 
 type ProductsContextValue = {
   products: Product[];

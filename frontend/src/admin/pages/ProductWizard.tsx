@@ -90,6 +90,12 @@ export function ProductWizard() {
     setPublishError(null);
     try {
       const subcategoryId = await resolveSubcategoryId(mainCategory, draft.subcategory);
+      const subcategoryIds = [subcategoryId];
+
+      if (draft.alsoListUnderOtherGender) {
+        const otherGender: ApiMainCategory = mainCategory === "WOMEN" ? "MEN" : "WOMEN";
+        subcategoryIds.push(await resolveSubcategoryId(otherGender, draft.subcategory));
+      }
 
       const stock: ProductVariantStockInput[] = draft.colors.flatMap((color) =>
         draft.sizes.map((size) => ({
@@ -103,7 +109,7 @@ export function ProductWizard() {
       const input = {
         name: draft.name,
         description: draft.description || undefined,
-        subcategoryId,
+        subcategoryIds,
         section: draft.section || undefined,
         price: Number(draft.price) || 0,
         sku: draft.sku,

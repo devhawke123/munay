@@ -99,7 +99,7 @@ async function main() {
       create: {
         name: p.name,
         sku: p.sku,
-        subcategoryId: subcategory.id,
+        subcategories: { create: [{ subcategoryId: subcategory.id }] },
         section: p.section,
         price: p.price,
         composition: p.composition,

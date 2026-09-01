@@ -39,12 +39,17 @@ export interface ApiSubcategory {
   group: string | null;
 }
 
+export interface ApiProductSubcategory {
+  productId: string;
+  subcategoryId: string;
+  subcategory: ApiSubcategory;
+}
+
 export interface ApiProductSummary {
   id: string;
   name: string;
   sku: string;
   description: string | null;
-  subcategoryId: string;
   section: string | null;
   price: string;
   barcode: string | null;
@@ -64,7 +69,7 @@ export interface ApiProductSummary {
   status: ApiProductStatus;
   images: ApiProductImage[];
   variants: ApiProductVariant[];
-  subcategory: ApiSubcategory;
+  subcategories: ApiProductSubcategory[];
 }
 
 export interface ProductListFilters {
@@ -111,7 +116,7 @@ export interface ProductVariantStockInput {
 export interface ProductWriteInput {
   name: string;
   description?: string;
-  subcategoryId: string;
+  subcategoryIds: string[];
   section?: string;
   price: number;
   sku: string;

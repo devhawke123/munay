@@ -1,13 +1,26 @@
 import type { Product } from "../../admin/types/product";
 import { slugify } from "./slug";
 
+function belongsTo(product: Product, category: string): boolean {
+  return product.categories.some((c) => c.mainCategory === category);
+}
+
+function belongsToSubcategory(product: Product, category: string, subcategory: string): boolean {
+  return product.categories.some((c) => c.mainCategory === category && c.subcategory === subcategory);
+}
+
 export function getCategories(products: Product[]): string[] {
-  return Array.from(new Set(products.map((p) => p.category)));
+  return Array.from(new Set(products.flatMap((p) => p.categories.map((c) => c.mainCategory))));
 }
 
 export function getSubcategories(products: Product[], category: string): string[] {
   return Array.from(
-    new Set(products.filter((p) => p.category === category).map((p) => p.subcategory)),
+    new Set(
+      products
+        .flatMap((p) => p.categories)
+        .filter((c) => c.mainCategory === category)
+        .map((c) => c.subcategory),
+    ),
   );
 }
 
@@ -15,7 +28,12 @@ const UNGROUPED = "More";
 
 export function getGroups(products: Product[], category: string): string[] {
   return Array.from(
-    new Set(products.filter((p) => p.category === category).map((p) => p.group || UNGROUPED)),
+    new Set(
+      products
+        .flatMap((p) => p.categories)
+        .filter((c) => c.mainCategory === category)
+        .map((c) => c.group || UNGROUPED),
+    ),
   );
 }
 
@@ -27,8 +45,9 @@ export function getSubcategoriesByGroup(
   return Array.from(
     new Set(
       products
-        .filter((p) => p.category === category && (p.group || UNGROUPED) === group)
-        .map((p) => p.subcategory),
+        .flatMap((p) => p.categories)
+        .filter((c) => c.mainCategory === category && (c.group || UNGROUPED) === group)
+        .map((c) => c.subcategory),
     ),
   );
 }
@@ -38,7 +57,7 @@ export function getProductsBySubcategory(
   category: string,
   subcategory: string,
 ): Product[] {
-  return products.filter((p) => p.category === category && p.subcategory === subcategory);
+  return products.filter((p) => belongsToSubcategory(p, category, subcategory));
 }
 
 export function getSections(products: Product[], category: string, subcategory: string): string[] {
@@ -66,8 +85,7 @@ export function getRelatedProducts(products: Product[], product: Product, limit 
     .filter(
       (p) =>
         p.id !== product.id &&
-        p.category === product.category &&
-        p.subcategory === product.subcategory,
+        product.categories.some((c) => belongsToSubcategory(p, c.mainCategory, c.subcategory)),
     )
     .slice(0, limit);
 }
@@ -83,3 +101,5 @@ export function findSubcategoryBySlug(
 ): string | undefined {
   return getSubcategories(products, category).find((sub) => slugify(sub) === slug);
 }
+
+export { belongsTo, belongsToSubcategory };

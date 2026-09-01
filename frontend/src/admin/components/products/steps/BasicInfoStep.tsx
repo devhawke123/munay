@@ -58,6 +58,23 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
         />
       </div>
 
+      {(() => {
+        const normalized = draft.mainCategory.trim().toLowerCase();
+        const otherGender =
+          normalized === "women" ? "Men" : normalized === "men" ? "Women" : null;
+        if (!otherGender) return null;
+        return (
+          <label className="flex items-center gap-2 text-sm text-text-primary">
+            <input
+              type="checkbox"
+              checked={draft.alsoListUnderOtherGender}
+              onChange={(e) => onChange({ alsoListUnderOtherGender: e.target.checked })}
+            />
+            Also list under {otherGender}
+          </label>
+        );
+      })()}
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           label="Category Page Group (optional)"
