@@ -235,7 +235,8 @@ export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSumm
 
   async function resolveProduct(tx: Prisma.TransactionClient, code: string | undefined) {
     if (!code) return null;
-    const byStyleSku = await tx.product.findUnique({ where: { sku: code }, select: { id: true, name: true } });
+    // Product.sku is no longer unique (only Product.name and ProductVariant.sku are), so this is a findFirst.
+    const byStyleSku = await tx.product.findFirst({ where: { sku: code }, select: { id: true, name: true } });
     if (byStyleSku) return byStyleSku;
     const variant = await tx.productVariant.findUnique({
       where: { sku: code },

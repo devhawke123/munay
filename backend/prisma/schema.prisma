@@ -69,11 +69,15 @@ model Subcategory {
 
 model Product {
   id            String        @id @default(cuid())
-  name          String
+  // The product's unique identity — one product can have many color/size
+  // variants (each with its own unique ProductVariant.sku), but is still
+  // "the same product" by name.
+  name          String        @unique
   description   String?
-  // Style-level SKU shared by all variants of this product, e.g. "W-SS-001".
-  // Distinct from ProductVariant.sku, which identifies one color/size combination.
-  sku           String        @unique
+  // Style-level SKU used to seed each variant's SKU (see ProductVariant.sku
+  // below). Required for inventory tracking, but intentionally NOT unique —
+  // uniqueness lives on `name` instead.
+  sku           String
   subcategoryId String
   // Splits this subcategory's product listing page into headed sub-sections
   // (e.g. the "Shawls / Scarfs" subcategory showing separate "Scarfs" and
@@ -89,6 +93,8 @@ model Product {
   weight        String?
   dimensions    String?
   origin        String?
+  fiber         String?
+  careInstructions String?
   // Free-text tags entered in the product wizard, e.g. ["linen", "sustainable"]
   tags          Json?
   status        ProductStatus @default(DRAFT)
