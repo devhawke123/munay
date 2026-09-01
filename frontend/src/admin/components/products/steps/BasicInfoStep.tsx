@@ -112,8 +112,23 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
             value={draft.origin}
             onChange={(e) => onChange({ origin: e.target.value })}
           />
+          <FormField
+            label="Fiber"
+            placeholder="e.g. Baby Alpaca"
+            value={draft.fiber}
+            onChange={(e) => onChange({ fiber: e.target.value })}
+          />
         </div>
       </div>
+
+      <FormField
+        as="textarea"
+        label="Care Instructions"
+        rows={3}
+        placeholder="e.g. Hand wash cold with a gentle detergent. Lay flat to dry, away from direct sunlight."
+        value={draft.careInstructions}
+        onChange={(e) => onChange({ careInstructions: e.target.value })}
+      />
 
       <div>
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">

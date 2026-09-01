@@ -113,6 +113,8 @@ export function ProductWizard() {
         weight: draft.weight || undefined,
         dimensions: draft.dimensions || undefined,
         origin: draft.origin || undefined,
+        fiber: draft.fiber || undefined,
+        careInstructions: draft.careInstructions || undefined,
         tags: draft.tags,
         stock: stock.length > 0 ? stock : undefined,
         warehouseId: stock.length > 0 ? warehouseId : undefined,
