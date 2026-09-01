@@ -187,7 +187,7 @@ export function buildSummary(
     duplicateRows: duplicateRows.length,
     dateRangeLabel,
     storeCount: storeSet.size,
-    totalSalesAmount: `$${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    totalSalesAmount: `CHF ${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
   };
 }
 

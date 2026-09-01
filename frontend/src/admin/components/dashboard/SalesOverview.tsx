@@ -85,7 +85,7 @@ export function SalesOverview() {
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: "#9CA3AF" }}
-            tickFormatter={(val: number) => `$${val / 1000}K`}
+            tickFormatter={(val: number) => `CHF ${val / 1000}K`}
           />
           <YAxis
             yAxisId="right"

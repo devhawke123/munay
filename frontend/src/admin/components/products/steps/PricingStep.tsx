@@ -12,7 +12,7 @@ export function PricingStep({ draft, onChange }: PricingStepProps) {
       <h2 className="text-lg font-display font-bold text-text-primary">Pricing &amp; Inventory</h2>
 
       <FormField
-        label="Retail Price ($)"
+        label="Retail Price (CHF)"
         type="number"
         min="0"
         step="0.01"
