@@ -94,7 +94,7 @@ model Product {
   dimensions    String?
   origin        String?
   fiber         String?
-  careInstructions String?
+  careInstructions String? @db.Text
   // Free-text tags entered in the product wizard, e.g. ["linen", "sustainable"]
   tags          Json?
   status        ProductStatus @default(DRAFT)
