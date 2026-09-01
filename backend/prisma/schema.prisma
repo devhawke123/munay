@@ -87,7 +87,7 @@ model Product {
   // variants (each with its own unique ProductVariant.sku), but is still
   // "the same product" by name.
   name          String        @unique
-  description   String?
+  description   String?       @db.Text
   // Style-level SKU used to seed each variant's SKU (see ProductVariant.sku
   // below). Required for inventory tracking, but intentionally NOT unique —
   // uniqueness lives on `name` instead.
