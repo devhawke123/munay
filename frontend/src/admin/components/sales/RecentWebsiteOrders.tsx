@@ -1,5 +1,7 @@
 import type { ApiOrderSummary } from "../../hooks/useOrdersApi";
 import { formatCurrency } from "../../lib/money";
+import { Pagination } from "../ui/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { SalesStatusBadge } from "./SalesStatusBadge";
 
 function statusLabel(status: string) {
@@ -7,6 +9,8 @@ function statusLabel(status: string) {
 }
 
 export function RecentWebsiteOrders({ orders }: { orders: ApiOrderSummary[] }) {
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(orders);
+
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -23,7 +27,7 @@ export function RecentWebsiteOrders({ orders }: { orders: ApiOrderSummary[] }) {
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {orders.map((order) => (
+        {pageItems.map((order) => (
           <div
             key={order.id}
             className="grid grid-cols-[90px_1fr_60px_90px_110px_70px] items-center px-1"
@@ -43,6 +47,8 @@ export function RecentWebsiteOrders({ orders }: { orders: ApiOrderSummary[] }) {
           </div>
         ))}
       </div>
+
+      <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={setPage} className="mt-4" />
     </div>
   );
 }

@@ -45,7 +45,6 @@ const detailRows = (product: Product) => [
 
 const statTiles = (product: Product) => [
   { label: "Price", value: product.price, bg: "bg-tint-brand", labelColor: "text-text-muted", valueColor: "text-price-value" },
-  { label: "Stock", value: product.stock, bg: "bg-tint-mint", labelColor: "text-label-slate", valueColor: "text-success" },
   { label: "Units Sold", value: product.sold, bg: "bg-tint-blue", labelColor: "text-label-slate", valueColor: "text-info" },
   { label: "Revenue", value: product.revenue, bg: "bg-tint-peach", labelColor: "text-label-slate", valueColor: "text-accent-orange" },
 ];

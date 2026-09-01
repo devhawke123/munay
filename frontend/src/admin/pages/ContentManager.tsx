@@ -7,6 +7,8 @@ import { EventDetailPanel } from "../components/content/EventDetailPanel";
 import { EventFormModal } from "../components/content/EventFormModal";
 import { DeleteEventConfirm } from "../components/content/DeleteEventConfirm";
 import { StatCard } from "../components/ui/StatCard";
+import { Pagination } from "../components/ui/Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { initialEvents } from "../data/events";
 import { emptyEvent, EVENT_STATUSES, type EventRow, type EventStatus } from "../types/event";
 
@@ -33,6 +35,7 @@ export function ContentManager() {
 
   const visibleEvents = filter === "All" ? events : events.filter((e) => e.status === filter);
   const viewingEvent = events.find((e) => e.id === viewingEventId) ?? null;
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleEvents);
 
   function handleAdd() {
     setEditingEvent({ ...emptyEvent, id: crypto.randomUUID() });
@@ -100,7 +103,7 @@ export function ContentManager() {
         </div>
 
         <div className="grid grid-cols-4 gap-[14px]">
-          {visibleEvents.map((event) => (
+          {pageItems.map((event) => (
             <EventCard
               key={event.id}
               event={event}
@@ -111,6 +114,8 @@ export function ContentManager() {
           ))}
           <AddEventCard onClick={handleAdd} />
         </div>
+
+        <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={setPage} />
       </div>
 
       {viewingEvent && (

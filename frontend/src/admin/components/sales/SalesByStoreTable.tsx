@@ -1,7 +1,11 @@
 import type { ApiStoreSalesRow } from "../../hooks/useSalesApi";
 import { formatCurrency } from "../../lib/money";
+import { Pagination } from "../ui/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
 export function SalesByStoreTable({ stores }: { stores: ApiStoreSalesRow[] }) {
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(stores);
+
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -17,7 +21,7 @@ export function SalesByStoreTable({ stores }: { stores: ApiStoreSalesRow[] }) {
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {stores.map((row) => (
+        {pageItems.map((row) => (
           <div
             key={row.store}
             className="grid grid-cols-[1fr_110px_90px_110px_90px] items-center px-1"
@@ -40,6 +44,8 @@ export function SalesByStoreTable({ stores }: { stores: ApiStoreSalesRow[] }) {
           </div>
         ))}
       </div>
+
+      <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={setPage} className="mt-4" />
     </div>
   );
 }

@@ -5,8 +5,6 @@ import {
   Eye,
   ImageIcon,
   PackageCheck,
-  PackageMinus,
-  PackageX,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -16,13 +14,13 @@ import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
+import { Pagination } from "../components/ui/Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { productsApi, useProductsApi } from "../hooks/useProductsApi";
 import { apiProductToProduct, type Product } from "../types/product";
 
 function getStats(products: Product[]) {
   const activeCount = products.filter((p) => p.status === "Active").length;
-  const lowStockCount = products.filter((p) => p.stockStatus === "LOW_STOCK").length;
-  const outOfStockCount = products.filter((p) => p.stockStatus === "OUT_OF_STOCK").length;
 
   return [
     {
@@ -41,26 +39,10 @@ function getStats(products: Product[]) {
       iconColor: "text-success",
       valueColor: "text-success",
     },
-    {
-      label: "Low Stock",
-      value: String(lowStockCount),
-      icon: PackageMinus,
-      iconBg: "bg-tint-danger",
-      iconColor: "text-danger",
-      valueColor: "text-danger",
-    },
-    {
-      label: "Out of Stock",
-      value: String(outOfStockCount),
-      icon: PackageX,
-      iconBg: "bg-tint-brand",
-      iconColor: "text-warning",
-      valueColor: "text-warning",
-    },
   ];
 }
 
-const CATEGORY_FILTERS = ["All Categories", "Men", "Women"] as const;
+const CATEGORY_FILTERS = ["All Categories", "Men", "Women", "Home"] as const;
 type CategoryFilter = (typeof CATEGORY_FILTERS)[number];
 
 function matchesCategoryFilter(product: Product, filter: CategoryFilter) {
@@ -114,14 +96,12 @@ function CategoryFilterButton({
   );
 }
 
-const STATUS_FILTERS = ["All Statuses", "Active", "Low Stock", "Out of Stock"] as const;
+const STATUS_FILTERS = ["All Statuses", "Active", "Draft", "Archived"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 function matchesStatusFilter(product: Product, filter: StatusFilter) {
   if (filter === "All Statuses") return true;
-  if (filter === "Active") return product.status === "Active";
-  if (filter === "Low Stock") return product.stockStatus === "LOW_STOCK";
-  return product.stockStatus === "OUT_OF_STOCK";
+  return product.status === filter;
 }
 
 function StatusFilterButton({
@@ -180,6 +160,21 @@ export function Products() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All Categories");
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  // Computed before the loading/error early returns below — hooks (usePagination) can't
+  // follow a conditional return, so this must run unconditionally on every render.
+  const visibleProducts = products.filter((product) => {
+    if (!matchesStatusFilter(product, statusFilter)) return false;
+    if (!matchesCategoryFilter(product, categoryFilter)) return false;
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.sku.toLowerCase().includes(query) ||
+      product.categorySummary.toLowerCase().includes(query)
+    );
+  });
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleProducts);
+
   if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
   if (error)
     return (
@@ -201,18 +196,6 @@ export function Products() {
     }
   }
 
-  const visibleProducts = products.filter((product) => {
-    if (!matchesStatusFilter(product, statusFilter)) return false;
-    if (!matchesCategoryFilter(product, categoryFilter)) return false;
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return true;
-    return (
-      product.name.toLowerCase().includes(query) ||
-      product.sku.toLowerCase().includes(query) ||
-      product.categorySummary.toLowerCase().includes(query)
-    );
-  });
-
   return (
     <AdminLayout>
       <div className="flex flex-col gap-[38px]">
@@ -233,7 +216,7 @@ export function Products() {
           <p className="rounded-[6px] bg-danger/10 px-4 py-2 text-sm font-medium text-danger">{deleteError}</p>
         )}
 
-        <div className="grid grid-cols-5 gap-[10px]">
+        <div className="grid grid-cols-2 gap-[10px]">
           {stats.map((stat) => (
             <StatCard
               key={stat.label}
@@ -264,12 +247,11 @@ export function Products() {
         </div>
 
         <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
-          <div className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_70px_100px_110px_60px] items-center gap-x-6 text-base text-text-primary/70">
+          <div className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_100px_110px_60px] items-center gap-x-6 text-base text-text-primary/70">
             <div>Product</div>
             <div>SKU</div>
             <div>Category</div>
             <div>Price</div>
-            <div>Stock</div>
             <div>Sold</div>
             <div>Revenue</div>
             <div>Status</div>
@@ -278,11 +260,11 @@ export function Products() {
         </div>
 
         <div className="mt-[10px] flex flex-col px-[18px]">
-          {visibleProducts.map((product) => (
+          {pageItems.map((product) => (
             <div key={product.id} className="relative border-b border-brand-border last:border-0">
               <Link
                 to={`/admin/products/${product.id}`}
-                className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_70px_100px_110px_60px] items-center gap-x-6 py-4"
+                className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_100px_110px_60px] items-center gap-x-6 py-4"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-[60px] w-16 shrink-0 items-center justify-center overflow-hidden rounded-[11px] border border-brand/10 bg-brand-soft/30">
@@ -311,9 +293,6 @@ export function Products() {
 
                 <div className="text-sm font-display font-bold text-text-primary">
                   {product.price}
-                </div>
-                <div className="text-[13px] font-medium text-text-primary">
-                  {product.stock}
                 </div>
                 <div className="text-[13px] text-text-primary">{product.sold}</div>
                 <div className="text-[13px] font-display font-bold text-text-primary">
@@ -379,6 +358,14 @@ export function Products() {
             </div>
           ))}
         </div>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={setPage}
+          className="mt-4 px-[18px]"
+        />
       </div>
       </div>
     </AdminLayout>

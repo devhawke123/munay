@@ -121,9 +121,9 @@ export function ProductPage() {
           {/* Gallery */}
           <div className="flex w-full min-w-0 flex-col gap-2.5 short:gap-2 sm:gap-3 lg:w-[min(52%,var(--max-width-gallery))] lg:shrink-0">
             <div
-              className="relative aspect-[632/606] w-full overflow-hidden bg-cream
-                max-w-[min(100%,var(--max-width-gallery),calc((100dvh-14rem)*632/606))]
-                short:max-w-[min(100%,var(--max-width-gallery),calc((100dvh-11rem)*632/606))]
+              className="relative mx-auto aspect-[632/606] w-full overflow-hidden bg-cream
+                max-w-[min(100%,var(--max-width-gallery),calc((100dvh-12rem)*632/606))]
+                short:max-w-[min(100%,var(--max-width-gallery),calc((100dvh-10rem)*632/606))]
                 tall:max-w-[min(100%,var(--max-width-gallery))]"
             >
               <img
@@ -149,7 +149,7 @@ export function ProductPage() {
               )}
             </div>
             {images.length > 1 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 item-center ">
                 {images.map((image, index) => (
                   <button
                     key={`${image.id}-${index}`}
@@ -159,7 +159,7 @@ export function ProductPage() {
                       index === activeImage ? "ring-1 ring-ink" : "opacity-80"
                     }`}
                   >
-                    <img src={image.url} alt="" className="size-full object-cover" />
+                    <img src={image.url} alt="" className="size-full object-cover " />
                   </button>
                 ))}
               </div>

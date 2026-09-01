@@ -110,31 +110,26 @@ function AdminRoutes() {
 export function App() {
   return (
     <ProductsProvider>
-      <OrdersProvider>
-        <Suspense fallback={null}>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/our-story" element={<OurStory />} />
-            <Route path="/heritage" element={<Heritage />} />
-            <Route path="/care-guide" element={<CareGuide />} />
-            <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
-            <Route path="/pima-cotton" element={<PimaCotton />} />
-            <Route path="/vicuna" element={<VicunaFiber />} />
-            <Route path="/category/:categorySlug" element={<CategoryPage />} />
-            <Route
-              path="/category/:categorySlug/:subcategorySlug"
-              element={<ProductTypePage />}
-            />
-            <Route
-              path="/category/:categorySlug/:subcategorySlug/:productId"
-              element={<ProductPageRoute />}
-            />
-            <Route path="/admin/*" element={<AdminRoutes />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </OrdersProvider>
+      <Suspense fallback={null}>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/our-story" element={<OurStory />} />
+          <Route path="/heritage" element={<Heritage />} />
+          <Route path="/care-guide" element={<CareGuide />} />
+          <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
+          <Route path="/pima-cotton" element={<PimaCotton />} />
+          <Route path="/vicuna" element={<VicunaFiber />} />
+          <Route path="/category/:categorySlug" element={<CategoryPage />} />
+          <Route path="/category/:categorySlug/:subcategorySlug" element={<ProductTypePage />} />
+          <Route
+            path="/category/:categorySlug/:subcategorySlug/:productId"
+            element={<ProductPageRoute />}
+          />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </ProductsProvider>
   );
 }

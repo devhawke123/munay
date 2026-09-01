@@ -5,6 +5,8 @@ import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
 import { StatusBadge, type StatusTone } from "../components/ui/StatusBadge";
+import { Pagination } from "../components/ui/Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { ImportInventoryModal } from "../components/inventory/ImportInventoryModal";
 import { BulkAdjustStockModal } from "../components/inventory/BulkAdjustStockModal";
 import { ProductVariantDetail } from "../components/inventory/ProductVariantDetail";
@@ -142,6 +144,24 @@ export function Inventory() {
   const [onlineViewingItemId, setOnlineViewingItemId] = useState<string | null>(null);
   const [simulating, setSimulating] = useState(false);
 
+  // Computed before the early returns below (hooks can't follow a conditional return) — the
+  // real `activeWarehouse` (used everywhere else) is recomputed once warehouses.length is known non-zero.
+  const activeWarehouseForPaging = warehouses.find((w) => w.id === activeWarehouseId) ?? warehouses[0];
+  const visibleItemsForPaging = activeWarehouseForPaging
+    ? activeWarehouseForPaging.items.filter((item) => {
+        if (activeFilter !== "All" && getInventoryStatus(item) !== activeFilter) return false;
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return true;
+        return (
+          item.product.toLowerCase().includes(query) ||
+          item.sku.toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query) ||
+          item.subcategory.toLowerCase().includes(query)
+        );
+      })
+    : [];
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleItemsForPaging);
+
   if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
   if (error)
     return (
@@ -167,6 +187,8 @@ export function Inventory() {
   ).length;
   const totalUnits = activeWarehouse.items.reduce((sum, i) => sum + i.totalStock, 0);
 
+  // Same filtering logic as visibleItemsForPaging above, now against the guaranteed-defined
+  // activeWarehouse (recomputing here rather than trusting the pre-guard version).
   const visibleItems = activeWarehouse.items.filter((item) => {
     if (activeFilter !== "All" && getInventoryStatus(item) !== activeFilter) return false;
     const query = searchQuery.trim().toLowerCase();
@@ -433,7 +455,7 @@ export function Inventory() {
           </div>
 
           <div className="mt-[10px] flex flex-col px-[18px]">
-            {visibleItems.map((item) => {
+            {pageItems.map((item) => {
               const status = getInventoryStatus(item);
               const barWidth = Math.min(100, (item.totalStock / STOCK_BAR_SCALE) * 100);
               const sortedVariants = [...item.variants].sort((a, b) => b.qty - a.qty);
@@ -515,6 +537,14 @@ export function Inventory() {
               );
             })}
           </div>
+
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={setPage}
+            className="mt-4 px-[18px]"
+          />
         </div>
         </>
         )}
