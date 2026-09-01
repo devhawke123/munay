@@ -14,6 +14,9 @@ import scarfTawa from "../../web/assets/women-subcategories/scarfsshawls/111.png
 import shawlQuni from "../../web/assets/women-subcategories/scarfsshawls/shawl-quni-gray-300x375.jpg.png";
 import shawlSinchi from "../../web/assets/women-subcategories/scarfsshawls/shawl-sinchi-fuchsia-300x375.jpg.png";
 import shawlSumaq from "../../web/assets/women-subcategories/scarfsshawls/shawl-sumaq-lilac-300x375.jpg.png";
+import menSweater from "../../web/assets/category-men.png";
+import menScarfMain from "../../web/assets/men.png";
+import menScarfForest from "../../web/assets/quni-shawl-men.jpg";
 
 // This mock list predates `categories`/`categorySummary` (each item only ever had one
 // category), so those two fields are derived below rather than repeated on every entry.
@@ -321,6 +324,54 @@ const rawInitialProducts: LegacyProductSeed[] = [
     sold: "140",
     revenue: "CHF 15,400",
     status: "Active",
+  },
+  {
+    id: "seed-men-1",
+    name: "Cable Knit Sweater",
+    sku: "MW-001",
+    category: "Men",
+    subcategory: "Sweaters",
+    group: "Ready to Wear",
+    images: [{ id: "seed-men-1-img-1", url: menSweater }],
+    price: "$210.00",
+    stock: "90",
+    sold: "180",
+    revenue: "$37,800",
+    status: "Active",
+    collection: "Baby Alpaca",
+    composition: "100% Baby Alpaca",
+    weight: "420 g",
+    origin: "Made in Peru",
+    fiber: "Alpaca",
+    colors: ["Stone Grey"],
+    description:
+      "A cable-knit sweater in soft baby alpaca, cut for a relaxed, everyday fit. Understated texture meets quiet warmth.",
+  },
+  {
+    id: "seed-men-2",
+    name: "Ñahua Scarf",
+    sku: "MS-001",
+    category: "Men",
+    subcategory: "Scarves",
+    group: "Accessories",
+    images: [
+      { id: "seed-men-2-img-1", url: menScarfMain },
+      { id: "seed-men-2-img-2", url: menScarfForest },
+    ],
+    price: "$140.00",
+    stock: "130",
+    sold: "240",
+    revenue: "$33,600",
+    status: "Active",
+    collection: "Baby Alpaca",
+    composition: "100% Baby Alpaca",
+    weight: "180 g",
+    dimensions: "180 x 30 cm",
+    origin: "Made in Peru",
+    fiber: "Alpaca",
+    colors: ["Camel"],
+    description:
+      "Essential forms, elevated by exceptional fibre. A finely woven scarf in pure baby alpaca, understated and built to last.",
   },
 ];
 

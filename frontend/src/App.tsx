@@ -29,6 +29,23 @@ const PimaCotton = lazyWebPage(() =>
 const VicunaFiber = lazyWebPage(() =>
   import("./web/pages/VicunaFiber").then((m) => ({ default: m.VicunaFiber })),
 );
+const Journal = lazyWebPage(() =>
+  import("./web/pages/Journal").then((m) => ({ default: m.Journal })),
+);
+const Faq = lazyWebPage(() => import("./web/pages/Faq").then((m) => ({ default: m.Faq })));
+const Contact = lazyWebPage(() =>
+  import("./web/pages/Contact").then((m) => ({ default: m.Contact })),
+);
+const OrderManagement = lazyWebPage(() =>
+  import("./web/pages/OrderManagement").then((m) => ({ default: m.OrderManagement })),
+);
+const PrivacyPolicy = lazyWebPage(() =>
+  import("./web/pages/PrivacyPolicy").then((m) => ({ default: m.PrivacyPolicy })),
+);
+const Stores = lazyWebPage(() => import("./web/pages/Stores").then((m) => ({ default: m.Stores })));
+const TheWomen = lazyWebPage(() =>
+  import("./web/pages/TheWomen").then((m) => ({ default: m.TheWomen })),
+);
 const CategoryPage = lazyWebPage(() =>
   import("./web/pages/CategoryPage").then((m) => ({ default: m.CategoryPage })),
 );
@@ -110,26 +127,38 @@ function AdminRoutes() {
 export function App() {
   return (
     <ProductsProvider>
-      <Suspense fallback={null}>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/our-story" element={<OurStory />} />
-          <Route path="/heritage" element={<Heritage />} />
-          <Route path="/care-guide" element={<CareGuide />} />
-          <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
-          <Route path="/pima-cotton" element={<PimaCotton />} />
-          <Route path="/vicuna" element={<VicunaFiber />} />
-          <Route path="/category/:categorySlug" element={<CategoryPage />} />
-          <Route path="/category/:categorySlug/:subcategorySlug" element={<ProductTypePage />} />
-          <Route
-            path="/category/:categorySlug/:subcategorySlug/:productId"
-            element={<ProductPageRoute />}
-          />
-          <Route path="/admin/*" element={<AdminRoutes />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <OrdersProvider>
+        <Suspense fallback={null}>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/our-story" element={<OurStory />} />
+            <Route path="/heritage" element={<Heritage />} />
+            <Route path="/care-guide" element={<CareGuide />} />
+            <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
+            <Route path="/pima-cotton" element={<PimaCotton />} />
+            <Route path="/vicuna" element={<VicunaFiber />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/order-management" element={<OrderManagement />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/stores" element={<Stores />} />
+            <Route path="/the-women" element={<TheWomen />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug"
+              element={<ProductTypePage />}
+            />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug/:productId"
+              element={<ProductPageRoute />}
+            />
+            <Route path="/admin/*" element={<AdminRoutes />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </OrdersProvider>
     </ProductsProvider>
   );
 }
