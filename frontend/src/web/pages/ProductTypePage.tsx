@@ -21,7 +21,34 @@ export function ProductTypePage() {
     categorySlug: string;
     subcategorySlug: string;
   }>();
-  const { products } = useProducts();
+  const { products, loading, error } = useProducts();
+
+  if (loading) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">Loading…</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">{error.message}</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   const category = categorySlug ? findCategoryBySlug(products, categorySlug) : undefined;
   const subcategory =
     category && subcategorySlug

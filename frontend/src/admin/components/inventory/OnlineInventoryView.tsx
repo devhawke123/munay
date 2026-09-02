@@ -3,6 +3,8 @@ import { useState } from "react";
 import { getColorSwatch } from "./colorSwatches";
 import { SearchBar } from "../ui/SearchBar";
 import { StatusBadge, type StatusTone } from "../ui/StatusBadge";
+import { Pagination } from "../ui/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 import type { ApiLiveDeduction } from "../../hooks/useInventoryApi";
 import { getInventoryStatus, type InventoryItem, type InventoryStatus } from "../../types/inventory";
 
@@ -88,6 +90,8 @@ export function OnlineInventoryView({
       item.category.toLowerCase().includes(query)
     );
   });
+
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleItems);
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -235,7 +239,7 @@ export function OnlineInventoryView({
         </div>
 
         <div className="mt-[10px] flex flex-col px-[18px]">
-          {visibleItems.map((item) => {
+          {pageItems.map((item) => {
             const status = getInventoryStatus(item);
             const barWidth = Math.min(100, (item.totalStock / STOCK_BAR_SCALE) * 100);
             const sortedVariants = [...item.variants].sort((a, b) => b.qty - a.qty);
@@ -301,6 +305,14 @@ export function OnlineInventoryView({
             <p className="py-8 text-center text-sm text-text-muted">No products match your search.</p>
           )}
         </div>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={setPage}
+          className="mt-4 px-[18px]"
+        />
       </div>
 
       <div className="grid grid-cols-[1fr_320px] gap-[18px]">

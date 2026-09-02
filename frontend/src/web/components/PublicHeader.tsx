@@ -6,7 +6,7 @@ import logo from "../assets/logo.png";
 const primaryLinks = [
   { label: "Women", href: "/category/women", hasDropdown: true },
   { label: "Men", href: "/category/men", hasDropdown: true },
-  { label: "Home", href: "/category/home-essentials", hasDropdown: true },
+  { label: "Home", href: "/category/home", hasDropdown: true },
   { label: "Our Story", href: "/our-story", hasDropdown: true },
   { label: "Vicuna", href: "/vicuna", hasDropdown: false },
 ];

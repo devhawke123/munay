@@ -91,7 +91,7 @@ export function ProductDetail() {
 
         <ProductTabs activeTab={activeTab} onChange={setActiveTab} />
 
-        {activeTab === "Overview" && <OverviewTab product={product} onChanged={refetch} />}
+        {activeTab === "Overview" && <OverviewTab product={product} />}
         {activeTab === "Variants" && <VariantsTab product={product} onChanged={refetch} />}
       </div>
 

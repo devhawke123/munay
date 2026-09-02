@@ -1,7 +1,11 @@
 import type { ApiTopProductRow } from "../../hooks/useSalesApi";
 import { formatCurrency } from "../../lib/money";
+import { Pagination } from "../ui/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
 export function TopPerformingProducts({ products }: { products: ApiTopProductRow[] }) {
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(products);
+
   return (
     <div className="rounded-[7px] bg-white p-5">
       <h2 className="mb-4 text-sm font-display font-bold text-text-primary">
@@ -16,7 +20,7 @@ export function TopPerformingProducts({ products }: { products: ApiTopProductRow
       </div>
 
       <div className="mt-3 flex flex-col gap-4">
-        {products.map((product) => (
+        {pageItems.map((product) => (
           <div
             key={product.rank}
             className="grid grid-cols-[50px_1fr_90px_60px] items-center px-1"
@@ -30,6 +34,8 @@ export function TopPerformingProducts({ products }: { products: ApiTopProductRow
           </div>
         ))}
       </div>
+
+      <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={setPage} className="mt-4" />
     </div>
   );
 }

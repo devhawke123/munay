@@ -58,6 +58,23 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
         />
       </div>
 
+      {(() => {
+        const normalized = draft.mainCategory.trim().toLowerCase();
+        const otherGender =
+          normalized === "women" ? "Men" : normalized === "men" ? "Women" : null;
+        if (!otherGender) return null;
+        return (
+          <label className="flex items-center gap-2 text-sm text-text-primary">
+            <input
+              type="checkbox"
+              checked={draft.alsoListUnderOtherGender}
+              onChange={(e) => onChange({ alsoListUnderOtherGender: e.target.checked })}
+            />
+            Also list under {otherGender}
+          </label>
+        );
+      })()}
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           label="Category Page Group (optional)"
@@ -78,13 +95,6 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
         flat grid).
       </p>
 
-      <FormField
-        label="Brand / Collection"
-        placeholder="e.g. Munay Essentials"
-        value={draft.brand}
-        onChange={(e) => onChange({ brand: e.target.value })}
-      />
-
       <div className="rounded-panel border border-brand-border p-4">
         <p className="mb-3 text-sm font-display font-bold text-text-primary">Product Details</p>
         <div className="grid grid-cols-2 gap-4">
@@ -95,25 +105,22 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
             onChange={(e) => onChange({ composition: e.target.value })}
           />
           <FormField
-            label="Weight"
-            placeholder="e.g. 130g"
-            value={draft.weight}
-            onChange={(e) => onChange({ weight: e.target.value })}
-          />
-          <FormField
-            label="Dimensions"
-            placeholder="e.g. 160 x 50 cm"
-            value={draft.dimensions}
-            onChange={(e) => onChange({ dimensions: e.target.value })}
-          />
-          <FormField
-            label="Origin"
-            placeholder="e.g. Made in Peru"
-            value={draft.origin}
-            onChange={(e) => onChange({ origin: e.target.value })}
+            label="Fiber"
+            placeholder="e.g. Baby Alpaca"
+            value={draft.fiber}
+            onChange={(e) => onChange({ fiber: e.target.value })}
           />
         </div>
       </div>
+
+      <FormField
+        as="textarea"
+        label="Care Instructions"
+        rows={3}
+        placeholder="e.g. Hand wash cold with a gentle detergent. Lay flat to dry, away from direct sunlight."
+        value={draft.careInstructions}
+        onChange={(e) => onChange({ careInstructions: e.target.value })}
+      />
 
       <div>
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">

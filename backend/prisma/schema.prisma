@@ -61,20 +61,37 @@ model Subcategory {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  products Product[]
+  products ProductSubcategory[]
 
   @@unique([mainCategory, name])
   @@index([mainCategory])
 }
 
+// Join table: a Product can belong to more than one Subcategory (e.g. a
+// unisex item listed under both Women/Pullovers and Men/Pullovers). There is
+// no "primary" membership — all of a product's memberships are equal peers.
+model ProductSubcategory {
+  productId     String
+  subcategoryId String
+
+  product     Product     @relation(fields: [productId], references: [id])
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+
+  @@id([productId, subcategoryId])
+  @@index([subcategoryId])
+}
+
 model Product {
   id            String        @id @default(cuid())
-  name          String
-  description   String?
-  // Style-level SKU shared by all variants of this product, e.g. "W-SS-001".
-  // Distinct from ProductVariant.sku, which identifies one color/size combination.
-  sku           String        @unique
-  subcategoryId String
+  // The product's unique identity — one product can have many color/size
+  // variants (each with its own unique ProductVariant.sku), but is still
+  // "the same product" by name.
+  name          String        @unique
+  description   String?       @db.Text
+  // Style-level SKU used to seed each variant's SKU (see ProductVariant.sku
+  // below). Required for inventory tracking, but intentionally NOT unique —
+  // uniqueness lives on `name` instead.
+  sku           String
   // Splits this subcategory's product listing page into headed sub-sections
   // (e.g. the "Shawls / Scarfs" subcategory showing separate "Scarfs" and
   // "Shawls" grids). Left unset, the listing page renders one flat grid.
@@ -89,18 +106,18 @@ model Product {
   weight        String?
   dimensions    String?
   origin        String?
+  fiber         String?
+  careInstructions String? @db.Text
   // Free-text tags entered in the product wizard, e.g. ["linen", "sustainable"]
   tags          Json?
   status        ProductStatus @default(DRAFT)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  subcategory Subcategory      @relation(fields: [subcategoryId], references: [id])
-  variants    ProductVariant[]
-  orderItems  OrderItem[]
-  images      ProductImage[]
-
-  @@index([subcategoryId])
+  subcategories ProductSubcategory[]
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+  images        ProductImage[]
 }
 
 model ProductImage {

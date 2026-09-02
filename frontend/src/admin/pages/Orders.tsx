@@ -5,6 +5,8 @@ import { AdminLayout } from "../components/layout/AdminLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { SearchBar } from "../components/ui/SearchBar";
+import { Pagination } from "../components/ui/Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { ordersApi, useOrdersApi, type ApiOrderStatus, type ApiOrderSummary } from "../hooks/useOrdersApi";
 import { orderStatusTone, type OrderRow, type OrderStatus } from "../types/order";
 import { formatCurrency, parseCurrency } from "../lib/money";
@@ -190,6 +192,23 @@ export function Orders() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Computed before the loading/error early returns below — hooks (usePagination) can't
+  // follow a conditional return, so this must run unconditionally on every render.
+  const visibleOrders = sortOrders(
+    orders.filter((order) => {
+      if (activeFilter !== "All" && order.status !== activeFilter) return false;
+      const query = searchQuery.trim().toLowerCase();
+      if (!query) return true;
+      return (
+        order.number.toLowerCase().includes(query) ||
+        order.customerName.toLowerCase().includes(query) ||
+        order.customerEmail.toLowerCase().includes(query)
+      );
+    }),
+    sortBy,
+  );
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleOrders);
+
   if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
   if (error)
     return (
@@ -204,20 +223,6 @@ export function Orders() {
     label,
     count: label === "All" ? orders.length : orders.filter((o) => o.status === label).length,
   }));
-
-  const visibleOrders = sortOrders(
-    orders.filter((order) => {
-      if (activeFilter !== "All" && order.status !== activeFilter) return false;
-      const query = searchQuery.trim().toLowerCase();
-      if (!query) return true;
-      return (
-        order.number.toLowerCase().includes(query) ||
-        order.customerName.toLowerCase().includes(query) ||
-        order.customerEmail.toLowerCase().includes(query)
-      );
-    }),
-    sortBy,
-  );
 
   async function saveOrder(updated: OrderRow) {
     setSaving(true);
@@ -299,7 +304,7 @@ export function Orders() {
           </div>
 
           <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
-            {visibleOrders.map((order) => (
+            {pageItems.map((order) => (
               <Link
                 key={order.id}
                 to={`/admin/orders/${order.id}`}
@@ -342,16 +347,13 @@ export function Orders() {
             ))}
           </div>
 
-          <div className="mt-6 flex items-center justify-between px-[22px]">
-            <span className="text-[13px] text-text-muted">
-              Showing {visibleOrders.length} of {orders.length} orders
-            </span>
-            <div className="flex items-center gap-1">
-              <button className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-brand-dark text-[13px] font-medium text-white">
-                1
-              </button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={setPage}
+            className="mt-6 px-[22px]"
+          />
         </div>
       </div>
 

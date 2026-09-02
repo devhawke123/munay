@@ -8,6 +8,9 @@ export type ProductDraft = {
   description: string;
   mainCategory: string;
   subcategory: string;
+  // Cross-lists this product under the other gender's identically-named subcategory
+  // (Women <-> Men only — Home never cross-lists). See ProductWizard's handlePublish.
+  alsoListUnderOtherGender: boolean;
   group: string;
   section: string;
   brand: string;
@@ -15,6 +18,8 @@ export type ProductDraft = {
   weight: string;
   dimensions: string;
   origin: string;
+  fiber: string;
+  careInstructions: string;
   tags: string[];
   images: ProductImage[];
   price: string;
@@ -30,6 +35,7 @@ export const emptyProductDraft: ProductDraft = {
   description: "",
   mainCategory: "",
   subcategory: "",
+  alsoListUnderOtherGender: false,
   group: "",
   section: "",
   brand: "",
@@ -37,6 +43,8 @@ export const emptyProductDraft: ProductDraft = {
   weight: "",
   dimensions: "",
   origin: "",
+  fiber: "",
+  careInstructions: "",
   tags: [],
   images: [],
   price: "",
@@ -54,19 +62,33 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
   const colors = [...new Set(api.variants.map((v) => v.color).filter((c) => c !== "Default"))];
   const sizes = [...new Set(api.variants.map((v) => v.size).filter((s) => s !== "One Size"))];
 
+  // No membership is "primary" (see backend products.service.ts's formatCategory) — every
+  // subcategory a product belongs to is an equal peer. `categories` is the source of truth for
+  // storefront routing/matching (catalog.ts) and admin filtering; `category`/`subcategory`
+  // (singular) are a first-membership convenience for dense display contexts that only have
+  // room for one line (SKU cell, inventory row) — not for matching logic.
+  const categories = api.subcategories.map((ps) => ({
+    mainCategory: MAIN_CATEGORY_LABEL[ps.subcategory.mainCategory] ?? ps.subcategory.mainCategory,
+    subcategory: ps.subcategory.name,
+    group: ps.subcategory.group ?? undefined,
+  }));
+  const primary = categories[0];
+
   return {
     id: api.id,
     name: api.name,
     sku: api.sku,
-    category: MAIN_CATEGORY_LABEL[api.subcategory.mainCategory] ?? api.subcategory.mainCategory,
-    subcategory: api.subcategory.name,
-    group: api.subcategory.group ?? undefined,
+    categories,
+    categorySummary: api.category,
+    category: primary?.mainCategory ?? "",
+    subcategory: primary?.subcategory ?? "",
+    group: primary?.group,
     section: api.section ?? undefined,
-    price: `$${Number(api.price).toFixed(2)}`,
+    price: `CHF ${Number(api.price).toFixed(2)}`,
     stock: String(api.stock),
     stockStatus: api.stockStatus,
     sold: String(api.sold),
-    revenue: `$${Math.round(api.revenue).toLocaleString("en-US")}`,
+    revenue: `CHF ${Math.round(api.revenue).toLocaleString("en-US")}`,
     status: PRODUCT_STATUS_LABEL[api.status] ?? api.status,
     description: api.description ?? undefined,
     images: api.images.map((img) => ({ id: img.id, url: img.path })),
@@ -74,6 +96,8 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
     weight: api.weight ?? undefined,
     dimensions: api.dimensions ?? undefined,
     origin: api.origin ?? undefined,
+    fiber: api.fiber ?? undefined,
+    careInstructions: api.careInstructions ?? undefined,
     collection: api.brand ?? undefined,
     colors,
     sizes,
@@ -84,6 +108,15 @@ export type Product = {
   id: string;
   name: string;
   sku: string;
+  // Every category/subcategory this product belongs to — a product can belong to more than one
+  // (e.g. a unisex item cross-listed under both Women and Men). Source of truth for storefront
+  // routing/matching and admin category filtering.
+  categories: { mainCategory: string; subcategory: string; group?: string }[];
+  // Pre-formatted display string covering every membership, e.g. "Women & Men / Pullovers" —
+  // use this (not category/subcategory below) anywhere the full membership set should be shown.
+  categorySummary: string;
+  // First-membership convenience for dense single-line display contexts. Not for matching —
+  // use `categories` for that.
   category: string;
   subcategory: string;
   // Groups subcategories under a heading on the public category page (e.g.
@@ -110,6 +143,7 @@ export type Product = {
   dimensions?: string;
   origin?: string;
   fiber?: string;
+  careInstructions?: string;
   collection?: string;
   colors?: string[];
   sizes?: string[];
@@ -133,11 +167,18 @@ export function productToDraft(product: Product): ProductDraft {
     });
   });
 
+  // The checkbox reflects whether a second, other-gender membership with the same
+  // subcategory name currently exists alongside the primary (first) one.
+  const alsoListUnderOtherGender = product.categories
+    .slice(1)
+    .some((c) => c.mainCategory !== product.category && c.subcategory === product.subcategory);
+
   return {
     name: product.name,
     description: product.description ?? "",
     mainCategory: product.category,
     subcategory: product.subcategory,
+    alsoListUnderOtherGender,
     group: product.group ?? "",
     section: product.section ?? "",
     brand: product.collection ?? "",
@@ -145,6 +186,8 @@ export function productToDraft(product: Product): ProductDraft {
     weight: product.weight ?? "",
     dimensions: product.dimensions ?? "",
     origin: product.origin ?? "",
+    fiber: product.fiber ?? "",
+    careInstructions: product.careInstructions ?? "",
     tags: [],
     images: product.images ?? [],
     price: product.price.replace(/[^0-9.]/g, ""),

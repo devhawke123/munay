@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import women from "../assets/product-3.png";
 import men from "../assets/category-men.png";
 import home from "../assets/category-home.png";
@@ -7,6 +8,7 @@ import home from "../assets/category-home.png";
 const categories = [
   {
     name: "Women",
+    href: "/category/women",
     description:
       "Refined silhouettes and soft textures crafted from the finest baby alpaca. A timeless approach to modern elegance.",
     image: women,
@@ -15,6 +17,7 @@ const categories = [
   },
   {
     name: "Men",
+    href: "/category/men",
     description:
       "Refined silhouettes and soft textures crafted from the finest baby alpaca. A timeless approach to modern elegance.",
     image: men,
@@ -23,6 +26,7 @@ const categories = [
   },
   {
     name: "Home Essentials",
+    href: "/category/home",
     description:
       "Refined silhouettes and soft textures crafted from the finest baby alpaca. A timeless approach to modern elegance.",
     image: home,
@@ -102,13 +106,13 @@ export function Categories() {
                   <p className="max-w-[448px] text-body font-light text-ink/70">
                     {category.description}
                   </p>
-                  <a
-                    href="#"
+                  <Link
+                    to={category.href}
                     className="flex items-center gap-4 border-b border-ink/30 pb-2 text-btn uppercase text-ink"
                   >
                     Discover {category.name}
                     <ArrowRight size={12} />
-                  </a>
+                  </Link>
                 </div>
                 {category.imageSide === "right" && (
                   <div className="aspect-[16/9] w-full shrink-0 overflow-hidden sm:aspect-[776/717] lg:aspect-[776/717] lg:w-1/2 lg:min-w-0">

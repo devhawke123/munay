@@ -90,6 +90,12 @@ export function ProductWizard() {
     setPublishError(null);
     try {
       const subcategoryId = await resolveSubcategoryId(mainCategory, draft.subcategory);
+      const subcategoryIds = [subcategoryId];
+
+      if (draft.alsoListUnderOtherGender) {
+        const otherGender: ApiMainCategory = mainCategory === "WOMEN" ? "MEN" : "WOMEN";
+        subcategoryIds.push(await resolveSubcategoryId(otherGender, draft.subcategory));
+      }
 
       const stock: ProductVariantStockInput[] = draft.colors.flatMap((color) =>
         draft.sizes.map((size) => ({
@@ -103,7 +109,7 @@ export function ProductWizard() {
       const input = {
         name: draft.name,
         description: draft.description || undefined,
-        subcategoryId,
+        subcategoryIds,
         section: draft.section || undefined,
         price: Number(draft.price) || 0,
         sku: draft.sku,
@@ -113,6 +119,8 @@ export function ProductWizard() {
         weight: draft.weight || undefined,
         dimensions: draft.dimensions || undefined,
         origin: draft.origin || undefined,
+        fiber: draft.fiber || undefined,
+        careInstructions: draft.careInstructions || undefined,
         tags: draft.tags,
         stock: stock.length > 0 ? stock : undefined,
         warehouseId: stock.length > 0 ? warehouseId : undefined,

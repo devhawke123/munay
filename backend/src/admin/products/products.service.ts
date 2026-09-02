@@ -8,7 +8,7 @@ const ACTIVE_ORDER_STATUSES: Prisma.OrderWhereInput = {
 };
 
 const PRODUCT_LIST_INCLUDE = {
-  subcategory: true,
+  subcategories: { include: { subcategory: true } },
   images: true,
   variants: { include: { inventory: true } },
   orderItems: {
@@ -24,6 +24,20 @@ export type StockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 // A variant is "low stock" once it drops below this many units on hand (not tied to reorderPoint).
 export const LOW_STOCK_THRESHOLD = 2;
 
+// No membership is "primary" — every Subcategory a product belongs to is an equal peer.
+// When all memberships share one subcategory name across different MainCategories (the only
+// shape the admin wizard's "Also list under Men/Women" checkbox can produce), collapse it to
+// "Women & Men / Pullovers". Otherwise fall back to a comma-joined list per membership, so the
+// display never breaks even for a shape only reachable by editing the DB directly.
+function formatCategory(subcategories: ProductWithComputeds["subcategories"]) {
+  const names = new Set(subcategories.map((s) => s.subcategory.name));
+  if (names.size === 1) {
+    const mainCategories = subcategories.map((s) => s.subcategory.mainCategory);
+    return `${mainCategories.join(" & ")} / ${subcategories[0].subcategory.name}`;
+  }
+  return subcategories.map((s) => `${s.subcategory.mainCategory} / ${s.subcategory.name}`).join(", ");
+}
+
 function toSummary(product: ProductWithComputeds) {
   const inventory = product.variants.flatMap((variant) => variant.inventory);
   const stock = inventory.reduce((sum, row) => sum + row.quantityOnHand, 0);
@@ -37,7 +51,7 @@ function toSummary(product: ProductWithComputeds) {
 
   return {
     ...rest,
-    category: `${product.subcategory.mainCategory} / ${product.subcategory.name}`,
+    category: formatCategory(product.subcategories),
     stock,
     stockStatus,
     sold,
@@ -59,8 +73,14 @@ export async function listProducts(filters: ProductListFilters = {}) {
   const products = await prisma.product.findMany({
     where: {
       status,
-      subcategoryId,
-      subcategory: mainCategory ? { mainCategory } : undefined,
+      subcategories: subcategoryId || mainCategory
+        ? {
+            some: {
+              subcategoryId,
+              subcategory: mainCategory ? { mainCategory } : undefined,
+            },
+          }
+        : undefined,
       name: search ? { contains: search } : undefined,
     },
     include: PRODUCT_LIST_INCLUDE,
@@ -91,7 +111,7 @@ interface ProductVariantStockInput {
 export interface ProductWriteInput {
   name: string;
   description?: string;
-  subcategoryId: string;
+  subcategoryIds: string[];
   section?: string;
   price: number;
   sku: string;
@@ -101,6 +121,8 @@ export interface ProductWriteInput {
   weight?: string;
   dimensions?: string;
   origin?: string;
+  fiber?: string;
+  careInstructions?: string;
   tags?: string[];
   status?: ProductStatus;
   images?: ProductImageInput[];
@@ -158,65 +180,91 @@ async function replaceVariantsAndImages(tx: Prisma.TransactionClient, productId:
 }
 
 export async function createProduct(data: ProductWriteInput) {
-  return prisma.$transaction(async (tx) => {
-    const product = await tx.product.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        sku: data.sku,
-        subcategoryId: data.subcategoryId,
-        section: data.section,
-        price: data.price,
-        barcode: data.barcode,
-        brand: data.brand,
-        composition: data.composition,
-        weight: data.weight,
-        dimensions: data.dimensions,
-        origin: data.origin,
-        tags: data.tags ?? undefined,
-        status: data.status,
-      },
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          sku: data.sku,
+          subcategories: { create: data.subcategoryIds.map((subcategoryId) => ({ subcategoryId })) },
+          section: data.section,
+          price: data.price,
+          barcode: data.barcode,
+          brand: data.brand,
+          composition: data.composition,
+          weight: data.weight,
+          dimensions: data.dimensions,
+          origin: data.origin,
+          fiber: data.fiber,
+          careInstructions: data.careInstructions,
+          tags: data.tags ?? undefined,
+          status: data.status,
+        },
+      });
+
+      await replaceVariantsAndImages(tx, product.id, data);
+
+      return tx.product.findUniqueOrThrow({ where: { id: product.id }, include: PRODUCT_LIST_INCLUDE });
     });
-
-    await replaceVariantsAndImages(tx, product.id, data);
-
-    return tx.product.findUniqueOrThrow({ where: { id: product.id }, include: PRODUCT_LIST_INCLUDE });
-  });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      throw new HttpError(409, "A product with this name already exists");
+    }
+    throw err;
+  }
 }
 
 export async function updateProduct(id: string, data: Partial<ProductWriteInput>) {
-  return prisma.$transaction(async (tx) => {
-    await tx.product.update({
-      where: { id },
-      data: {
-        name: data.name,
-        description: data.description,
-        sku: data.sku,
-        subcategoryId: data.subcategoryId,
-        section: data.section,
-        price: data.price,
-        barcode: data.barcode,
-        brand: data.brand,
-        composition: data.composition,
-        weight: data.weight,
-        dimensions: data.dimensions,
-        origin: data.origin,
-        tags: data.tags ?? undefined,
-        status: data.status,
-      },
-    });
-
-    if (data.images !== undefined || data.stock !== undefined) {
-      const current = await tx.product.findUniqueOrThrow({ where: { id }, select: { sku: true, price: true } });
-      await replaceVariantsAndImages(tx, id, {
-        ...(data as ProductWriteInput),
-        sku: data.sku ?? current.sku,
-        price: data.price ?? Number(current.price),
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id },
+        data: {
+          name: data.name,
+          description: data.description,
+          sku: data.sku,
+          section: data.section,
+          price: data.price,
+          barcode: data.barcode,
+          brand: data.brand,
+          composition: data.composition,
+          weight: data.weight,
+          dimensions: data.dimensions,
+          origin: data.origin,
+          fiber: data.fiber,
+          careInstructions: data.careInstructions,
+          tags: data.tags ?? undefined,
+          status: data.status,
+        },
       });
-    }
 
-    return tx.product.findUniqueOrThrow({ where: { id }, include: PRODUCT_LIST_INCLUDE });
-  });
+      if (data.subcategoryIds !== undefined) {
+        // Replace the full membership set, same pattern as images/variants below —
+        // never a partial diff.
+        await tx.productSubcategory.deleteMany({ where: { productId: id } });
+        await tx.productSubcategory.createMany({
+          data: data.subcategoryIds.map((subcategoryId) => ({ productId: id, subcategoryId })),
+        });
+      }
+
+      if (data.images !== undefined || data.stock !== undefined) {
+        const current = await tx.product.findUniqueOrThrow({ where: { id }, select: { sku: true, price: true } });
+        await replaceVariantsAndImages(tx, id, {
+          ...(data as ProductWriteInput),
+          sku: data.sku ?? current.sku,
+          price: data.price ?? Number(current.price),
+        });
+      }
+
+      return tx.product.findUniqueOrThrow({ where: { id }, include: PRODUCT_LIST_INCLUDE });
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      throw new HttpError(409, "A product with this name already exists");
+    }
+    throw err;
+  }
 }
 
 export async function deleteProduct(id: string) {
@@ -226,6 +274,7 @@ export async function deleteProduct(id: string) {
       await tx.inventory.deleteMany({ where: { variantId: { in: variants.map((v) => v.id) } } });
       await tx.productImage.deleteMany({ where: { productId: id } });
       await tx.productVariant.deleteMany({ where: { productId: id } });
+      await tx.productSubcategory.deleteMany({ where: { productId: id } });
       await tx.product.delete({ where: { id } });
     });
   } catch (err) {

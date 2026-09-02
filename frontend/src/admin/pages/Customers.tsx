@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { StatCard } from "../components/ui/StatCard";
 import { SearchBar } from "../components/ui/SearchBar";
+import { Pagination } from "../components/ui/Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { useCustomersApi } from "../hooks/useCustomersApi";
 
 export function Customers() {
@@ -22,6 +24,8 @@ export function Customers() {
       (customer.location ?? "").toLowerCase().includes(query)
     );
   });
+
+  const { page, setPage, pageItems, totalItems, pageSize } = usePagination(visibleCustomers);
 
   if (loading) return <AdminLayout><p className="p-6 text-sm text-text-muted">Loading…</p></AdminLayout>;
   if (error)
@@ -95,7 +99,7 @@ export function Customers() {
           </div>
 
           <div className="mt-[18px] flex flex-col gap-[18px] px-[22px]">
-            {visibleCustomers.map((customer) => (
+            {pageItems.map((customer) => (
               <Link
                 key={customer.id}
                 to={`/admin/customers/${customer.id}`}
@@ -113,6 +117,14 @@ export function Customers() {
               </Link>
             ))}
           </div>
+
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={setPage}
+            className="mt-6 px-[22px]"
+          />
         </div>
       </div>
     </AdminLayout>

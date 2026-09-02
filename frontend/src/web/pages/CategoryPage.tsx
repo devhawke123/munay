@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useProducts } from "../../admin/context/ProductsContext";
 import placeholderImage from "../assets/product-2.png";
+import homeHeroImage from "../assets/category-home.png";
 import menHero from "../assets/menhero.jpg";
 import { Announcement } from "../components/Announcement";
 import { CategoryHero } from "../components/CategoryHero";
@@ -20,37 +21,37 @@ type CategoryTile = {
 const WOMEN_GROUP_ORDER = ["Ready to Wear", "Accessories"];
 
 const WOMEN_TILE_ORDER = [
-  "Pullovers & Cardigans",
-  "Jackets & Cardigans",
-  "Capes & Ponchos",
+  "Pullovers",
+  "Cardigans",
+  "Jackets",
+  "Capes",
+  "Ponchos",
   "Coats",
-  "Tops & T-Shirts",
-  "Dresses & Skirts",
-  "Pants & Shorts",
-  "Shirts & Blouses",
-  "Scarves & Shawls",
-  "Neck Warmers & Snoods",
-  "Beanies & Chapkas",
+  "Tops",
+  "T-Shirts",
+  "Dresses",
+  "Skirts",
+  "Pants",
+  "Shorts",
+  "Shirts",
+  "Blouses",
+  "Shawls / Scarfs",
+  "Neck Warmers",
+  "Snoods",
+  "Headwears",
   "Gloves & Mittens",
-  "Hats & Caps",
 ];
 
-// The Figma tile label, keyed by real subcategory name, where it differs from
-// the subcategory itself (e.g. "Headwears" product data reads "Beanies & Chapkas" on the page).
+// One real subcategory is intentionally kept as a single merged bucket (scarves and shawls
+// together, split into sections instead) — its display label differs from its stored name.
 const WOMEN_LABEL_OVERRIDES: Record<string, string> = {
-  Pullovers: "Pullovers & Cardigans",
-  Cardigans: "Jackets & Cardigans",
-  Capes: "Capes & Ponchos",
   "Shawls / Scarfs": "Scarves & Shawls",
-  Headwears: "Beanies & Chapkas",
-  "Snoods & Hoods": "Neck Warmers & Snoods",
 };
 
-// Categories shown in the Figma design that don't have product data yet.
+// Product types from the client's structure doc with no products yet.
 // Rendered as empty-image placeholder tiles until real products are added.
 const WOMEN_PLACEHOLDER_TILES: Record<string, string[]> = {
-  "Ready to Wear": ["Tops & T-Shirts", "Dresses & Skirts", "Pants & Shorts", "Shirts & Blouses"],
-  Accessories: ["Hats & Caps"],
+  "Ready to Wear": ["T-Shirts", "Shorts"],
 };
 
 function sortWomenGroups(groups: string[]): string[] {
@@ -96,7 +97,34 @@ function getCategoryTiles(
 
 export function CategoryPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
-  const { products } = useProducts();
+  const { products, loading, error } = useProducts();
+
+  if (loading) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">Loading…</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">{error.message}</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   const category = categorySlug ? findCategoryBySlug(products, categorySlug) : undefined;
 
   if (!category) {
@@ -120,7 +148,13 @@ export function CategoryPage() {
       ? sortWomenGroups(getGroups(products, category))
       : getGroups(products, category);
   const heroImage =
-    category === "Women" ? WOMEN_HERO_IMAGE : category === "Men" ? menHero : placeholderImage;
+    category === "Women"
+      ? WOMEN_HERO_IMAGE
+      : category === "Men"
+        ? menHero
+        : category === "Home"
+          ? homeHeroImage
+          : placeholderImage;
 
   return (
     <div className="overflow-x-hidden bg-white">

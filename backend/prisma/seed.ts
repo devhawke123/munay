@@ -43,7 +43,7 @@ const productsData = [
   { id: "seed-9", name: "Wool Cape", sku: "CP-001", subcategory: "Capes", group: "Ready to Wear", price: 320, stock: 42, status: "Active" },
   { id: "seed-10", name: "Knit Beanie", sku: "HW-001", subcategory: "Headwears", group: "Accessories", price: 95, stock: 120, status: "Active" },
   { id: "seed-11", name: "Alpaca Mittens", sku: "GM-001", subcategory: "Gloves & Mittens", group: "Accessories", price: 70, stock: 150, status: "Active" },
-  { id: "seed-12", name: "Alpaca Snood", sku: "SN-001", subcategory: "Snoods & Hoods", group: "Accessories", price: 110, stock: 70, status: "Active" }, // ponytail: mock data reused "SH-001" here, collides with seed-4's SKU — renumbered to SN-001 since Product.sku is unique
+  { id: "seed-12", name: "Alpaca Snood", sku: "SN-001", subcategory: "Snoods & Hoods", group: "Accessories", price: 110, stock: 70, status: "Active" }, // ponytail: mock data reused "SH-001" here, collides with seed-4's SKU — renumbered to SN-001 to avoid the duplicate
 ];
 
 const eventsData = [
@@ -94,12 +94,12 @@ async function main() {
     }
 
     const product = await prisma.product.upsert({
-      where: { sku: p.sku },
+      where: { name: p.name },
       update: {},
       create: {
         name: p.name,
         sku: p.sku,
-        subcategoryId: subcategory.id,
+        subcategories: { create: [{ subcategoryId: subcategory.id }] },
         section: p.section,
         price: p.price,
         composition: p.composition,

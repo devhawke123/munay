@@ -35,7 +35,7 @@ export function PreviewPanel({ draft, completedSteps, currentStep }: PreviewPane
           {draft.sku ? ` · ${draft.sku}` : ""}
         </p>
         <p className="mt-1 text-lg font-display font-extrabold text-brand-dark">
-          ${price.toFixed(2)}
+          CHF {price.toFixed(2)}
         </p>
       </div>
 

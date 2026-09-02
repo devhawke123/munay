@@ -39,12 +39,17 @@ export interface ApiSubcategory {
   group: string | null;
 }
 
+export interface ApiProductSubcategory {
+  productId: string;
+  subcategoryId: string;
+  subcategory: ApiSubcategory;
+}
+
 export interface ApiProductSummary {
   id: string;
   name: string;
   sku: string;
   description: string | null;
-  subcategoryId: string;
   section: string | null;
   price: string;
   barcode: string | null;
@@ -53,6 +58,8 @@ export interface ApiProductSummary {
   weight: string | null;
   dimensions: string | null;
   origin: string | null;
+  fiber: string | null;
+  careInstructions: string | null;
   tags: string[] | null;
   category: string;
   stock: number;
@@ -62,7 +69,7 @@ export interface ApiProductSummary {
   status: ApiProductStatus;
   images: ApiProductImage[];
   variants: ApiProductVariant[];
-  subcategory: ApiSubcategory;
+  subcategories: ApiProductSubcategory[];
 }
 
 export interface ProductListFilters {
@@ -109,7 +116,7 @@ export interface ProductVariantStockInput {
 export interface ProductWriteInput {
   name: string;
   description?: string;
-  subcategoryId: string;
+  subcategoryIds: string[];
   section?: string;
   price: number;
   sku: string;
@@ -119,6 +126,8 @@ export interface ProductWriteInput {
   weight?: string;
   dimensions?: string;
   origin?: string;
+  fiber?: string;
+  careInstructions?: string;
   tags?: string[];
   status?: ApiProductStatus;
   images?: ProductImageInput[];

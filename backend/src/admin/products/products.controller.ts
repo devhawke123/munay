@@ -53,7 +53,7 @@ function parseWritePayload(body: Record<string, unknown>) {
   const {
     name,
     description,
-    subcategoryId,
+    subcategoryIds,
     section,
     price,
     sku,
@@ -63,6 +63,8 @@ function parseWritePayload(body: Record<string, unknown>) {
     weight,
     dimensions,
     origin,
+    fiber,
+    careInstructions,
     tags,
     status,
     images,
@@ -71,11 +73,14 @@ function parseWritePayload(body: Record<string, unknown>) {
   } = body;
 
   if (status !== undefined && !isProductStatus(status)) throw new HttpError(400, "Invalid status");
+  if (subcategoryIds !== undefined && !Array.isArray(subcategoryIds)) {
+    throw new HttpError(400, "subcategoryIds must be an array");
+  }
 
   return {
     name,
     description,
-    subcategoryId,
+    subcategoryIds,
     section,
     price: price !== undefined ? Number(price) : undefined,
     sku,
@@ -85,6 +90,8 @@ function parseWritePayload(body: Record<string, unknown>) {
     weight,
     dimensions,
     origin,
+    fiber,
+    careInstructions,
     tags,
     status: status as ProductStatus | undefined,
     images,
@@ -96,8 +103,8 @@ function parseWritePayload(body: Record<string, unknown>) {
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const data = parseWritePayload(req.body);
-    if (!data.name || !data.sku || !data.subcategoryId || data.price === undefined) {
-      throw new HttpError(400, "name, sku, subcategoryId and price are required");
+    if (!data.name || !data.sku || !data.subcategoryIds?.length || data.price === undefined) {
+      throw new HttpError(400, "name, sku, subcategoryIds and price are required");
     }
     res.status(201).json(await productsService.createProduct(data));
   } catch (err) {

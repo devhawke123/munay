@@ -5,10 +5,10 @@ import product3 from "../assets/product-3.png";
 import product4 from "../assets/product-4.png";
 
 const products = [
-  { name: "Ribbed Turtleneck Knit", price: "$650", image: product1 },
-  { name: "The Oversized Cashmere Blend", price: "$890", image: product2 },
-  { name: "Pleated Wool Trousers", price: "$720", image: product3 },
-  { name: "Tailored Alpaca Coat", price: "$1,450", image: product4 },
+  { name: "Ribbed Turtleneck Knit", price: "CHF 650", image: product1 },
+  { name: "The Oversized Cashmere Blend", price: "CHF 890", image: product2 },
+  { name: "Pleated Wool Trousers", price: "CHF 720", image: product3 },
+  { name: "Tailored Alpaca Coat", price: "CHF 1,450", image: product4 },
 ];
 
 export function NewArrivals() {

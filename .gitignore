@@ -8,3 +8,6 @@ build
 coverage
 .vite
 backend/prisma/generated
+.worktrees
+docs/
+*.xlsx
