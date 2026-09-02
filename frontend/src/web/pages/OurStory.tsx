@@ -1,6 +1,7 @@
 import { Announcement } from "../components/Announcement";
 import { Footer } from "../components/Footer";
 import { Newsletter } from "../components/Newsletter";
+import { PageHero } from "../components/PageHero";
 import { PublicHeader } from "../components/PublicHeader";
 import roots from "../assets/munay-roots.png";
 import aGift from "../assets/a-gift.jpg";
@@ -25,18 +26,14 @@ export function OurStory() {
       <Announcement />
       <PublicHeader />
 
-      <div className="relative flex h-[70vh] min-h-[420px] items-center justify-center overflow-hidden">
-        <img src={roots} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="relative flex flex-col items-center gap-3 px-page-x text-center">
-          <p className="font-futura text-section-label uppercase tracking-[0.3em] text-white">
-            The Founder
-          </p>
-          <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
-            Munay&rsquo;s Roots
-          </h1>
-        </div>
-      </div>
+      <PageHero image={roots} overlayClassName="bg-black/35">
+        <p className="font-futura text-section-label uppercase tracking-[0.3em] text-white">
+          The Founder
+        </p>
+        <h1 className="font-serif text-display text-white drop-shadow-[0px_1px_0.5px_rgba(0,0,0,0.15)]">
+          Munay&rsquo;s Roots
+        </h1>
+      </PageHero>
 
       <div className="flex justify-center bg-sand px-page-x py-section-y sm:py-section-y-lg">
         <p className="max-w-[52rem] indent-8 text-center font-serif text-[clamp(1.125rem,2vw,1.5rem)] leading-[1.6] text-ink/80">
@@ -88,7 +85,7 @@ export function OurStory() {
         <img
           src={moreThanAFiber}
           alt="Alpacas in the Andes"
-          className="mt-10 aspect-[20/10] w-full max-w-[95rem] object-cover sm:mt-16"
+          className="mt-10 aspect-[20/10] w-full max-w-[90rem] object-cover sm:mt-16"
         />
       </div>
 

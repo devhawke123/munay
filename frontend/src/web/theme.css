@@ -61,7 +61,8 @@
 
   /* —— Brand colors —— */
   --color-ink: #2c2a28;
-  --color-cream: #efe9e1;
+  --color-cream:#F7F5F0;
+;
   --color-gold: #b89b68;
   --color-gold-deep: #84540c;
   --color-sand: #f3eee6;
@@ -90,8 +91,8 @@
   --spacing-header-x: clamp(1rem, 4vw, 3rem);
   --spacing-header-y: clamp(0.5rem, 1vh, 0.75rem);
   --spacing-footer-y: clamp(3rem, 8vh, 7.5rem);
-  --spacing-logo-h: clamp(2.5rem, 5.5vh, 3.5rem);
-  --spacing-logo-w: clamp(4.25rem, 9vh, 6rem);
+  --spacing-logo-h: clamp(2.75rem, 6vh, 3.875rem);
+  --spacing-logo-w: clamp(4.75rem, 10vh, 6.75rem);
 
   /* —— Fluid type: chrome —— */
   --text-announcement: clamp(0.5625rem, 0.9vw, 0.6875rem);

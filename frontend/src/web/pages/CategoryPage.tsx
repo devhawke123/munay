@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useProducts } from "../../admin/context/ProductsContext";
 import placeholderImage from "../assets/product-2.png";
 import homeHeroImage from "../assets/category-home.png";
+import menHero from "../assets/menhero.jpg";
 import { Announcement } from "../components/Announcement";
 import { CategoryHero } from "../components/CategoryHero";
 import { Footer } from "../components/Footer";
@@ -69,10 +70,14 @@ function getCategoryTiles(
   const tiles: CategoryTile[] = [];
 
   for (const subcategory of getSubcategoriesByGroup(products, category, group)) {
+    const fallbackImage = products.find(
+      (p) => p.category === category && p.subcategory === subcategory,
+    )?.images?.[0]?.url;
+
     tiles.push({
       label: category === "Women" ? (WOMEN_LABEL_OVERRIDES[subcategory] ?? subcategory) : subcategory,
       subcategory,
-      image: category === "Women" ? getWomenTileImage(subcategory) : undefined,
+      image: category === "Women" ? getWomenTileImage(subcategory) : fallbackImage,
     });
   }
 
@@ -143,14 +148,20 @@ export function CategoryPage() {
       ? sortWomenGroups(getGroups(products, category))
       : getGroups(products, category);
   const heroImage =
-    category === "Women" ? WOMEN_HERO_IMAGE : category === "Home" ? homeHeroImage : placeholderImage;
+    category === "Women"
+      ? WOMEN_HERO_IMAGE
+      : category === "Men"
+        ? menHero
+        : category === "Home"
+          ? homeHeroImage
+          : placeholderImage;
 
   return (
     <div className="overflow-x-hidden bg-white">
       <div className="flex h-dvh flex-col">
         <Announcement />
         <PublicHeader />
-        <CategoryHero title={category === "Women" ? "WOMEN" : category} image={heroImage} />
+        <CategoryHero title={category.toUpperCase()} image={heroImage} />
       </div>
 
       <div className="mx-auto flex max-w-related flex-col gap-24 px-page-x py-section-y sm:gap-32 sm:py-section-y-lg">
