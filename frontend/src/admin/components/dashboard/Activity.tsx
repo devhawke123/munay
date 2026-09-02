@@ -24,7 +24,7 @@ const activities = [
   },
   {
     icon: CreditCard,
-    text: "Payment of $259.00 confirmed",
+    text: "Payment of CHF 259.00 confirmed",
     time: "2 hours ago",
     bg: "bg-info/[0.07]",
     color: "text-info",

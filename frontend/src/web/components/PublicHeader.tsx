@@ -6,7 +6,7 @@ import logo from "../assets/logo.png";
 const primaryLinks = [
   { label: "Women", href: "/category/women" },
   { label: "Men", href: "/category/men" },
-  { label: "Home", href: "/category/home-essentials" },
+  { label: "Home", href: "/category/home" },
   { label: "The Brands", href: "#" },
   { label: "Our World", href: "/our-story" },
 ];

@@ -68,17 +68,44 @@ export function ProductPage() {
     subcategorySlug: string;
     productId: string;
   }>();
-  const { products } = useProducts();
+  const { products, loading, error } = useProducts();
+
+  const [activeImage, setActiveImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [openSection, setOpenSection] = useState<"description" | "care" | null>("description");
+
+  if (loading) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">Loading…</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="overflow-x-hidden bg-white">
+        <Announcement />
+        <PublicHeader />
+        <div className="flex flex-col items-center gap-4 px-page-x py-24 text-center">
+          <p className="text-ink/60">{error.message}</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   const category = categorySlug ? findCategoryBySlug(products, categorySlug) : undefined;
   const subcategory =
     category && subcategorySlug
       ? findSubcategoryBySlug(products, category, subcategorySlug)
       : undefined;
   const product = productId ? getProduct(products, productId) : undefined;
-
-  const [activeImage, setActiveImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(product?.colors?.[0]);
-  const [openSection, setOpenSection] = useState<"description" | "care" | null>("description");
 
   if (
     !category ||
@@ -106,6 +133,9 @@ export function ProductPage() {
       ? product.images
       : [{ id: "placeholder", url: placeholderImage }];
   const related = getRelatedProducts(products, product);
+  // selectedColor starts undefined (declared before `product` is resolved, above the
+  // loading/error guards) — fall back to the first color until the user picks one.
+  const activeColor = selectedColor ?? product.colors?.[0];
 
   return (
     <div className="overflow-x-hidden bg-white">
@@ -179,7 +209,7 @@ export function ProductPage() {
             {product.colors && product.colors.length > 0 && (
               <div className="flex flex-col gap-2 short:gap-1.5 sm:gap-2.5">
                 <p className="font-futura text-pdp-eyebrow font-medium uppercase text-ink/60">
-                  Color — <span className="text-ink">{selectedColor}</span>
+                  Color — <span className="text-ink">{activeColor}</span>
                 </p>
                 <div className="flex flex-wrap gap-2.5 pl-0.5 sm:gap-3 sm:pl-1">
                   {product.colors.map((color) => (
@@ -189,7 +219,7 @@ export function ProductPage() {
                       aria-label={color}
                       onClick={() => setSelectedColor(color)}
                       className={`size-swatch rounded-full ${
-                        selectedColor === color ? "ring-2 ring-ink ring-offset-2" : ""
+                        activeColor === color ? "ring-2 ring-ink ring-offset-2" : ""
                       }`}
                       style={
                         isSwatchGradient(color)

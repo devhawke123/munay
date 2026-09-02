@@ -95,13 +95,6 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
         flat grid).
       </p>
 
-      <FormField
-        label="Brand / Collection"
-        placeholder="e.g. Munay Essentials"
-        value={draft.brand}
-        onChange={(e) => onChange({ brand: e.target.value })}
-      />
-
       <div className="rounded-panel border border-brand-border p-4">
         <p className="mb-3 text-sm font-display font-bold text-text-primary">Product Details</p>
         <div className="grid grid-cols-2 gap-4">
@@ -110,24 +103,6 @@ export function BasicInfoStep({ draft, onChange }: BasicInfoStepProps) {
             placeholder="e.g. 70% Baby Alpaca, 30% Silk"
             value={draft.composition}
             onChange={(e) => onChange({ composition: e.target.value })}
-          />
-          <FormField
-            label="Weight"
-            placeholder="e.g. 130g"
-            value={draft.weight}
-            onChange={(e) => onChange({ weight: e.target.value })}
-          />
-          <FormField
-            label="Dimensions"
-            placeholder="e.g. 160 x 50 cm"
-            value={draft.dimensions}
-            onChange={(e) => onChange({ dimensions: e.target.value })}
-          />
-          <FormField
-            label="Origin"
-            placeholder="e.g. Made in Peru"
-            value={draft.origin}
-            onChange={(e) => onChange({ origin: e.target.value })}
           />
           <FormField
             label="Fiber"

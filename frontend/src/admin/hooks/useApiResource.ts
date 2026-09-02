@@ -14,7 +14,10 @@ type ResourceState<T> = {
  */
 export function useApiResource<T>(path: string | null): ResourceState<T> {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts true whenever a fetch will actually run (path !== null) — otherwise the first
+  // render commits with loading=false and no data, before the mount effect below has a
+  // chance to flip it, letting callers briefly render their empty/not-found state first.
+  const [loading, setLoading] = useState(path !== null);
   const [error, setError] = useState<Error | null>(null);
 
   const refetch = useCallback(() => {

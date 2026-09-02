@@ -246,8 +246,9 @@ export function Products() {
           
         </div>
 
-        <div className="mt-[18px] rounded bg-surface-muted px-[22px] py-3">
-          <div className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_100px_110px_60px] items-center gap-x-6 text-base text-text-primary/70">
+        <div className="overflow-x-auto">
+        <div className="mt-[18px] min-w-[980px] rounded bg-surface-muted px-[22px] py-3">
+          <div className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_35px_80px_90px_35px] items-center gap-x-4 text-base text-text-primary/70">
             <div>Product</div>
             <div>SKU</div>
             <div>Category</div>
@@ -259,14 +260,14 @@ export function Products() {
           </div>
         </div>
 
-        <div className="mt-[10px] flex flex-col px-[18px]">
+        <div className="mt-[10px] min-w-[980px] flex flex-col px-[18px]">
           {pageItems.map((product) => (
             <div key={product.id} className="relative border-b border-brand-border last:border-0">
               <Link
                 to={`/admin/products/${product.id}`}
-                className="grid grid-cols-[minmax(190px,2fr)_90px_minmax(160px,1.4fr)_90px_70px_100px_110px_60px] items-center gap-x-6 py-4"
+                className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_35px_80px_90px_35px] items-center gap-x-4 py-4"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-[60px] w-16 shrink-0 items-center justify-center overflow-hidden rounded-[11px] border border-brand/10 bg-brand-soft/30">
                     {product.images?.[0] ? (
                       <img
@@ -278,24 +279,24 @@ export function Products() {
                       <ImageIcon size={20} className="text-text-muted" />
                     )}
                   </div>
-                  <span className="text-base font-display font-semibold leading-5 text-text-primary">
+                  <span className="min-w-0 truncate text-base font-display font-semibold leading-5 text-text-primary">
                     {product.name}
                   </span>
                 </div>
 
-                <div className="flex h-[23px] w-[52px] items-center justify-center rounded-[6px] bg-surface-tan font-mono text-[11px] font-medium text-brand">
+                <div className="flex h-[23px] w-fit items-center justify-center whitespace-nowrap rounded-[6px] bg-surface-tan px-2 font-mono text-[11px] font-medium text-brand">
                   {product.sku}
                 </div>
 
-                <div className="text-xs leading-[18px] text-text-primary">
+                <div className="whitespace-nowrap text-xs leading-[18px] text-text-primary">
                   {product.categorySummary}
                 </div>
 
-                <div className="text-sm font-display font-bold text-text-primary">
+                <div className="whitespace-nowrap text-sm font-display font-bold text-text-primary">
                   {product.price}
                 </div>
                 <div className="text-[13px] text-text-primary">{product.sold}</div>
-                <div className="text-[13px] font-display font-bold text-text-primary">
+                <div className="whitespace-nowrap text-[13px] font-display font-bold text-text-primary">
                   {product.revenue}
                 </div>
 
@@ -357,6 +358,7 @@ export function Products() {
               )}
             </div>
           ))}
+        </div>
         </div>
 
         <Pagination
