@@ -101,6 +101,15 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
     collection: api.brand ?? undefined,
     colors,
     sizes,
+    variantStocks: api.variants.map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      color: v.color,
+      size: v.size,
+      price: `CHF ${Number(v.price).toFixed(2)}`,
+      qty: v.inventory.reduce((sum, row) => sum + row.quantityOnHand, 0),
+      status: PRODUCT_STATUS_LABEL[v.status] ?? v.status,
+    })),
   };
 }
 
@@ -148,6 +157,17 @@ export type Product = {
   colors?: string[];
   sizes?: string[];
   rating?: number;
+  // Each variant's real on-hand quantity (summed across warehouses), straight from
+  // Inventory — not a synthesized even split of the product-level `stock` total.
+  variantStocks?: {
+    id: string;
+    sku: string;
+    color: string;
+    size: string;
+    price: string;
+    qty: number;
+    status: string;
+  }[];
 };
 
 export function variantKey(color: string, size: string) {

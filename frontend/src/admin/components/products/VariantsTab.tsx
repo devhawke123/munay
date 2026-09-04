@@ -3,28 +3,38 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { inventoryApi, useWarehousesApi } from "../../hooks/useInventoryApi";
 import type { Product } from "../../types/product";
+import { StatusBadge, type StatusTone } from "../ui/StatusBadge";
 import { AdjustProductStockModal } from "./AdjustProductStockModal";
 
-function buildVariantRows(product: Product) {
-  const colors = product.colors?.length ? product.colors : [""];
-  const sizes = product.sizes?.length ? product.sizes : [""];
+const STATUS_TONE: Record<string, StatusTone> = {
+  Active: "success",
+  Draft: "neutral",
+  Archived: "danger",
+};
 
-  return colors.flatMap((color) =>
-    sizes.map((size) => {
-      const label = [size, color].filter(Boolean).join(" / ") || "One Size";
-      const skuSuffix = [size, color]
-        .filter(Boolean)
-        .map((part) => part.slice(0, 3).toUpperCase())
-        .join("-");
-      return {
-        label,
-        sku: skuSuffix ? `${product.sku}-${skuSuffix}` : product.sku,
-        price: product.price,
-        stock: product.stock,
-        status: product.status,
-      };
-    }),
-  );
+// Falls back to a single "One Size" row built from the product's own price/status only when
+// the API hasn't returned real per-variant rows yet (e.g. a legacy product saved before
+// variant-level inventory existed).
+function buildVariantRows(product: Product) {
+  if (product.variantStocks?.length) {
+    return product.variantStocks.map((v) => ({
+      label: [v.size, v.color].filter(Boolean).join(" / ") || "One Size",
+      sku: v.sku,
+      price: v.price,
+      stock: String(v.qty),
+      status: v.status,
+    }));
+  }
+
+  return [
+    {
+      label: "One Size",
+      sku: product.sku,
+      price: product.price,
+      stock: product.stock,
+      status: product.status,
+    },
+  ];
 }
 
 const MIN_IMAGE_SLOTS = 4;
@@ -85,10 +95,7 @@ export function VariantsTab({ product, onChanged }: { product: Product; onChange
                     <td className="py-3 text-[13px] font-semibold text-text-primary">{row.price}</td>
                     <td className="py-3 text-[13px] text-text-primary">{row.stock}</td>
                     <td className="py-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">
-                        <span className="h-[5px] w-[5px] rounded-full bg-success" />
-                        {row.status}
-                      </span>
+                      <StatusBadge label={row.status} tone={STATUS_TONE[row.status] ?? "neutral"} />
                     </td>
                   </tr>
                 ))}

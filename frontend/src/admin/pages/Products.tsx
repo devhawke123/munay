@@ -19,6 +19,12 @@ import { usePagination } from "../hooks/usePagination";
 import { productsApi, useProductsApi } from "../hooks/useProductsApi";
 import { apiProductToProduct, type Product } from "../types/product";
 
+const STOCK_STATUS_COLOR: Record<string, string> = {
+  IN_STOCK: "text-text-primary",
+  LOW_STOCK: "text-warning",
+  OUT_OF_STOCK: "text-danger",
+};
+
 function getStats(products: Product[]) {
   const activeCount = products.filter((p) => p.status === "Active").length;
 
@@ -248,11 +254,12 @@ export function Products() {
 
         <div className="overflow-x-auto">
         <div className="mt-[18px] min-w-[980px] rounded bg-surface-muted px-[22px] py-3">
-          <div className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_35px_80px_90px_35px] items-center gap-x-4 text-base text-text-primary/70">
+          <div className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_80px_35px_80px_90px_35px] items-center gap-x-4 text-base text-text-primary/70">
             <div>Product</div>
             <div>SKU</div>
             <div>Category</div>
             <div>Price</div>
+            <div>Stock</div>
             <div>Sold</div>
             <div>Revenue</div>
             <div>Status</div>
@@ -265,7 +272,7 @@ export function Products() {
             <div key={product.id} className="relative border-b border-brand-border last:border-0">
               <Link
                 to={`/admin/products/${product.id}`}
-                className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_35px_80px_90px_35px] items-center gap-x-4 py-4"
+                className="grid grid-cols-[minmax(170px,2fr)_140px_minmax(200px,1.4fr)_85px_80px_35px_80px_90px_35px] items-center gap-x-4 py-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-[60px] w-16 shrink-0 items-center justify-center overflow-hidden rounded-[11px] border border-brand/10 bg-brand-soft/30">
@@ -294,6 +301,11 @@ export function Products() {
 
                 <div className="whitespace-nowrap text-sm font-display font-bold text-text-primary">
                   {product.price}
+                </div>
+                <div
+                  className={`whitespace-nowrap text-sm font-display font-bold ${STOCK_STATUS_COLOR[product.stockStatus ?? ""] ?? "text-text-primary"}`}
+                >
+                  {product.stock}
                 </div>
                 <div className="text-[13px] text-text-primary">{product.sold}</div>
                 <div className="whitespace-nowrap text-[13px] font-display font-bold text-text-primary">
