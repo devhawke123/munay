@@ -77,14 +77,6 @@ export async function getOnlineWarehouse(_req: Request, res: Response, next: Nex
   }
 }
 
-export async function simulateOnlineOrder(_req: Request, res: Response, next: NextFunction) {
-  try {
-    res.json(await inventoryService.simulateOnlineOrder());
-  } catch (err) {
-    next(err);
-  }
-}
-
 export async function listOnlineDeductions(req: Request, res: Response, next: NextFunction) {
   try {
     const { limit } = req.query;

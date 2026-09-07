@@ -125,7 +125,7 @@ function AdjustStockModal({
 export function Inventory() {
   const { data: warehousesData, loading, error, refetch: refetchWarehouses } = useWarehousesApi("PHYSICAL");
   const { data: onlineWarehouse, refetch: refetchOnline } = useOnlineInventoryApi();
-  const { data: deductionsData, refetch: refetchDeductions } = useOnlineDeductionsApi(20);
+  const { data: deductionsData } = useOnlineDeductionsApi(20);
 
   const warehouses = warehousesData ?? [];
   const onlineItems = onlineWarehouse?.items ?? [];
@@ -142,7 +142,6 @@ export function Inventory() {
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
   const [showOnlineAdjustModal, setShowOnlineAdjustModal] = useState(false);
   const [onlineViewingItemId, setOnlineViewingItemId] = useState<string | null>(null);
-  const [simulating, setSimulating] = useState(false);
 
   // Computed before the early returns below (hooks can't follow a conditional return) — the
   // real `activeWarehouse` (used everywhere else) is recomputed once warehouses.length is known non-zero.
@@ -241,19 +240,6 @@ export function Inventory() {
     }
   }
 
-  async function handleSimulateOrder() {
-    setSimulating(true);
-    setAdjustError(null);
-    try {
-      await inventoryApi.simulateOnlineOrder();
-      await Promise.all([refetchOnline(), refetchDeductions()]);
-    } catch (err) {
-      setAdjustError(err instanceof Error ? err.message : "Failed to simulate order.");
-    } finally {
-      setSimulating(false);
-    }
-  }
-
   return (
     <AdminLayout>
       <div className="flex flex-col gap-[24px]">
@@ -336,9 +322,7 @@ export function Inventory() {
             items={onlineItems}
             deductions={deductions}
             onOpenAdjust={() => setShowOnlineAdjustModal(true)}
-            onSimulateOrder={handleSimulateOrder}
             onSelectItem={setOnlineViewingItemId}
-            simulating={simulating}
           />
         )}
 

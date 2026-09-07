@@ -12,6 +12,7 @@ import { productsRouter } from "./admin/products/products.routes.js";
 import { salesRouter } from "./admin/sales/sales.routes.js";
 import { errorHandler } from "./admin/shared/middleware/errorHandler.js";
 import { prisma } from "./db.js";
+import { checkoutRouter } from "./public/checkout/checkout.routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
@@ -43,6 +44,9 @@ app.use("/api/admin/orders", ordersRouter);
 app.use("/api/admin/inventory", inventoryRouter);
 app.use("/api/admin/events", eventsRouter);
 app.use("/api/admin/sales", salesRouter);
+
+// First public (unauthenticated-by-design) route group — everything else above is admin-only.
+app.use("/api/public/checkout", checkoutRouter);
 
 app.use(errorHandler);
 

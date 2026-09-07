@@ -107,6 +107,7 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
       color: v.color,
       size: v.size,
       price: `CHF ${Number(v.price).toFixed(2)}`,
+      priceValue: Number(v.price),
       qty: v.inventory.reduce((sum, row) => sum + row.quantityOnHand, 0),
       status: PRODUCT_STATUS_LABEL[v.status] ?? v.status,
     })),
@@ -165,6 +166,7 @@ export type Product = {
     color: string;
     size: string;
     price: string;
+    priceValue: number;
     qty: number;
     status: string;
   }[];

@@ -11,7 +11,6 @@ inventoryRouter.patch("/warehouses/:warehouseId/items", inventoryController.bulk
 inventoryRouter.patch("/warehouses/:warehouseId/items/:productId", inventoryController.adjustProductStock);
 
 inventoryRouter.get("/online", inventoryController.getOnlineWarehouse);
-inventoryRouter.post("/online/simulate-order", inventoryController.simulateOnlineOrder);
 inventoryRouter.get("/online/deductions", inventoryController.listOnlineDeductions);
 
 inventoryRouter.post("/import", inventoryController.importCsv);

@@ -1,0 +1,92 @@
+- generic [ref=f4e247]:
+  - paragraph [ref=f4e249]: Complimentary worldwide shipping and returns
+  - generic [ref=f4e251]:
+    - navigation [ref=f4e252]:
+      - link "Women" [ref=f4e253] [cursor=pointer]:
+        - /url: /category/women
+      - link "Men" [ref=f4e256] [cursor=pointer]:
+        - /url: /category/men
+      - link "Home" [ref=f4e259] [cursor=pointer]:
+        - /url: /category/home
+      - link "Our Story" [ref=f4e262] [cursor=pointer]:
+        - /url: /our-story
+      - link "Vicuna" [ref=f4e265] [cursor=pointer]:
+        - /url: /vicuna
+    - link [ref=f4e266] [cursor=pointer]:
+      - /url: /
+      - img "Munay" [ref=f4e267]
+    - generic [ref=f4e268]:
+      - navigation [ref=f4e269]:
+        - link "Fiber" [ref=f4e270] [cursor=pointer]:
+          - /url: /baby-alpaca-fiber
+        - link "Community" [ref=f4e273] [cursor=pointer]:
+          - /url: /the-women
+      - generic [ref=f4e276]:
+        - button "Account" [ref=f4e277]
+        - button "Wishlist" [ref=f4e281]
+        - link "Bag" [ref=f4e284] [cursor=pointer]:
+          - /url: /cart
+  - generic [ref=f4e288]:
+    - heading "Thank You!" [level=1] [ref=f4e289]
+    - paragraph [ref=f4e290]:
+      - text: Your order
+      - generic [ref=f4e291]: "#12350"
+      - text: has been placed. A confirmation has been noted for CHF 190.00.
+    - generic [ref=f4e292]:
+      - generic [ref=f4e293]:
+        - generic [ref=f4e294]: Scarf T'ikay (One Size / Fuchsia & Blue) × 1
+        - generic [ref=f4e295]: CHF 190.00
+      - generic [ref=f4e296]:
+        - generic [ref=f4e297]: Total
+        - generic [ref=f4e298]: CHF 190.00
+    - link "Continue shopping" [ref=f4e299] [cursor=pointer]:
+      - /url: /
+  - contentinfo [ref=f4e300]:
+    - generic [ref=f4e301]:
+      - generic [ref=f4e302]:
+        - generic [ref=f4e303]:
+          - img "Munay" [ref=f4e304]
+          - paragraph [ref=f4e305]: Crafting timeless luxury from the finest Peruvian fibers, honoring artisan traditions.
+        - generic [ref=f4e306]:
+          - heading "Shop" [level=4] [ref=f4e307]
+          - list [ref=f4e308]:
+            - listitem [ref=f4e309]:
+              - link "Women" [ref=f4e310] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f4e311]:
+              - link "Men" [ref=f4e312] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f4e313]:
+              - link "Home" [ref=f4e314] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f4e315]:
+              - link "Accessories" [ref=f4e316] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f4e317]:
+          - heading "Information" [level=4] [ref=f4e318]
+          - list [ref=f4e319]:
+            - listitem [ref=f4e320]:
+              - link "Shipping" [ref=f4e321] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f4e322]:
+              - link "Returns" [ref=f4e323] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f4e324]:
+              - link "Care Guide" [ref=f4e325] [cursor=pointer]:
+                - /url: /care-guide
+            - listitem [ref=f4e326]:
+              - link "Contact" [ref=f4e327] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f4e328]:
+          - heading "Newsletter" [level=4] [ref=f4e329]
+          - paragraph [ref=f4e330]: Subscribe to receive updates, access to exclusive deals, and more.
+          - generic [ref=f4e331]:
+            - textbox "Enter your email address" [ref=f4e332]
+            - button "Subscribe" [ref=f4e333]
+      - generic [ref=f4e334]:
+        - paragraph [ref=f4e335]: © 2026 MUNAY. All rights reserved.
+        - generic [ref=f4e336]:
+          - link "Terms" [ref=f4e337] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=f4e338] [cursor=pointer]:
+            - /url: /privacy-policy
