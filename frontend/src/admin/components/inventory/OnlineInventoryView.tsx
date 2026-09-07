@@ -59,18 +59,14 @@ type OnlineInventoryViewProps = {
   items: InventoryItem[];
   deductions: ApiLiveDeduction[];
   onOpenAdjust: () => void;
-  onSimulateOrder: () => void;
   onSelectItem: (itemId: string) => void;
-  simulating?: boolean;
 };
 
 export function OnlineInventoryView({
   items,
   deductions,
   onOpenAdjust,
-  onSimulateOrder,
   onSelectItem,
-  simulating,
 }: OnlineInventoryViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
@@ -125,15 +121,6 @@ export function OnlineInventoryView({
           >
             <Boxes size={13} />
             Adjust Stock
-          </button>
-          <button
-            type="button"
-            onClick={onSimulateOrder}
-            disabled={simulating}
-            className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-success px-4 text-xs font-semibold text-white disabled:opacity-60"
-          >
-            <ShoppingCart size={13} />
-            {simulating ? "Simulating…" : "Simulate website order"}
           </button>
         </div>
       </div>

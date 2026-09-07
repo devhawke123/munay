@@ -1,6 +1,7 @@
 import { type ComponentType, lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ProductsProvider } from "./admin/context/ProductsContext";
+import { CartProvider } from "./web/context/CartContext";
 
 // Every public page loads through this so web/theme.css (Tailwind config for
 // the storefront) is guaranteed to load first — add new public pages here
@@ -54,6 +55,13 @@ const ProductTypePage = lazyWebPage(() =>
 );
 const ProductPage = lazyWebPage(() =>
   import("./web/pages/ProductPage").then((m) => ({ default: m.ProductPage })),
+);
+const Cart = lazyWebPage(() => import("./web/pages/Cart").then((m) => ({ default: m.Cart })));
+const Checkout = lazyWebPage(() =>
+  import("./web/pages/Checkout").then((m) => ({ default: m.Checkout })),
+);
+const OrderConfirmation = lazyWebPage(() =>
+  import("./web/pages/OrderConfirmation").then((m) => ({ default: m.OrderConfirmation })),
 );
 
 const Dashboard = lazy(() =>
@@ -127,36 +135,41 @@ function AdminRoutes() {
 export function App() {
   return (
     <ProductsProvider>
-      <Suspense fallback={null}>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/our-story" element={<OurStory />} />
-          <Route path="/heritage" element={<Heritage />} />
-          <Route path="/care-guide" element={<CareGuide />} />
-          <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
-          <Route path="/pima-cotton" element={<PimaCotton />} />
-          <Route path="/vicuna" element={<VicunaFiber />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/faq" element={<Faq />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/order-management" element={<OrderManagement />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/stores" element={<Stores />} />
-          <Route path="/the-women" element={<TheWomen />} />
-          <Route path="/category/:categorySlug" element={<CategoryPage />} />
-          <Route
-            path="/category/:categorySlug/:subcategorySlug"
-            element={<ProductTypePage />}
-          />
-          <Route
-            path="/category/:categorySlug/:subcategorySlug/:productId"
-            element={<ProductPageRoute />}
-          />
-          <Route path="/admin/*" element={<AdminRoutes />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <CartProvider>
+        <Suspense fallback={null}>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/our-story" element={<OurStory />} />
+            <Route path="/heritage" element={<Heritage />} />
+            <Route path="/care-guide" element={<CareGuide />} />
+            <Route path="/baby-alpaca-fiber" element={<BabyAlpacaFiber />} />
+            <Route path="/pima-cotton" element={<PimaCotton />} />
+            <Route path="/vicuna" element={<VicunaFiber />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/order-management" element={<OrderManagement />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/stores" element={<Stores />} />
+            <Route path="/the-women" element={<TheWomen />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug"
+              element={<ProductTypePage />}
+            />
+            <Route
+              path="/category/:categorySlug/:subcategorySlug/:productId"
+              element={<ProductPageRoute />}
+            />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/admin/*" element={<AdminRoutes />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </CartProvider>
     </ProductsProvider>
   );
 }

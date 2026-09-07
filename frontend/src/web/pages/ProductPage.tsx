@@ -8,6 +8,7 @@ import { Footer } from "../components/Footer";
 import { Newsletter } from "../components/Newsletter";
 import { ProductCard } from "../components/ProductCard";
 import { PublicHeader } from "../components/PublicHeader";
+import { useCart } from "../context/CartContext";
 import {
   belongsToSubcategory,
   findCategoryBySlug,
@@ -69,10 +70,14 @@ export function ProductPage() {
     productId: string;
   }>();
   const { products, loading, error } = useProducts();
+  const { addItem } = useCart();
 
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const [quantity, setQuantity] = useState(1);
   const [openSection, setOpenSection] = useState<"description" | "care" | null>("description");
+  const [added, setAdded] = useState(false);
 
   if (loading) {
     return (
@@ -133,9 +138,36 @@ export function ProductPage() {
       ? product.images
       : [{ id: "placeholder", url: placeholderImage }];
   const related = getRelatedProducts(products, product);
-  // selectedColor starts undefined (declared before `product` is resolved, above the
-  // loading/error guards) — fall back to the first color until the user picks one.
-  const activeColor = selectedColor ?? product.colors?.[0];
+  // selectedColor/selectedSize start undefined (declared before `product` is resolved, above
+  // the loading/error guards) — fall back to the first option until the user picks one.
+  const activeColor = selectedColor ?? product.colors?.[0] ?? "Default";
+  const activeSize = selectedSize ?? product.sizes?.[0] ?? "One Size";
+  const activeVariant = product.variantStocks?.find(
+    (v) => v.color === activeColor && v.size === activeSize,
+  );
+  const availableQty = activeVariant?.qty ?? 0;
+  const outOfStock = availableQty === 0;
+  const clampedQuantity = Math.min(quantity, Math.max(availableQty, 1));
+
+  function handleAddToCart() {
+    if (!product || !activeVariant || outOfStock) return;
+    addItem(
+      {
+        variantId: activeVariant.id,
+        productId: product.id,
+        sku: activeVariant.sku,
+        name: product.name,
+        image: images[0]?.url,
+        color: activeVariant.color,
+        size: activeVariant.size,
+        unitPrice: activeVariant.priceValue,
+        availableQty: activeVariant.qty,
+      },
+      clampedQuantity,
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
 
   return (
     <div className="overflow-x-hidden bg-white">
@@ -232,6 +264,60 @@ export function ProductPage() {
               </div>
             )}
 
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="flex flex-col gap-2 short:gap-1.5 sm:gap-2.5">
+                <p className="font-futura text-pdp-eyebrow font-medium uppercase text-ink/60">
+                  Size — <span className="text-ink">{activeSize}</span>
+                </p>
+                <div className="flex flex-wrap gap-2.5 pl-0.5 sm:gap-3 sm:pl-1">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`font-futura flex h-9 min-w-9 items-center justify-center border px-3 text-pdp-eyebrow uppercase text-ink ${
+                        activeSize === size ? "border-ink" : "border-ink/20"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2.5 short:gap-1.5 sm:gap-3">
+              <p className="font-futura text-pdp-eyebrow font-medium uppercase text-ink/60">Qty</p>
+              <div className="flex items-center border border-ink/20">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={outOfStock}
+                  className="flex h-9 w-9 items-center justify-center text-ink disabled:opacity-40"
+                >
+                  −
+                </button>
+                <span className="flex h-9 w-9 items-center justify-center font-futura text-pdp-eyebrow text-ink">
+                  {outOfStock ? 0 : clampedQuantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(availableQty, q + 1))}
+                  disabled={outOfStock || quantity >= availableQty}
+                  className="flex h-9 w-9 items-center justify-center text-ink disabled:opacity-40"
+                >
+                  +
+                </button>
+              </div>
+              {outOfStock ? (
+                <span className="font-futura text-pdp-eyebrow uppercase text-ink/60">Out of stock</span>
+              ) : availableQty <= 5 ? (
+                <span className="font-futura text-pdp-eyebrow uppercase text-gold-deep">
+                  Only {availableQty} left
+                </span>
+              ) : null}
+            </div>
+
             <div className="flex min-w-0 flex-col gap-2.5 border-t border-ink/10 pt-3 short:gap-2 short:pt-2.5 sm:gap-3 sm:pt-4">
               <p className="font-futura text-pdp-heading font-black uppercase text-ink">
                 Product Details
@@ -284,9 +370,11 @@ export function ProductPage() {
 
             <button
               type="button"
-              className="font-futura mt-auto w-full bg-ink py-btn-y text-btn uppercase text-white"
+              onClick={handleAddToCart}
+              disabled={outOfStock}
+              className="font-futura mt-auto w-full bg-ink py-btn-y text-btn uppercase text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Add to Cart
+              {outOfStock ? "Out of Stock" : added ? "Added ✓" : "Add to Cart"}
             </button>
           </div>
         </div>

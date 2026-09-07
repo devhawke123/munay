@@ -2,6 +2,7 @@ import { ChevronDown, Heart, Menu, ShoppingBag, User, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import { useCart } from "../context/CartContext";
 
 const primaryLinks = [
   { label: "Women", href: "/category/women", hasDropdown: true },
@@ -18,6 +19,7 @@ const secondaryLinks = [
 
 export function PublicHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { itemCount } = useCart();
 
   return (
     <div className="relative">
@@ -75,12 +77,14 @@ export function PublicHeader() {
             <button aria-label="Wishlist" className="hidden text-ink lg:inline-flex">
               <Heart size={16} className="tall:size-[18px]" />
             </button>
-            <button aria-label="Bag" className="relative text-ink">
+            <Link to="/cart" aria-label="Bag" className="relative text-ink">
               <ShoppingBag size={16} className="tall:size-[18px]" />
-              <span className="absolute -right-2 -top-1 flex size-3.5 items-center justify-center rounded-full bg-gold text-[9px] text-white tall:size-4 tall:text-[10px]">
-                0
-              </span>
-            </button>
+              {itemCount > 0 && (
+                <span className="absolute -right-2 -top-1 flex size-3.5 items-center justify-center rounded-full bg-gold text-[9px] text-white tall:size-4 tall:text-[10px]">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>

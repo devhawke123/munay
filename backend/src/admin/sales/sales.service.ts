@@ -1,6 +1,7 @@
 import type { Prisma, SalesChannel } from "@prisma/client";
 import { parse } from "csv-parse/sync";
 import { prisma } from "../../db.js";
+import { deductStock } from "../inventory/inventory.service.js";
 
 const NON_CANCELLED = { status: { not: "CANCELLED" as const } };
 
@@ -233,16 +234,18 @@ export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSumm
     productCode?: string;
   }[] = [];
 
+  // variantId is only ever set for an exact ProductVariant.sku match — a style-level Product.sku
+  // match is ambiguous across colors/sizes, so we can't know which variant's stock to deduct.
   async function resolveProduct(tx: Prisma.TransactionClient, code: string | undefined) {
     if (!code) return null;
     // Product.sku is no longer unique (only Product.name and ProductVariant.sku are), so this is a findFirst.
     const byStyleSku = await tx.product.findFirst({ where: { sku: code }, select: { id: true, name: true } });
-    if (byStyleSku) return byStyleSku;
+    if (byStyleSku) return { ...byStyleSku, variantId: undefined as string | undefined };
     const variant = await tx.productVariant.findUnique({
       where: { sku: code },
-      select: { product: { select: { id: true, name: true } } },
+      select: { id: true, product: { select: { id: true, name: true } } },
     });
-    return variant?.product ?? null;
+    return variant ? { id: variant.product.id, name: variant.product.name, variantId: variant.id } : null;
   }
 
   rows.forEach((row, rowIndex) => {
@@ -287,6 +290,11 @@ export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSumm
 
   if (toCreate.length > 0) {
     await prisma.$transaction(async (tx) => {
+      // In-store sales deduct from the physical warehouse — never the online one. There's only
+      // one today, so this is unambiguous; a future multi-store setup would need storeLocation
+      // to map to a specific Warehouse instead.
+      const physicalWarehouse = await tx.warehouse.findFirst({ where: { type: "PHYSICAL" } });
+
       for (const row of toCreate) {
         const product = await resolveProduct(tx, row.productCode);
         await tx.order.create({
@@ -303,6 +311,8 @@ export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSumm
               create: [
                 {
                   productId: product?.id,
+                  variantId: product?.variantId,
+                  warehouseId: product?.variantId ? physicalWarehouse?.id : undefined,
                   sku: row.productCode ?? "",
                   productName: product?.name ?? "In-Store Sale",
                   unitPrice: row.amount,
@@ -313,6 +323,15 @@ export async function importInStoreSalesFromCsv(csv: string): Promise<ImportSumm
             },
           },
         });
+
+        if (product?.variantId && physicalWarehouse) {
+          await deductStock(tx, {
+            warehouseId: physicalWarehouse.id,
+            reference: row.txnId,
+            occurredAt: row.date,
+            lines: [{ variantId: product.variantId, quantity: 1 }],
+          });
+        }
       }
     });
   }

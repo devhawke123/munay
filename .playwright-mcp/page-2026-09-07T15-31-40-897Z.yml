@@ -1,0 +1,167 @@
+- generic [ref=f3e263]:
+  - generic [ref=f3e264]:
+    - paragraph [ref=f3e266]: Complimentary worldwide shipping and returns
+    - generic [ref=f3e268]:
+      - navigation [ref=f3e269]:
+        - link "Women" [ref=f3e270] [cursor=pointer]:
+          - /url: /category/women
+        - link "Men" [ref=f3e273] [cursor=pointer]:
+          - /url: /category/men
+        - link "Home" [ref=f3e276] [cursor=pointer]:
+          - /url: /category/home
+        - link "Our Story" [ref=f3e279] [cursor=pointer]:
+          - /url: /our-story
+        - link "Vicuna" [ref=f3e282] [cursor=pointer]:
+          - /url: /vicuna
+      - link [ref=f3e283] [cursor=pointer]:
+        - /url: /
+        - img "Munay" [ref=f3e284]
+      - generic [ref=f3e285]:
+        - navigation [ref=f3e286]:
+          - link "Fiber" [ref=f3e287] [cursor=pointer]:
+            - /url: /baby-alpaca-fiber
+          - link "Community" [ref=f3e290] [cursor=pointer]:
+            - /url: /the-women
+        - generic [ref=f3e293]:
+          - button "Account" [ref=f3e294]
+          - button "Wishlist" [ref=f3e298]
+          - link "Bag" [ref=f3e301] [cursor=pointer]:
+            - /url: /cart
+    - generic [ref=f3e305]:
+      - img "Scarf T'ikay" [ref=f3e308]
+      - generic [ref=f3e309]:
+        - generic [ref=f3e310]:
+          - paragraph [ref=f3e311]: 70% Baby Alpaca 30% Silk
+          - heading "Scarf T'ikay" [level=1] [ref=f3e312]
+          - paragraph [ref=f3e313]: CHF 190.00
+        - generic [ref=f3e314]:
+          - paragraph [ref=f3e315]: Color — Fuchsia & Blue
+          - button "Fuchsia & Blue" [ref=f3e317]
+        - generic [ref=f3e318]:
+          - paragraph [ref=f3e319]: Qty
+          - generic [ref=f3e320]:
+            - button "−" [ref=f3e321]
+            - generic [ref=f3e322]: "1"
+            - button "+" [ref=f3e323]
+        - generic [ref=f3e324]:
+          - paragraph [ref=f3e325]: Product Details
+          - generic [ref=f3e326]:
+            - generic [ref=f3e327]:
+              - paragraph [ref=f3e328]: Composition
+              - paragraph [ref=f3e329]: 70% Baby Alpaca 30% Silk
+            - generic [ref=f3e330]:
+              - paragraph [ref=f3e331]: Weight
+              - paragraph [ref=f3e332]: 100 g
+            - generic [ref=f3e333]:
+              - paragraph [ref=f3e334]: Dimensions
+              - paragraph [ref=f3e335]: 180 x 30 cm
+            - generic [ref=f3e336]:
+              - paragraph [ref=f3e337]: Origin
+              - paragraph [ref=f3e338]: Peru
+            - generic [ref=f3e339]:
+              - paragraph [ref=f3e340]: Fiber
+              - paragraph [ref=f3e341]: —
+        - generic [ref=f3e342]:
+          - generic [ref=f3e343]:
+            - button "Description +" [ref=f3e344]:
+              - generic [ref=f3e345]: Description
+              - generic [ref=f3e346]: +
+            - paragraph [ref=f3e347]: No description yet.
+          - button "Care Instructions +" [ref=f3e349]:
+            - generic [ref=f3e350]: Care Instructions
+            - generic [ref=f3e351]: +
+        - button "Add to Cart" [ref=f3e352]
+  - generic [ref=f3e353]:
+    - img "Alpacas in the Peruvian highlands" [ref=f3e355]
+    - generic [ref=f3e356]:
+      - paragraph [ref=f3e357]: The Fiber
+      - heading "The Alpaca" [level=2] [ref=f3e358]
+      - paragraph [ref=f3e359]: Soft, warm, and naturally breathable, alpaca is a noble fiber sourced from the highlands of Peru. Known for its exceptional softness and lightweight warmth, it offers the comfort of wool without the heaviness. Hypoallergenic and durable, alpaca drapes beautifully while maintaining its shape over time. A timeless material that blends tradition, craftsmanship, and everyday elegance.
+      - link "Explore Collection" [ref=f3e360] [cursor=pointer]:
+        - /url: /category/women
+        - text: Explore Collection
+        - generic [aria-hidden] [ref=f3e361]: →
+  - generic [ref=f3e362]:
+    - generic [ref=f3e363]:
+      - paragraph [ref=f3e364]: Curated Selection
+      - heading "You Might Also Like" [level=2] [ref=f3e365]
+    - generic [ref=f3e366]:
+      - link [ref=f3e367] [cursor=pointer]:
+        - /url: /category/women/shawls-scarfs/cmtillkli0014fdj456dc2ol7
+        - generic [ref=f3e368]:
+          - img "Sayri Shawl" [ref=f3e369]
+          - button "Add to wishlist" [ref=f3e370]
+        - generic [ref=f3e373]:
+          - paragraph [ref=f3e374]: Sayri Shawl
+          - paragraph [ref=f3e375]: CHF 160.00
+      - link [ref=f3e376] [cursor=pointer]:
+        - /url: /category/women/shawls-scarfs/cmtillkl8000yfdj4p07zen6k
+        - generic [ref=f3e377]:
+          - img "Tawa Scarf" [ref=f3e378]
+          - button "Add to wishlist" [ref=f3e379]
+        - generic [ref=f3e382]:
+          - paragraph [ref=f3e383]: Tawa Scarf
+          - paragraph [ref=f3e384]: CHF 190.00
+      - link [ref=f3e385] [cursor=pointer]:
+        - /url: /category/women/shawls-scarfs/cmtillkk2000pfdj4dtjpu20v
+        - generic [ref=f3e386]:
+          - img "Quri Scarf" [ref=f3e387]
+          - button "Add to wishlist" [ref=f3e388]
+        - generic [ref=f3e391]:
+          - paragraph [ref=f3e392]: Quri Scarf
+          - paragraph [ref=f3e393]: CHF 170.00
+  - generic [ref=f3e395]:
+    - heading "Subscribe to our Newsletter" [level=2] [ref=f3e396]
+    - paragraph [ref=f3e397]: Receive new collections and stories from the Peruvian highlands.
+    - generic [ref=f3e398]:
+      - textbox "Enter your email" [ref=f3e399]
+      - button "Subscribe" [ref=f3e400]
+  - contentinfo [ref=f3e401]:
+    - generic [ref=f3e402]:
+      - generic [ref=f3e403]:
+        - generic [ref=f3e404]:
+          - img "Munay" [ref=f3e405]
+          - paragraph [ref=f3e406]: Crafting timeless luxury from the finest Peruvian fibers, honoring artisan traditions.
+        - generic [ref=f3e407]:
+          - heading "Shop" [level=4] [ref=f3e408]
+          - list [ref=f3e409]:
+            - listitem [ref=f3e410]:
+              - link "Women" [ref=f3e411] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f3e412]:
+              - link "Men" [ref=f3e413] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f3e414]:
+              - link "Home" [ref=f3e415] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f3e416]:
+              - link "Accessories" [ref=f3e417] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f3e418]:
+          - heading "Information" [level=4] [ref=f3e419]
+          - list [ref=f3e420]:
+            - listitem [ref=f3e421]:
+              - link "Shipping" [ref=f3e422] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f3e423]:
+              - link "Returns" [ref=f3e424] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f3e425]:
+              - link "Care Guide" [ref=f3e426] [cursor=pointer]:
+                - /url: /care-guide
+            - listitem [ref=f3e427]:
+              - link "Contact" [ref=f3e428] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f3e429]:
+          - heading "Newsletter" [level=4] [ref=f3e430]
+          - paragraph [ref=f3e431]: Subscribe to receive updates, access to exclusive deals, and more.
+          - generic [ref=f3e432]:
+            - textbox "Enter your email address" [ref=f3e433]
+            - button "Subscribe" [ref=f3e434]
+      - generic [ref=f3e435]:
+        - paragraph [ref=f3e436]: © 2026 MUNAY. All rights reserved.
+        - generic [ref=f3e437]:
+          - link "Terms" [ref=f3e438] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=f3e439] [cursor=pointer]:
+            - /url: /privacy-policy

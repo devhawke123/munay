@@ -177,47 +177,50 @@ export async function bulkAdjustStock(warehouseId: string, updates: { productId:
 }
 
 export async function getOrCreateOnlineWarehouse() {
-  const existing = await prisma.warehouse.findFirst({ where: { type: "ONLINE" } });
+  const existing = await prisma.warehouse.findFirst({ where: { type: "ONLINE" }, orderBy: { id: "asc" } });
   if (existing) return existing;
   return prisma.warehouse.create({ data: { name: "Online Fulfilment Center", type: "ONLINE" } });
 }
 
-export async function simulateOnlineOrder() {
-  const online = await getOrCreateOnlineWarehouse();
-  const inStock = await prisma.inventory.findMany({
-    where: { warehouseId: online.id, quantityOnHand: { gt: 0 } },
-    include: { variant: { include: { product: true } } },
-  });
-  if (inStock.length === 0) throw new HttpError(409, "No online stock available to simulate an order against");
+interface DeductStockLine {
+  variantId: string;
+  quantity: number;
+}
 
-  const row = inStock[Math.floor(Math.random() * inStock.length)];
-  const amount = Math.min(row.quantityOnHand, 1 + Math.floor(Math.random() * 3));
-  const orderNumber = `#MU-${4800 + Math.floor(Math.random() * 200)}`;
+// Single source of truth for "an order was placed, take the stock": used by real storefront
+// checkout and by the in-store CSV import. Clamps at 0 (never negative) and derives
+// StockMovement's delta from the actual before/after quantities, not the requested amount —
+// same principle as adjustProductStock above.
+export async function deductStock(
+  tx: Prisma.TransactionClient,
+  params: { warehouseId: string; reference: string; occurredAt?: Date; lines: DeductStockLine[] },
+) {
+  const { warehouseId, reference, occurredAt, lines } = params;
 
-  return prisma.$transaction(async (tx) => {
-    await tx.inventory.update({
-      where: { variantId_warehouseId: { variantId: row.variantId, warehouseId: online.id } },
-      data: { quantityOnHand: { decrement: amount } },
+  for (const { variantId, quantity } of lines) {
+    const existing = await tx.inventory.findUnique({
+      where: { variantId_warehouseId: { variantId, warehouseId } },
     });
-    const movement = await tx.stockMovement.create({
+    const previous = existing?.quantityOnHand ?? 0;
+    const newQty = Math.max(0, previous - quantity);
+    if (newQty === previous) continue;
+
+    await tx.inventory.upsert({
+      where: { variantId_warehouseId: { variantId, warehouseId } },
+      create: { variantId, warehouseId, quantityOnHand: newQty },
+      update: { quantityOnHand: newQty },
+    });
+    await tx.stockMovement.create({
       data: {
-        variantId: row.variantId,
-        warehouseId: online.id,
-        quantityDelta: -amount,
+        variantId,
+        warehouseId,
+        quantityDelta: newQty - previous,
         reason: "ORDER_DEDUCTION",
-        reference: orderNumber,
+        reference,
+        occurredAt,
       },
     });
-
-    return {
-      id: movement.id,
-      product: row.variant.product.name,
-      variantLabel: `${row.variant.color} · ${row.variant.size}`,
-      orderNumber,
-      amount: -amount,
-      occurredAt: movement.occurredAt,
-    };
-  });
+  }
 }
 
 export async function listOnlineDeductions(limit = 20) {

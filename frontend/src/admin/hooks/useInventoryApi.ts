@@ -74,7 +74,6 @@ export const inventoryApi = {
     api.patch<ApiInventoryItem>(`/inventory/warehouses/${warehouseId}/items/${productId}`, { totalStock }),
   bulkAdjustStock: (warehouseId: string, updates: { productId: string; totalStock: number }[]) =>
     api.patch<ApiInventoryItem[]>(`/inventory/warehouses/${warehouseId}/items`, { updates }),
-  simulateOnlineOrder: () => api.post<ApiLiveDeduction>("/inventory/online/simulate-order"),
   createWarehouse: (data: { name: string; type?: ApiWarehouseType; location?: string; address?: string }) =>
     api.post<ApiWarehouse>("/inventory/warehouses", data),
   importCsv: (data: { warehouseId: string; csv: string; fileName?: string; importedBy?: string }) =>
