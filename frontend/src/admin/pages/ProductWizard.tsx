@@ -9,7 +9,7 @@ import { MediaStep } from "../components/products/steps/MediaStep";
 import { PricingStep } from "../components/products/steps/PricingStep";
 import { VariantsStep } from "../components/products/steps/VariantsStep";
 import { ReviewStep } from "../components/products/steps/ReviewStep";
-import { api } from "../lib/api";
+import { API_BASE_URL, api } from "../lib/api";
 import { productsApi, useProductApi, type ApiMainCategory, type ProductVariantStockInput } from "../hooks/useProductsApi";
 import { useWarehousesApi } from "../hooks/useInventoryApi";
 import { apiProductToProduct, emptyProductDraft, productToDraft, variantKey, type ProductDraft } from "../types/product";
@@ -106,6 +106,15 @@ export function ProductWizard() {
       );
       const warehouseId = warehouses?.[0]?.id;
 
+      // ProductImage.url is always a render-ready absolute URL on the frontend; the API stores
+      // (and expects) the server-relative storage key, so strip the origin back off here.
+      const images = draft.images.map((image, index) => ({
+        path: image.url.startsWith(API_BASE_URL) ? image.url.slice(API_BASE_URL.length) : image.url,
+        isMain: index === 0,
+        sortOrder: index,
+        color: image.color,
+      }));
+
       const input = {
         name: draft.name,
         description: draft.description || undefined,
@@ -122,6 +131,7 @@ export function ProductWizard() {
         fiber: draft.fiber || undefined,
         careInstructions: draft.careInstructions || undefined,
         tags: draft.tags,
+        images: images.length > 0 ? images : undefined,
         stock: stock.length > 0 ? stock : undefined,
         warehouseId: stock.length > 0 ? warehouseId : undefined,
       };

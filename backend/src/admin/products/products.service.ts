@@ -100,6 +100,7 @@ interface ProductImageInput {
   path: string;
   isMain?: boolean;
   sortOrder?: number;
+  color?: string;
 }
 
 interface ProductVariantStockInput {
@@ -143,6 +144,7 @@ async function replaceVariantsAndImages(tx: Prisma.TransactionClient, productId:
         path: image.path,
         isMain: image.isMain ?? index === 0,
         sortOrder: image.sortOrder ?? index,
+        color: image.color,
       })),
     });
   }

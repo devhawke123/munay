@@ -1,6 +1,16 @@
+import { API_BASE_URL } from "../lib/api";
+
+// ProductImage.path is a server-relative storage key (e.g. "/uploads/products/x.jpg"), not a
+// full URL — resolve it against the API origin, unless it's already absolute.
+function resolveImageUrl(path: string): string {
+  return /^https?:\/\//.test(path) ? path : `${API_BASE_URL}${path}`;
+}
+
 export type ProductImage = {
   id: string;
   url: string;
+  // Which color variant this photo shows — undefined means it applies to every color.
+  color?: string;
 };
 
 export type ProductDraft = {
@@ -91,7 +101,11 @@ export function apiProductToProduct(api: import("../hooks/useProductsApi").ApiPr
     revenue: `CHF ${Math.round(api.revenue).toLocaleString("en-US")}`,
     status: PRODUCT_STATUS_LABEL[api.status] ?? api.status,
     description: api.description ?? undefined,
-    images: api.images.map((img) => ({ id: img.id, url: img.path })),
+    images: api.images.map((img) => ({
+      id: img.id,
+      url: resolveImageUrl(img.path),
+      color: img.color ?? undefined,
+    })),
     composition: api.composition ?? undefined,
     weight: api.weight ?? undefined,
     dimensions: api.dimensions ?? undefined,

@@ -1,6 +1,7 @@
 import { Upload, X } from "lucide-react";
-import { useRef } from "react";
-import type { ProductDraft, ProductImage } from "../../../types/product";
+import { useRef, useState } from "react";
+import { API_BASE_URL, api } from "../../../lib/api";
+import type { ProductDraft } from "../../../types/product";
 
 type MediaStepProps = {
   draft: ProductDraft;
@@ -9,13 +10,25 @@ type MediaStepProps = {
 
 export function MediaStep({ draft, onChange }: MediaStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleFiles(files: FileList | null) {
+  async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
-    const newImages: ProductImage[] = Array.from(files)
-      .slice(0, Math.max(0, 8 - draft.images.length))
-      .map((file) => ({ id: crypto.randomUUID(), url: URL.createObjectURL(file) }));
-    onChange({ images: [...draft.images, ...newImages] });
+    const toUpload = Array.from(files).slice(0, Math.max(0, 8 - draft.images.length));
+    if (toUpload.length === 0) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const { paths } = await api.uploadFiles("/uploads", toUpload);
+      const newImages = paths.map((path) => ({ id: crypto.randomUUID(), url: `${API_BASE_URL}${path}` }));
+      onChange({ images: [...draft.images, ...newImages] });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload images.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function removeImage(id: string) {
@@ -37,12 +50,15 @@ export function MediaStep({ draft, onChange }: MediaStepProps) {
         <div className="flex h-10 w-10 items-center justify-center rounded-panel bg-brand-soft">
           <Upload size={18} className="text-brand" />
         </div>
-        <p className="text-sm font-semibold text-text-primary">Drop images here</p>
+        <p className="text-sm font-semibold text-text-primary">
+          {uploading ? "Uploading…" : "Drop images here"}
+        </p>
         <p className="text-xs text-text-muted">PNG, JPG, WEBP up to 10MB each. Max 8 images.</p>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="mt-1 rounded-[10px] border border-brand-border bg-white px-4 py-1.5 text-xs font-medium text-text-primary"
+          disabled={uploading}
+          className="mt-1 rounded-[10px] border border-brand-border bg-white px-4 py-1.5 text-xs font-medium text-text-primary disabled:opacity-60"
         >
           Browse Files
         </button>
@@ -55,6 +71,8 @@ export function MediaStep({ draft, onChange }: MediaStepProps) {
           onChange={(e) => handleFiles(e.target.files)}
         />
       </div>
+
+      {error && <p className="text-sm font-medium text-danger">{error}</p>}
 
       {draft.images.length > 0 && (
         <div className="grid grid-cols-4 gap-3">

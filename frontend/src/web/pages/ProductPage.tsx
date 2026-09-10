@@ -133,14 +133,19 @@ export function ProductPage() {
     );
   }
 
-  const images =
-    product.images && product.images.length > 0
-      ? product.images
-      : [{ id: "placeholder", url: placeholderImage }];
   const related = getRelatedProducts(products, product);
   // selectedColor/selectedSize start undefined (declared before `product` is resolved, above
   // the loading/error guards) — fall back to the first option until the user picks one.
   const activeColor = selectedColor ?? product.colors?.[0] ?? "Default";
+  // Prefer photos tagged for the selected color; fall back to the full gallery when none are
+  // tagged (or none match) rather than showing nothing.
+  const colorImages = product.images?.filter((img) => img.color === activeColor) ?? [];
+  const images =
+    colorImages.length > 0
+      ? colorImages
+      : product.images && product.images.length > 0
+        ? product.images
+        : [{ id: "placeholder", url: placeholderImage }];
   const activeSize = selectedSize ?? product.sizes?.[0] ?? "One Size";
   const activeVariant = product.variantStocks?.find(
     (v) => v.color === activeColor && v.size === activeSize,
@@ -249,7 +254,10 @@ export function ProductPage() {
                       key={color}
                       type="button"
                       aria-label={color}
-                      onClick={() => setSelectedColor(color)}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        setActiveImage(0);
+                      }}
                       className={`size-swatch rounded-full ${
                         activeColor === color ? "ring-2 ring-ink ring-offset-2" : ""
                       }`}

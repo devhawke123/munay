@@ -11,6 +11,7 @@ export interface ApiProductImage {
   path: string;
   isMain: boolean;
   sortOrder: number;
+  color: string | null;
 }
 
 export interface ApiProductVariantInventory {
@@ -105,6 +106,7 @@ export interface ProductImageInput {
   path: string;
   isMain?: boolean;
   sortOrder?: number;
+  color?: string;
 }
 
 export interface ProductVariantStockInput {
