@@ -11,6 +11,7 @@ import { ordersRouter } from "./admin/orders/orders.routes.js";
 import { productsRouter } from "./admin/products/products.routes.js";
 import { salesRouter } from "./admin/sales/sales.routes.js";
 import { errorHandler } from "./admin/shared/middleware/errorHandler.js";
+import { uploadsRouter } from "./admin/uploads/upload.routes.js";
 import { prisma } from "./db.js";
 import { checkoutRouter } from "./public/checkout/checkout.routes.js";
 
@@ -27,6 +28,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 app.get("/api/health", async (_req, res) => {
   try {
@@ -44,6 +46,7 @@ app.use("/api/admin/orders", ordersRouter);
 app.use("/api/admin/inventory", inventoryRouter);
 app.use("/api/admin/events", eventsRouter);
 app.use("/api/admin/sales", salesRouter);
+app.use("/api/admin/uploads", uploadsRouter);
 
 // First public (unauthenticated-by-design) route group — everything else above is admin-only.
 app.use("/api/public/checkout", checkoutRouter);

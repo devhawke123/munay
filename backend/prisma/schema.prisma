@@ -128,6 +128,10 @@ model ProductImage {
   // Marks the image shown as the product's primary thumbnail/preview
   isMain    Boolean  @default(false)
   sortOrder Int      @default(0)
+  // Which color variant this photo shows, e.g. "Black" — null means it applies to every color
+  // (or the product has no color variants). Lets the storefront swap the gallery when a shopper
+  // picks a color; size is deliberately not modeled here since photos don't vary by size.
+  color     String?
   createdAt DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id])
