@@ -9,6 +9,7 @@ coverage
 .vite
 backend/prisma/generated
 backend/uploads
+frontend/src/assets/productImages
 .worktrees
 docs/
 *.xlsx
