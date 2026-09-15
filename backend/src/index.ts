@@ -8,5 +8,4 @@ if (!process.env.VERCEL) {
     console.log(`Munay API listening on http://localhost:${port}`);
   });
 }
-
 export default app;
