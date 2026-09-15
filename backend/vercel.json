@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "prisma generate",
-  "installCommand": "npm install",
+  "buildCommand": "npx prisma generate",
+  "installCommand": "npm install --include=dev",
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "functions": {
     "api/index.ts": {
