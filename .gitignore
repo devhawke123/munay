@@ -10,6 +10,7 @@ coverage
 backend/prisma/generated
 backend/uploads
 frontend/src/assets/productImages
+frontend/assets/
 .worktrees
 docs/
 *.xlsx
