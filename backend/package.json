@@ -8,8 +8,6 @@
     "build": "npx prisma generate",
     "build:tsc": "tsc",
     "start": "node dist/index.js",
-    "postinstall": "node node_modules/prisma/build/index.js generate",
-    "vercel-build": "node node_modules/prisma/build/index.js generate",
     "db:generate": "npx prisma generate",
     "db:migrate": "npx prisma migrate dev",
     "db:studio": "npx prisma studio",
